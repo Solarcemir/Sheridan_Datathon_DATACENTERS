@@ -1,36 +1,18 @@
 # Before the Breach · IBM track, Sheridan Datathon 2026
 
-Predict which 2026 CVEs CISA will add to its Known Exploited Vulnerabilities list, and explain why.
+Team repo. Goal: rank the 72,670 CVEs in `scoreboard_2026.csv` so the top 500 contains as many CVEs as possible that CISA adds to its Known Exploited Vulnerabilities list by Nov 4, 2026, and explain why.
 
-**Start here: [`context_Luis.md`](context_Luis.md)**. It holds the full handoff: method, every experiment with numbers, conclusions, and what to do next. Every number in it points to a file in this repo (see its §13 Evidence index).
+**One branch (`main`). Each teammate works only inside a folder with their name.** Rules for people and their AI assistants: [`CONTRIBUTING.md`](CONTRIBUTING.md).
 
-Team hub (rules, data map, shared notes, Top 500 table): https://claude.ai/artifact/Np2SfMguMKySJnBfvNfnjR
-
-## What's in each folder
-
-| Folder | What it holds | Who writes it |
+| Folder | Owner | Start with |
 |---|---|---|
-| `context_Luis.md` | Handoff document: findings, A/B backtests, conclusions, next steps | — |
-| `analysis/` | All code, in run order (see below) | — |
-| `reports/` | **Evidence for the findings**: result tables (`*.csv`) and charts (`figures/`) | `train_baseline.py`, `sibling_boost.py`, `granite_*.py` |
-| `submissions/` | Candidate `top500` files for 2026 (one column, `cve_id`) | `train_baseline.py`, `granite_instruct.py` |
-| `derived/` | Feature dictionaries, full 2026 rankings with reasons, row-by-row backtest rankings, Granite Instruct answers | `build_features.py`, `train_baseline.py`, `sibling_boost.py`, `granite_*.py` |
-| `site/` | Source of the team hub page | — |
+| [`luis/`](luis/) | Luis | [`luis/context_Luis.md`](luis/context_Luis.md) |
+| `chen/` | Chen (GPU box: Granite 30B/8B, LoRA, purged CV) | `chen/context_Chen.md` (to be pushed) |
+| `<name>/` | other teammates | `<name>/context_<Name>.md` |
 
-Big or regenerable files are not committed (see `.gitignore`): the raw data, the feature tables, and the Granite embedding matrix. Rebuild them with the commands below.
+- **Team hub** (Top 500 table, rules, data map, shared notes): https://claude.ai/artifact/Np2SfMguMKySJnBfvNfnjR
+- **Current fallback submission:** `luis/submissions/top500_v2.csv`, until the merged pipeline in `luis/context_Luis.md` §14 produces the final `top500.csv`.
 
-## Reproduce
+## Data
 
-Unzip the hackathon data so the CSVs are in `IBM-20261107T174321Z-1-001/IBM/data/data/`, then from the repo root:
-
-```
-python -E -P analysis/backtest_2025.py        # 2025 backtest (52 positives)
-python -E -P analysis/build_features.py       # 2024/2025 replicas + 2026 features (leak-free)
-python -E -P analysis/granite_features.py     # IBM Granite Embedding features + clusters (GPU recommended)
-python -E -P analysis/train_baseline.py       # baselines and LightGBM, A/B evaluation, charts, top500_v1
-python -E -P analysis/sibling_boost.py        # sibling boost + per-assigner cap tests, backtest rankings
-python -E -P analysis/granite_instruct.py     # IBM Granite Instruct re-ranking + per-CVE reasons, top500_v2
-python -E -P analysis/export_top500_json.py   # data file for the hub's Top 500 table
-```
-
-Requirements and known environment issues are in `context_Luis.md` §12.
+Everyone already has the IBM data. Keep it unzipped at the repo root in `IBM-20261107T174321Z-1-001/IBM/data/data/` (git ignores it) so everyone's scripts find it at the same relative path. **Never commit it.**

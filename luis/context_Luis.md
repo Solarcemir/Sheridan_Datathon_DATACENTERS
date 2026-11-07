@@ -1,6 +1,6 @@
 # Project context · IBM "Before the Breach" (Sheridan Datathon 2026)
 
-Handoff document. Last updated Nov 7, 2026, ~5:15 pm. Written so a teammate with a stronger machine can pick up the work without re-deriving anything. Every number below comes from a script in `analysis/` and is backed by a file listed in **§13 Evidence index**.
+Luis's handoff document (folder `luis/`; paths below are relative to it unless they start with `luis/`). Last updated Nov 7, 2026, ~5:15 pm. Written so a teammate with a stronger machine can pick up the work without re-deriving anything. Every number below comes from a script in `luis/analysis/` and is backed by a file listed in **§13 Evidence index**.
 
 - **Team hub (web):** https://claude.ai/artifact/Np2SfMguMKySJnBfvNfnjR (ranked Top 500 table with Granite reasons, rules, CSV/column explorer, data map, shared notes; code in `site/breach-hub.html`)
 - **Best ranking right now:** `submissions/top500_v2.csv`, with explanations in `reports/top500_v2_explained.csv` (see §9)
@@ -38,7 +38,7 @@ Handoff document. Last updated Nov 7, 2026, ~5:15 pm. Written so a teammate with
 
 "CVSS found 7" means: sort all 72,670 by CVSS, take the top 500, and 7 of those reached KEV. Nobody knows which 7. It's a bar to beat, not a hint.
 
-## 2. The data (`IBM-20261107T174321Z-1-001/IBM/data/data/`, ~850 MB, not in git)
+## 2. The data (repo root: `IBM-20261107T174321Z-1-001/IBM/data/data/`, ~850 MB, never committed)
 
 | File | Rows | Grain | Use |
 |---|---|---|---|
@@ -355,17 +355,17 @@ Full rankings: `derived/scored_2026_v0.csv`, `derived/scored_2026_v1.csv` (rank,
 - Set `OMP_WAIT_POLICY=PASSIVE` when LightGBM and the GPU share a process (scripts set it).
 - On a fresh Linux lab PC: `pip install lightgbm sentence-transformers transformers torch pandas scikit-learn matplotlib` is enough; vLLM is optional.
 
-**Run order (from the repo root; raw data unzipped into `IBM-20261107T174321Z-1-001/IBM/data/data/`):**
+**Run order (from the repo root; the IBM data stays unzipped at the repo root in `IBM-20261107T174321Z-1-001/IBM/data/data/` and is never committed):**
 ```
-python -E -P analysis/backtest_2025.py        # 2025 backtest, ~1 min        -> derived/backtest_cohorts_2025.csv
-python -E -P analysis/build_features.py       # replicas + 2026, ~2 min      -> derived/features_*.csv, leak_only_*.csv
-python -E -P analysis/granite_features.py     # Granite Embedding, ~3 min GPU -> derived/granite/*
-python -E -P analysis/train_baseline.py       # models A/B, charts, ~3 min   -> reports/*, submissions/top500_v1.csv
-python -E -P analysis/sibling_boost.py        # sibling boost + backtest rankings, ~2 min
-python -E -P analysis/granite_instruct.py     # Granite Instruct, ~1 h on the laptop -> submissions/top500_v2.csv
-python -E -P analysis/export_top500_json.py   # site/top500.json for the hub's Top 500 table
+python -E -P luis/analysis/backtest_2025.py        # 2025 backtest, ~1 min        -> derived/backtest_cohorts_2025.csv
+python -E -P luis/analysis/build_features.py       # replicas + 2026, ~2 min      -> derived/features_*.csv, leak_only_*.csv
+python -E -P luis/analysis/granite_features.py     # Granite Embedding, ~3 min GPU -> derived/granite/*
+python -E -P luis/analysis/train_baseline.py       # models A/B, charts, ~3 min   -> reports/*, submissions/top500_v1.csv
+python -E -P luis/analysis/sibling_boost.py        # sibling boost + backtest rankings, ~2 min
+python -E -P luis/analysis/granite_instruct.py     # Granite Instruct, ~1 h on the laptop -> submissions/top500_v2.csv
+python -E -P luis/analysis/export_top500_json.py   # site/top500.json for the hub's Top 500 table
 ```
-`python -E -P analysis/granite_instruct.py --test` scores 96 candidates with all 5 questions and prints examples.
+`python -E -P luis/analysis/granite_instruct.py --test` scores 96 candidates with all 5 questions and prints examples.
 
 ## 13. Evidence index (where each claim comes from)
 
@@ -385,11 +385,11 @@ python -E -P analysis/export_top500_json.py   # site/top500.json for the hub's T
 | Explained 2026 top 500 (product, category, Granite probabilities, reason) | `reports/top500_v2_explained.csv`, `derived/granite/reasons_2026.csv`, `site/top500.json` (hub table) |
 | 2026 rankings (§9) | `submissions/*.csv`, `derived/scored_2026_v*.csv` |
 | Density-matched numbers, `txt_in_wild` ablation, vendor vs product matching (§14) | `analysis/density_check.py`, `reports/density_check.txt` |
-| Chen's GPU-box workstream (CV, LR + LoRA, Granite 30B/8B, embeddings r2) | `CHEN_CONTEXTcontext_gpu_box.md` |
+| Chen's GPU-box workstream (CV, LR + LoRA, Granite 30B/8B, embeddings r2) | `received/CHEN_context_gpu_box_2026-11-07.md` |
 
 Not in git (too big or regenerated in minutes): raw data, `derived/features_*.csv`, `derived/leak_only_*.csv`, `derived/backtest_cohorts_2025.csv`, `derived/granite/emb_granite30m.npy`, `derived/granite/granite_features_*.csv`.
 
-## 14. Merge with Chen's GPU-box workstream (`CHEN_CONTEXTcontext_gpu_box.md`)
+## 14. Merge with Chen's GPU-box workstream (`received/CHEN_context_gpu_box_2026-11-07.md`)
 
 Chen ran a parallel pipeline on a 4× H100 box: purged 5-fold time-blocked CV with bootstrap CIs, a strongly regularized logistic regression with rich metadata features, granite-embedding-english-r2, Granite 4.2 30B/8B via vLLM (zero-shot, many-shot, LoRA, structured extraction), and a memorization probe.
 
@@ -413,6 +413,7 @@ Chen, judge-aligned labels (75 positives, top 517 of 75,148): exploit+EPSS 20 ·
 
 ### 14.3 What each side brings to the final pipeline
 - **From us → add to Chen's CV:** `text_kev_lr` / `text_kev_sim` (TF-IDF KEV text model, AUC 0.91; his embedding features don't replace exact product names), the per-assigner-month cap, `n_adjacent_ids` and sibling features, LightGBM settings (`scale_pos_weight=25`, 5+ seeds), `days_to_cutoff` and `age_days` (his §10.3–10.4 to-dos), the leak-inflation demo, the Granite 2B yes/no finding (niche → 0/67), and the explained top 500 / hub table.
+- **Ready-made for Chen's CV:** `derived/for_chen/luis_features_hist_2024_2025.parquet` (87,908 rows, Jan 2024–Dec 2025, same cohort rule as his `historical_2024_2025.parquet`, which has 87,907) and `derived/for_chen/luis_features_scoreboard_2026.parquet` (72,670). Keyed by `cve_id`, with all our leak-free features, `y_nov4` (76 positives; 75 through Sep 2025) and `luis_y_dec31_of_year`. Built by `python -E -P luis/analysis/build_features.py --all-months`.
 - **From Chen → already beyond our §11:** Granite 30B structured extraction on all CVEs (§11.2, §11.6), purged CV with bootstrap CIs (§11.3), granite-embedding-english-r2 (§11.5), LoRA 8B, memorization probe (0/122), strong negative filters (unknown CWE 0/3,551; CVSS 4 E:P 0/2,669; WordPress CNAs), out-of-band advisory 5.5×, EOL text 13×, and the missed-positives analysis (22/52 invisible at publish time: 0% exploit code).
 
 ### 14.4 Proposed split of work (Nov 7–8)
