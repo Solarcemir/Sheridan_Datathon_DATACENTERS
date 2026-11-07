@@ -1,0 +1,11 @@
+model,positives found,of which had NO exploit code,no-code positives in test
+"Exploit code, then EPSS",19,0,44
+"Static prior LR (no signals, 2022+ cohorts)",14,7,44
+Static prior LightGBM,17,7,44
+v4: XGBoost + LR  [reference],26,5,44
+v4 + static LR,24,9,44
+v4 + static LightGBM,25,8,44
+v4 + both static,24,10,44
+XGBoost + static LR,22,8,44
+LR + static LR,18,7,44
+Exploit code + static LR (no ML on signals),23,2,44
