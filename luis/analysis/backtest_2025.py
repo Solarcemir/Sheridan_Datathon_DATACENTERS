@@ -16,7 +16,7 @@ import numpy as np
 import pandas as pd
 
 DATA = sys.argv[1] if len(sys.argv) > 1 else os.path.join(
-    os.path.dirname(__file__), "..", "IBM-20261107T174321Z-1-001", "IBM", "data", "data")
+    os.path.dirname(__file__), "..", "..", "IBM-20261107T174321Z-1-001", "IBM", "data", "data")
 OUT = os.path.join(os.path.dirname(__file__), "..", "derived")
 os.makedirs(OUT, exist_ok=True)
 

@@ -28,7 +28,7 @@ from sklearn.linear_model import LogisticRegression
 
 T0 = time.time()
 ROOT = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
-DATA = sys.argv[1] if len(sys.argv) > 1 else os.path.join(ROOT, "IBM-20261107T174321Z-1-001", "IBM", "data", "data")
+DATA = sys.argv[1] if len(sys.argv) > 1 else os.path.join(ROOT, "..", "IBM-20261107T174321Z-1-001", "IBM", "data", "data")
 OUT = os.path.join(ROOT, "derived")
 os.makedirs(OUT, exist_ok=True)
 FLAGS = ["exploitdb", "metasploit", "nuclei", "poc_github"]

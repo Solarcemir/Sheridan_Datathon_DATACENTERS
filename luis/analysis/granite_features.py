@@ -33,7 +33,7 @@ from sklearn.linear_model import LogisticRegression  # noqa: E402
 T0 = time.time()
 MODEL = "ibm-granite/granite-embedding-30m-english"
 ROOT = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
-DATA = sys.argv[1] if len(sys.argv) > 1 else os.path.join(ROOT, "IBM-20261107T174321Z-1-001", "IBM", "data", "data")
+DATA = sys.argv[1] if len(sys.argv) > 1 else os.path.join(ROOT, "..", "IBM-20261107T174321Z-1-001", "IBM", "data", "data")
 DER, OUT, REP = os.path.join(ROOT, "derived"), os.path.join(ROOT, "derived", "granite"), os.path.join(ROOT, "reports")
 os.makedirs(OUT, exist_ok=True)
 EMB, IDS = os.path.join(OUT, "emb_granite30m.npy"), os.path.join(OUT, "emb_ids.csv")

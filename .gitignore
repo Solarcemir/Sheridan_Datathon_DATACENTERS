@@ -1,15 +1,37 @@
-# Raw hackathon data (~850 MB). Download and unzip it separately.
+# IBM hackathon data: everyone already has it. Never commit it, in any folder.
 IBM-*/
 *.zip
+**/vulnerabilities.csv
+**/affected_products.csv
+**/references.csv
+**/known_exploited.csv
+**/exploit_signals_2024.csv
+**/exploit_signals_2025.csv
+**/weakness_types.csv
+**/scoreboard_2026.csv
 
-# Regenerated in minutes by analysis/build_features.py and analysis/granite_features.py
-derived/features_*.csv
-derived/leak_only_*.csv
-derived/backtest_cohorts_2025.csv
-derived/granite/emb_granite30m.npy
-derived/granite/emb_ids.csv
-derived/granite/granite_features_*.csv
+# Model weights, adapters and checkpoints
+*.safetensors
+*.pt
+*.pth
+*.gguf
+*.ckpt
 
-# Python
+# Secrets
+.env
+*.env
+
+# Environments and caches
 __pycache__/
 *.pyc
+.venv/
+venv*/
+.ipynb_checkpoints/
+
+# luis/: big files regenerated in minutes by luis/analysis/build_features.py and granite_features.py
+luis/derived/features_*.csv
+luis/derived/leak_only_*.csv
+luis/derived/backtest_cohorts_2025.csv
+luis/derived/granite/emb_granite30m.npy
+luis/derived/granite/emb_ids.csv
+luis/derived/granite/granite_features_*.csv
