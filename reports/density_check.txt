@@ -1,0 +1,20 @@
+﻿K at scoreboard density: A = 243  B = 198
+                                   hits@500     hits@density        hits@500
+split                                     A   B            A  B A+B      A+B
+model                         cap                                           
+LightGBM safe                 5          22  11           16  7  23       33
+                              none       22   7           15  6  21       29
+LightGBM safe, no txt_in_wild 5          22  10           16  7  23       32
+                              none       22   8           15  5  20       30
+exploit then EPSS             5          18  10           14  6  20       28
+                              none       17   8           13  6  19       25
+pooled 2024+2025 Jan-Sep, top 441 of 64,120 (75 pos): base    no cap = 19, cap5 = 19
+pooled 2024+2025 Jan-Sep, top 441 of 64,120 (75 pos): full    no cap = 23, cap5 = 23
+pooled 2024+2025 Jan-Sep, top 441 of 64,120 (75 pos): nowild  no cap = 23, cap5 = 23
+txt_in_wild rows in test years: 35, positives 5
+                  univariate_auc  lift_top5pct
+feature                                       
+kev_product_hits           0.567           3.2
+kev_product_hist           0.566           2.5
+kev_vendor_hist            0.514           1.8
+2026 scoreboard txt_in_wild: 21 | of those in top500_v2: 9

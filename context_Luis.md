@@ -12,7 +12,7 @@ Handoff document. Last updated Nov 7, 2026, ~5:15 pm. Written so a teammate with
 1. **Task:** pick 500 of 72,670 CVEs (published Jan–Sep 2026). Score = how many CISA adds to KEV by Nov 4, 2026. Official baselines: 6–8 hits.
 2. **We built a local exam** that copies the benchmark on 2024 and 2025 data (the "replicas"), because the 2026 answer is secret. Everything is measured as hits in the top 500 on those replicas.
 3. **Two directions:** A = train 2024 → test 2025 (realistic, past predicts future). B = train 2025 → test 2024 (robustness only, uses future data). Report A as the headline, A+B to pick between methods.
-4. **Best clean result so far:** LightGBM on leak-free features with a TF-IDF text model, then **at most 5 CVEs per assigner per month** in the top 500: **A = 23, B = 12** (vs exploit+EPSS 17 / 8, CVSS 6 / 1).
+4. **Best clean result on this side:** LightGBM on leak-free features with a TF-IDF text model, then **at most 5 CVEs per assigner per month**: **A = 23, B = 12** in the top 500 of each year (vs exploit+EPSS 17 / 8, CVSS 6 / 1). **At the real scoreboard density** (top 243 of 35k, top 198 of 29k) it's **A 16 + B 7 = 23 vs 20** for exploit+EPSS, and pooled like Chen's CV it's 23 vs 19. **Chen's GPU-box pipeline (LR + LoRA Granite 8B) gets 28–30 on a comparable set, so it's the stronger core.** See §14.
 5. **Noise is ±3 hits.** The same model gave 20 or 23 in A just by changing CPU thread count. Don't trust gaps under ~4.
 6. **Key insights:** the description text is the strongest single signal (AUC 0.91); 58% of exploited CVEs have no public exploit signal; NIST status columns leak the answer; a single vendor patch batch (Oracle, 1,097 CVEs on one day) can flood the top 500, and capping per assigner fixes it.
 7. **IBM Granite:** embeddings give great clusters (which technologies get attacked) but don't beat TF-IDF for ranking. Granite Instruct's yes/no answers carry signal: internet-facing 1.75× and enterprise 1.85× the KEV rate, and **0 of 67 "niche product" CVEs reached KEV**. Re-ranking with them adds +2 without the cap, but nothing once the cap is on (34 vs 35). Granite also writes the product, category and reason for every CVE in our top 500.
@@ -117,7 +117,7 @@ A CVE counts once: in the month it was published, with that month's signals. A C
 
 - **Same model, different CPU thread count → A went from 23 to 20.** LightGBM's multithreaded histograms aren't bit-identical. We average 5 seeds, and it's still ±3. Treat gaps < 4 as ties.
 - Every time we pick the best of many variants on A/B, the winner is optimistic. The hand heuristic was designed while looking at 2025, so its A score is unfair (only B is fair for it).
-- The 2025 test has 35k rows and the real scoreboard has 72k. Taking the top 500 is stricter in 2026 (0.69% vs 1.4%), so absolute numbers won't transfer. Compare methods, don't promise numbers.
+- The 2025 test has 35k rows and the real scoreboard has 72k. Taking the top 500 is stricter in 2026 (0.69% vs 1.4%), so absolute numbers won't transfer. **For numbers comparable with Chen's CV and with the real task, use K = 500 × rows / 72,670** (243 for the 2025 test, 198 for 2024). All A/B tables in §7–§8 use top 500 per year unless noted; density-matched numbers are in §14.1.
 
 ## 5. Features (`derived/feature_dictionary.csv`, built by `analysis/build_features.py`)
 
@@ -384,10 +384,43 @@ python -E -P analysis/export_top500_json.py   # site/top500.json for the hub's T
 | Which option the script picked for 2026 | `reports/final_ranking_choice.txt` |
 | Explained 2026 top 500 (product, category, Granite probabilities, reason) | `reports/top500_v2_explained.csv`, `derived/granite/reasons_2026.csv`, `site/top500.json` (hub table) |
 | 2026 rankings (§9) | `submissions/*.csv`, `derived/scored_2026_v*.csv` |
+| Density-matched numbers, `txt_in_wild` ablation, vendor vs product matching (§14) | `analysis/density_check.py`, `reports/density_check.txt` |
+| Chen's GPU-box workstream (CV, LR + LoRA, Granite 30B/8B, embeddings r2) | `CHEN_CONTEXTcontext_gpu_box.md` |
 
 Not in git (too big or regenerated in minutes): raw data, `derived/features_*.csv`, `derived/leak_only_*.csv`, `derived/backtest_cohorts_2025.csv`, `derived/granite/emb_granite30m.npy`, `derived/granite/granite_features_*.csv`.
 
-## 14. Research sources
+## 14. Merge with Chen's GPU-box workstream (`CHEN_CONTEXTcontext_gpu_box.md`)
+
+Chen ran a parallel pipeline on a 4× H100 box: purged 5-fold time-blocked CV with bootstrap CIs, a strongly regularized logistic regression with rich metadata features, granite-embedding-english-r2, Granite 4.2 30B/8B via vLLM (zero-shot, many-shot, LoRA, structured extraction), and a memorization probe.
+
+### 14.1 Same yardstick (checked on our replicas, `deterministic=True`, 10 seeds)
+
+| Ranking | A @243 | B @198 | A+B | Pooled 2024+2025, top 441 of 64,120 (75 pos) |
+|---|---|---|---|---|
+| Exploit, then EPSS | 13 | 6 | 19 | 19 |
+| Exploit, then EPSS + cap 5 | 14 | 6 | 20 | 19 |
+| LightGBM safe | 15 | 6 | 21 | 23 |
+| **LightGBM safe + cap 5** | **16** | **7** | **23** | 23 |
+| LightGBM safe without `txt_in_wild` + cap 5 | 16 | 7 | 23 | 23 |
+
+Chen, judge-aligned labels (75 positives, top 517 of 75,148): exploit+EPSS 20 · best LR 26 · LoRA 25 · **LR + LoRA rank average 28, with cap 3: 30**. The sets differ a little (his includes Oct–Dec 2024), but the gap (+5 to +7 over us) is bigger than the noise. **His LR + LoRA is the stronger core.** The cap helps both pipelines.
+
+### 14.2 Disagreements, settled with data
+- **`txt_in_wild`:** removing it changes nothing on our side (A+B 23 → 23 at density, pooled 23 → 23). **Agree with Chen: drop it.** It costs nothing and removes a leakage objection (description edits can't be dated). 9 of the 21 scoreboard CVEs with that text are in `top500_v2`; rerun without it before submitting.
+- **"KEV vendor in text doesn't help" vs "3.8× for product":** no real conflict. Our numbers agree: product-level match lift 3.2× (`kev_product_hits`), vendor-level 1.8× (`kev_vendor_hist`); Chen: product 3.8×, vendor 1.4×. Our earlier "doesn't help" was about vendor names.
+- **2024 positives 27 vs 67:** label window (Nov 4 of the publish year vs Dec 31, 2025) plus month ranges. Use `y_nov4` everywhere (Chen agrees).
+- **One thing to flag back to Chen:** 5-fold time-blocked CV trains on *future* blocks when testing earlier ones (like our B). Report the forward-only folds (test block trained only on earlier blocks) next to the 5-fold numbers so the headline is a true forecast.
+
+### 14.3 What each side brings to the final pipeline
+- **From us → add to Chen's CV:** `text_kev_lr` / `text_kev_sim` (TF-IDF KEV text model, AUC 0.91; his embedding features don't replace exact product names), the per-assigner-month cap, `n_adjacent_ids` and sibling features, LightGBM settings (`scale_pos_weight=25`, 5+ seeds), `days_to_cutoff` and `age_days` (his §10.3–10.4 to-dos), the leak-inflation demo, the Granite 2B yes/no finding (niche → 0/67), and the explained top 500 / hub table.
+- **From Chen → already beyond our §11:** Granite 30B structured extraction on all CVEs (§11.2, §11.6), purged CV with bootstrap CIs (§11.3), granite-embedding-english-r2 (§11.5), LoRA 8B, memorization probe (0/122), strong negative filters (unknown CWE 0/3,551; CVSS 4 E:P 0/2,669; WordPress CNAs), out-of-band advisory 5.5×, EOL text 13×, and the missed-positives analysis (22/52 invisible at publish time: 0% exploit code).
+
+### 14.4 Proposed split of work (Nov 7–8)
+- **Chen (GPU box):** finish extraction → add our TF-IDF + adjacent IDs + LightGBM to his CV with `y_nov4` → final LR + LightGBM + LoRA rank average → cap 3–5 → score the 2026 scoreboard once → `top500.csv`. Drop `txt_in_wild`.
+- **Luis side:** the write-up (columns-used table with the traffic light, leak demo, A/B + CV methodology, insights from both docs), the video script, the hub's Top 500 table fed from the final ranking with Granite reasons (Chen's nearest-KEV matches make great explanations), and a sanity check of the final file (Oracle July batch, month mix, WordPress = 0).
+- **Until Chen's ranking exists,** `submissions/top500_v2.csv` stays the team's fallback.
+
+## 15. Research sources
 
 - Jacobs et al., "Enhancing Vulnerability Prioritization: Data-Driven Exploit Predictions with Community-Driven Insights" (EPSS): [arXiv 2302.14172](https://arxiv.org/pdf/2302.14172). EPSS is an XGBoost model on ~1,400 features: exploit code, description keywords, CWE, vendor, references.
 - Evaluation of EPSS on severe KEV CVEs: [arXiv 2411.02618](https://arxiv.org/html/2411.02618v1). CVEs later added to KEV often didn't have a high EPSS beforehand, consistent with our finding 3.
