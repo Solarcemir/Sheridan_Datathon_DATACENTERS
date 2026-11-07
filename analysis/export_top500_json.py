@@ -22,10 +22,27 @@ def num(x, nd=3):
     return None if pd.isna(x) else round(float(x), nd)
 
 
+CATS = ["edge or network device", "network device", "enterprise server software", "operating system", "browser", "mobile",
+        "desktop app", "web app or plugin", "library or developer tool", "iot or consumer device", "industrial or medical"]
+
+
+def clean_product(p):
+    """Granite sometimes echoes the template ("<Vendor's name, e.g. ...>"); drop those."""
+    p = "" if pd.isna(p) else str(p).strip()
+    return "" if (p.startswith("<") or "e.g." in p or "vendor and product" in p.lower()) else p.strip(" .")
+
+
+def clean_category(c):
+    c = "" if pd.isna(c) else str(c).strip().strip("<>").strip().lower()
+    if c == "edge or network device":
+        c = "network device"
+    return next((k for k in CATS if k == c), next((k for k in CATS if k in c), "other"))
+
+
 rows = [{
     "rank": int(r["rank"]), "cve": r.cve_id, "month": r.snapshot_month, "assigner": str(r.assigner),
-    "product": "" if pd.isna(r["product"]) else str(r["product"]),
-    "category": "" if pd.isna(r.category) else str(r.category).strip().lower(),
+    "product": clean_product(r["product"]),
+    "category": clean_category(r.category),
     "p_internet": num(r.get("p_internet")), "p_enterprise": num(r.get("p_enterprise")), "p_niche": num(r.get("p_niche")),
     "epss": num(r.epss, 5), "edb": int(r.exploitdb), "msf": int(r.metasploit), "nuc": int(r.nuclei), "poc": int(r.poc_github),
     "text": num(r.text_kev_lr), "reason": "" if pd.isna(r.reason) else str(r.reason),

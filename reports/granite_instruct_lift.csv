@@ -1,0 +1,4 @@
+question,text,granite_says_yes,kev_if_yes,kev_rate_if_yes,kev_rate_if_no,lift_yes_vs_no
+q_internet,"Is the vulnerable product usually exposed to the internet, such as a VPN, firewall, router, gateway, email or web server, file transfer appliance, or remote access tool?",1246,25,0.0201,0.0115,1.75
+q_enterprise,Is this product widely used by large companies or governments?,1262,26,0.0206,0.0112,1.85
+q_niche,"Is this a small plugin, hobby project, or niche product with few users?",67,0,0.0,0.0144,0.0

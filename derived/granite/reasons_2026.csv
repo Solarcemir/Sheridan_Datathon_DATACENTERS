@@ -1,0 +1,1459 @@
+cve_id,raw
+CVE-2025-52694,"product: <Vendor's name, e.g., Apache, Microsoft>
+category: network device
+reason: This internet-facing SQL injection vulnerability could allow unauthenticated remote attackers to execute arbitrary SQL commands, potentially compromising data confidentiality, integrity, and availability."
+CVE-2026-2329,"product: Gigabyte GXP series devices
+category: network device
+reason: This unauthenticated vulnerability allows unauthorized remote code execution with root privileges, posing a significant risk of full system compromise."
+CVE-2026-6875,"product: ServiceNow AI platform
+category: enterprise server software
+reason: This vulnerability allows remote code execution, potentially enabling unauthorized access and control over the platform, posing a significant risk if exploited."
+CVE-2026-77806,"product: SPIP, a content management system
+category: enterprise server software
+reason: This vulnerability allows unauthenticated remote attackers to execute arbitrary code, posing a significant risk of unauthorized access and system compromise."
+CVE-2026-63077,"product: TeamCity, JetBrains
+category: enterprise server software
+reason: Unauthenticated remote code execution vulnerability via agent polling protocol poses significant risk of unauthorized access and potential system compromise."
+CVE-2026-65694,"product: Microweber CMS
+category: enterprise server software
+reason: This vulnerability allows unauthenticated remote attackers to read sensitive files, potentially exposing critical credentials and system information."
+CVE-2026-1603,"product: Ivanti Endpoint Manager
+category: enterprise server software
+reason: This vulnerability allows unauthenticated attackers to leak specific stored credentials, posing a significant risk of data breach and unauthorized access."
+CVE-2026-9256,"product: NGINX Plus, NGINX Open Source
+category: network device
+reason: This vulnerability, if exploited, could lead to a heap buffer overflow, causing a restart and potentially enabling code execution on systems with disabled ASLR or when ASLR can be bypassed."
+CVE-2026-4631,"product: Cockpit (open-source data center management system)
+category: enterprise server software
+reason: This vulnerability allows unauthorized code execution on the Cockpit host, posing a significant risk of full system compromise without requiring valid credentials."
+CVE-2026-1498,"product: WatchGuard Fireware OS
+category: network device
+reason: This LDAP Injection vulnerability could allow unauthorized access to sensitive information and potential impersonation of LDAP users, posing a significant risk to enterprise security."
+CVE-2026-0834,"product: TP-Link router (Archer C20, AX53, TL-WR841N)
+category: network device
+reason: This vulnerability allows unauthenticated attackers to execute administrative commands, causing configuration loss and device interruption, posing a significant risk to network integrity and availability."
+CVE-2026-0542,"product: ServiceNow AI platform
+category: enterprise server software
+reason: This vulnerability allows remote code execution, potentially enabling unauthorized access and control over ServiceNow Sandbox instances, posing a significant risk to enterprise data and operations."
+CVE-2026-22739,"product: Spring Cloud
+category: enterprise server software
+reason: This vulnerability allows unauthorized access to files outside of configured directories, posing a significant risk of data leakage or system compromise."
+CVE-2026-1470,"product: n8n, enterprise server software
+category: server software
+reason: Critical RCE vulnerability allows arbitrary code execution, potentially leading to full compromise of the affected instance."
+CVE-2026-6009,"product: Jaspersoft Reports Library
+category: enterprise server software
+reason: This Java deserialization vulnerability, if exploited, could lead to remote code execution, posing a significant risk to the integrity and confidentiality of enterprise systems."
+CVE-2026-77647,"product: SPIP, vendor and product
+category: enterprise server software
+reason: Unauthenticated remote attackers can execute arbitrary code, posing a significant risk to internet-facing systems."
+CVE-2026-39808,"product: Fortinet FortiSandbox
+category: network device
+reason: This vulnerability allows for unauthorized code execution, posing a significant risk of a complete system compromise."
+CVE-2026-45829,"product: ChromaDB Python project
+category: enterprise server software
+reason: This vulnerability allows unauthenticated code injection, potentially leading to full server compromise, due to its high signal (EPSS 0.002) and resemblance to past exploited CVEs (76%)."
+CVE-2026-12001,"product: TP-Link routers (TL-WR845N v4, TL-WR850N v3, TL-WR902AC v4, Archer C20 v6 & Archer MR200 v5)
+category: network device
+reason: This hardcoded credential vulnerability allows unauthorized access to privileged functions, posing a significant risk of unauthorized network control."
+CVE-2026-11756,"product: 3DEXPERIENCE Station Launcher App
+category: enterprise server software
+reason: This vulnerability allows unauthenticated remote code execution, posing a significant risk of full system compromise."
+CVE-2025-40554,"product: SolarWinds Web Help Desk
+category: enterprise server software
+reason: This vulnerability allows authentication bypass, enabling an attacker to execute specific actions, posing a significant risk to sensitive enterprise data."
+CVE-2026-3294,"product: TP-Link range extenders
+category: network device
+reason: This vulnerability allows unauthenticated attackers to reset administrator passwords, leading to full control of the device, impacting confidentiality, integrity, and availability."
+CVE-2026-2731,"product: DynamicWeb 8, 9
+category: enterprise server software
+reason: This vulnerability allows unauthenticated attackers to execute code, posing a significant risk of unauthorized access and potential system compromise."
+CVE-2026-28323,"product: SolarWinds Web Help Desk
+category: enterprise server software
+reason: This vulnerability allows unauthorized access, posing a significant risk to sensitive enterprise data due to its widespread use and the presence of exploit code signals."
+CVE-2026-0204,"product: SonicOS, network device
+category: network device
+reason: This vulnerability could allow unauthorized access to management interface functions, potentially leading to system compromise."
+CVE-2026-28807,"product: gleam-wisp, category: library or developer tool
+reason: This vulnerability allows arbitrary file read, potentially exposing sensitive data including source code, configuration files, and secrets."
+CVE-2026-22679,"product: Weaver E-cology 10.0
+category: enterprise server software
+reason: This vulnerability allows unauthenticated remote code execution, enabling attackers to execute arbitrary commands, posing a significant risk of system compromise."
+CVE-2026-71362,"product: Adobe Commerce
+category: enterprise server software
+reason: This vulnerability allows privilege escalation, enabling attackers to gain unauthorized access to sensitive resources without user interaction."
+CVE-2026-19912,"product: Kaltura HTML5 player
+category: enterprise server software
+reason: This vulnerability allows unauthenticated remote code execution due to unsafe data deserialization and unsanitized filesystem path construction, potentially leading to arbitrary file writes and code execution as the webserver user."
+CVE-2026-14961,"product: Pegatron Tdelo64.sys
+category: enterprise server software
+reason: This vulnerability allows local attackers to escalate privileges and potentially compromise the system, posing a significant risk to sensitive data and system integrity."
+CVE-2026-28372,"product: GNU inetutils telnetd
+category: enterprise server software
+reason: This vulnerability allows privilege escalation, potentially enabling an unprivileged user to gain root access, posing a significant security risk."
+CVE-2026-2699,"product: ShareFile Storage Zones Controller (SZC)
+category: enterprise server software
+reason: This vulnerability allows unauthenticated attackers to change system configuration and potentially execute remote code, posing a significant risk to enterprise data integrity and system control."
+CVE-2026-4681,"product: PTC Windchill, FlexPLM
+category: enterprise server software
+reason: This critical RCE vulnerability, affecting multiple versions of Windchill and FlexPLM, could allow remote attackers to execute arbitrary code, posing a significant risk to enterprise systems."
+CVE-2026-4802,"product: Cockpit, vendor and product
+category: enterprise server software
+reason: This vulnerability allows remote attackers to execute arbitrary commands, potentially leading to complete system compromise."
+CVE-2025-12420,"product: ServiceNow AI Platform
+category: enterprise server software
+reason: This vulnerability allows unauthenticated users to impersonate others, potentially leading to unauthorized access and data manipulation."
+CVE-2026-75062,"product: Google langfun, category: library or developer tool
+reason: This vulnerability allows remote code execution, posing a significant risk if exploited, as it can lead to unauthorized access and control over the host application."
+CVE-2026-21531,"product: Azure SDK
+category: enterprise server software
+reason: This vulnerability allows unauthorized code execution, posing a significant risk to the integrity and confidentiality of enterprise systems."
+CVE-2026-17106,"product: moby/go-archive
+category: library or developer tool
+reason: This vulnerability allows arbitrary file creation/overwriting in the destination directory, potentially leading to unauthorized code execution or data corruption."
+CVE-2026-44403,"product: Wing FTP Server
+category: enterprise server software
+reason: This vulnerability allows authenticated administrators to execute arbitrary Lua code, potentially leading to full system compromise."
+CVE-2026-57910,"product: WatchGuard XCS v9.5.00.100
+category: network device
+reason: This vulnerability allows unauthenticated attackers to execute arbitrary code with elevated privileges, posing a significant risk of unauthorized access and control over the affected system."
+CVE-2026-16843,"product: Hikvision Networking Products
+category: network device
+reason: This vulnerability allows authenticated attackers to execute arbitrary commands, potentially leading to full system compromise."
+CVE-2026-16606,"product: Fujitsu Software Linux openFT, Oracle Solaris openFT
+category: enterprise server software
+reason: This vulnerability allows unauthenticated remote code execution, posing a significant risk of unauthorized access and potential system compromise."
+CVE-2026-26221,"product: Hyland OnBase
+category: enterprise server software
+reason: This vulnerability allows arbitrary file read/write and remote code execution via.NET Remoting exposure, posing a significant risk of unauthorized access and control over the affected system."
+CVE-2026-4092,"product: Clasp, library or developer tool
+category: software
+reason: This vulnerability allows remote code execution, posing a significant risk if exploited, especially given its widespread use in enterprise environments."
+CVE-2026-19478,"product: GitLab CE/EE
+category: enterprise server software
+reason: This vulnerability allows unauthenticated users to remotely modify or delete public projects and user data, posing a significant risk of data corruption or loss."
+CVE-2026-26335,"product: Calero VeraSMART, category: enterprise server software
+reason: This vulnerability allows remote code execution due to server-side deserialization, posing a significant risk of unauthorized access and potential system compromise."
+CVE-2026-40050,"product: LogScale, category: enterprise server software
+reason: This vulnerability allows unauthenticated remote attackers to read arbitrary files from the server filesystem, posing a significant risk of sensitive data exposure."
+CVE-2026-17061,"product: SIMULIA Execution Engine
+category: enterprise server software
+reason: This vulnerability, if exploited, could lead to unauthenticated remote code execution, posing a significant risk to the entire system."
+CVE-2026-8711,"product: NGINX, network device
+category: enterprise server software
+reason: This vulnerability, if exploited, could lead to a denial of service (restart) and potential code execution on systems with disabled ASLR, posing a significant risk to network integrity and confidentiality."
+CVE-2026-44277,"product: Fortinet FortiAuthenticator
+category: network device
+reason: This vulnerability allows execution of unauthorized code, posing a significant risk of unauthorized access and potential system compromise."
+CVE-2026-25769,"product: Wazuh, enterprise server software
+category: enterprise server software
+reason: This RCE vulnerability in Wazuh's cluster mode allows full system compromise, posing a significant risk to sensitive data and system control."
+CVE-2026-6264,"product: Talend JobServer, Talend ESB Runtime
+category: enterprise server software
+reason: This critical vulnerability allows unauthenticated remote code execution, posing a significant risk of unauthorized access and potential system compromise."
+CVE-2026-4116,"product: SonicWall SMA1000 series appliances
+category: network device
+reason: This vulnerability allows unauthorized access to the SSLVPN, potentially compromising sensitive enterprise data."
+CVE-2026-73034,"product: DB-GPT v0.8.1
+category: enterprise server software
+reason: This unauthenticated vulnerability allows remote attackers to execute arbitrary code, posing a significant risk of unauthorized access and system compromise."
+CVE-2026-25747,"product: Apache Camel
+category: enterprise server software
+reason: This vulnerability allows arbitrary code execution, posing a significant risk if exploited, especially for enterprises using affected versions."
+CVE-2026-1364,"product: IAQS, I6; category: enterprise server software; reason: This vulnerability allows unauthenticated remote attackers to exploit system administrative functionalities, posing a significant risk of unauthorized system control."
+CVE-2020-37123,"product: Pinger 1.0
+category: network device
+reason: This vulnerability allows remote code execution, enabling attackers to execute arbitrary PHP files and system commands, posing a significant risk of unauthorized access and control."
+CVE-2026-6914,"product: MongoDB Server
+category: enterprise server software
+reason: This vulnerability, if exploited, could lead to a denial of service (DoS) attack, impacting the availability of MongoDB servers."
+CVE-2026-31816,"product: Budibase, enterprise server software
+category: enterprise server software
+reason: This vulnerability allows unauthenticated access to all server-side APIs, posing a significant risk of data breaches and unauthorized actions."
+CVE-2026-9695,"product: DELMIA Apriso, vendor: Siemens
+category: enterprise server software
+reason: This vulnerability, if exploited, could allow unauthorized privileged access to DELMIA Apriso servers, posing a significant risk to enterprise data and operations."
+CVE-2026-19626,"product: Tenable Security Center
+category: enterprise server software
+reason: This CVE poses a significant risk due to its potential for remote code execution, which could lead to full system compromise, given the product's widespread enterprise use."
+CVE-2026-15380,"product: Windows Server, category: enterprise server software
+reason: This vulnerability allows non-admin users to execute full SYSTEM code, potentially leading to complete system compromise."
+CVE-2026-8338,"product: Coverity Connect
+category: enterprise server software
+reason: This vulnerability allows unauthenticated access to sensitive data, posing a significant risk of data breach."
+CVE-2026-21045,"product: libimagecodec.media.quram.so
+category: library or developer tool
+reason: This vulnerability allows remote attackers to write out-of-bounds memory, potentially leading to arbitrary code execution."
+CVE-2025-71257,"product: BMC FootPrints ITSM
+category: enterprise server software
+reason: This vulnerability allows unauthorized access and data modification, posing a significant risk of data breaches and system manipulation."
+CVE-2026-22730,"product: Spring AI's MariaDBFilterExpressionConverter
+category: enterprise server software
+reason: This critical SQL injection vulnerability can allow attackers to bypass access controls and execute arbitrary SQL commands, posing a significant risk to sensitive data."
+CVE-2026-57827,"product: RSFiles Joomla extension
+category: web app or plugin
+reason: This unauthenticated file upload vulnerability allows arbitrary code execution, posing a significant risk to the integrity and confidentiality of the affected Joomla site."
+CVE-2026-30741,"product: OpenClaw Agent Platform v2026.2.6
+category: enterprise server software
+reason: This RCE vulnerability, if exploited, could allow attackers to execute arbitrary code, potentially leading to full system compromise, given its presence in an enterprise server software product."
+CVE-2026-42533,"product: NGINX Plus, NGINX Open Source
+category: network device
+reason: This vulnerability, if exploited, could lead to a denial-of-service (DoS) or potentially code execution, impacting internet-facing services widely used by enterprises."
+CVE-2026-5944,"product: Cisco Intersight Device Connector, Nutanix Prism Central
+category: network device
+reason: This vulnerability allows unauthenticated attackers to enumerate cluster metadata, potentially disrupting active workloads and causing service unavailability."
+CVE-2026-67185,"product: TinyWeb, vendor and product
+category: enterprise server software
+reason: This vulnerability allows unauthenticated attackers to read arbitrary files, potentially exposing sensitive data like credential stores and private keys, especially if the server process runs as root."
+CVE-2026-4114,"product: SonicWall SMA1000 series appliances
+category: network device
+reason: This vulnerability allows a remote authenticated attacker to bypass multi-factor authentication, potentially gaining unauthorized access to the SSLVPN admin interface."
+CVE-2026-57909,"product: WatchGuard Agent
+category: network device
+reason: This path traversal vulnerability could allow an attacker to execute arbitrary code, posing a significant risk to the affected system's integrity and control."
+CVE-2025-51846,"product: CryptPad 2025.3.1
+category: web app or plugin
+reason: This vulnerability allows unbounded WebSocket frame flood, potentially degrading or denying service to all users, posing a significant risk to CryptPad instances."
+CVE-2025-15517,"product: TP-Link Archer NX200, NX210, NX500, NX600
+category: network device
+reason: This vulnerability allows unauthenticated access to privileged HTTP actions, including firmware upload and configuration, posing a significant risk of unauthorized system changes."
+CVE-2026-15733,"product: WGDashboard, version 4.2.3
+category: enterprise server software
+reason: This RCE vulnerability, allowing arbitrary command execution as root, poses a significant risk of unauthorized system access and control, especially for enterprise environments."
+CVE-2026-53565,"product: Citrix Secure Access Client, Citrix Endpoint Analysis Client
+category: enterprise server software
+reason: This vulnerability poses a risk due to its potential for exploitation, given its wide enterprise usage and the presence of past exploits, necessitating immediate patching."
+CVE-2026-66915,"product: Joomla Extension - fabrikar.com
+category: web app or plugin
+reason: This vulnerability allows remote code execution, posing a significant risk of unauthorized access and potential system compromise."
+CVE-2026-61511,"product: vBulletin 5.x, 6.x
+category: enterprise server software
+reason: This vulnerability allows unauthenticated remote attackers to execute arbitrary PHP code, posing a significant risk of unauthorized system access and data breaches."
+CVE-2026-53566,"product: Citrix Secure Access Client
+category: enterprise server software
+reason: This CVE poses an out-of-bounds read risk, potentially enabling unauthorized data access, impacting widely used enterprise software."
+CVE-2026-48842,"product: Roundcube Webmail
+category: enterprise server software
+reason: This vulnerability allows pre-authentication SQL injection, potentially enabling unauthorized data access or manipulation."
+CVE-2026-21048,"product: libimagecodec.media.quram.so
+category: library or developer tool
+reason: This vulnerability allows remote attackers to write out-of-bounds memory, potentially leading to arbitrary code execution."
+CVE-2026-90817,"product: REDCap, enterprise server software
+category: server software
+reason: This unauthenticated RCE vulnerability, if exploited, could allow arbitrary code execution on the server, posing a significant risk to data integrity and confidentiality."
+CVE-2026-27174,"product: MajorDoMo (Vendor and Product)
+category: enterprise server software
+reason: This vulnerability allows unauthenticated remote code execution, posing a significant risk of full system compromise if exploited."
+CVE-2026-3826,"product: IFTOP, WellChoose
+category: network device
+reason: This Local File Inclusion vulnerability, if exploited, could allow arbitrary code execution, posing a significant risk to the server's integrity and confidentiality."
+CVE-2026-1668,"product: Omada switches
+category: network device
+reason: This CVE affects internet-facing Omada switches, and an unauthenticated attacker could exploit it to execute arbitrary code or cause denial-of-service, posing a significant risk."
+CVE-2026-19264,"product: Postiz, open-source social media scheduling tool
+category: enterprise server software
+reason: This vulnerability allows unauthenticated remote attackers to read any file, exposing sensitive secrets like JWT signing secret, database connection string, and provider/billing secrets, enabling session forging and unauthorized access."
+CVE-2026-78685,"product: Le-yan Medical Practice Management System
+category: enterprise server software
+reason: This vulnerability allows unauthenticated remote attackers to execute arbitrary OS commands, posing a significant risk of system compromise."
+CVE-2026-3062,"product: Google Chrome, category: browser
+reason: This vulnerability allows a remote attacker to perform out of bounds memory access, potentially leading to code execution or data leakage."
+CVE-2026-21047,"product: IMS Service, SMR Jul-2026 Release
+category: network device
+reason: This vulnerability, if exploited, could allow remote attackers to execute arbitrary code, posing a significant risk of unauthorized system access and potential data breaches."
+CVE-2026-75872,"product: Maalfer MailerUp
+category: web app or plugin
+reason: This vulnerability allows unauthenticated remote attackers to inject arbitrary HTML into subscription messages, potentially leading to phishing or malware distribution."
+CVE-2026-43500,"product: Linux kernel
+category: operating system
+reason: This vulnerability could allow an attacker to exploit the Linux kernel's handling of externally-owned paged fragments, potentially leading to unauthorized access or data leakage."
+CVE-2023-42344,"product: Alkacon OpenCms
+category: enterprise server software
+reason: This vulnerability allows remote attackers to obtain sensitive information via a Chemistry servlet, posing a significant risk of data breach."
+CVE-2025-66249,"product: Apache Livy
+category: enterprise server software
+reason: This vulnerability, if exploited, could allow unauthorized access to sensitive files, posing a significant risk to data integrity and confidentiality."
+CVE-2026-29145,"product: Apache Tomcat, Apache Tomcat Native
+category: enterprise server software
+reason: This vulnerability allows unauthorized access via CLIENT_CERT authentication when soft fail is disabled, posing a significant risk to sensitive data."
+CVE-2026-44742,"product: Postorius, a mailing list manager
+category: enterprise server software
+reason: This vulnerability allows for HTML injection in message subjects, potentially leading to cross-site scripting (XSS) attacks, compromising user data and system integrity."
+CVE-2026-4670,"product: Progress MOVEit Automation
+category: enterprise server software
+reason: This CVE exposes a critical authentication bypass vulnerability, allowing unauthorized access, posing a significant risk to sensitive data and system integrity."
+CVE-2026-62391,"product: Apache Kyuubi Server
+category: enterprise server software
+reason: This vulnerability allows unauthorized access to sensitive server configurations, posing a significant risk of data breaches or unauthorized data manipulation."
+CVE-2026-4810,"product: Google Agent Development Kit (ADK)
+category: enterprise server software
+reason: This vulnerability allows unauthenticated remote code execution, posing a significant risk of server compromise."
+CVE-2026-1862,"product: Google Chrome
+category: browser
+reason: This high-severity vulnerability, if exploited, could lead to heap corruption, potentially allowing remote attackers to execute arbitrary code, posing a significant risk to users."
+CVE-2026-19871,"product: Roskus Prospero Flow CRM
+category: enterprise server software
+reason: Use of hard-coded credentials poses a significant risk of unauthorized access, allowing attackers to impersonate any employee."
+CVE-2026-4837,"product: Rapid7 Insight Agent
+category: enterprise server software
+reason: This vulnerability, if exploited, could allow remote code execution as root, posing a significant risk of unauthorized access and control over the affected systems."
+CVE-2026-40969,"product: Spring gRPC, category: enterprise server software
+reason: This vulnerability exposes sensitive authentication information to unauthenticated remote attackers, potentially aiding in further exploits."
+CVE-2026-22153,"product: Fortinet FortiOS
+category: network device
+reason: This vulnerability allows unauthenticated attackers to bypass LDAP authentication, potentially gaining unauthorized access to VPN or FSSO policies, posing a significant security risk."
+CVE-2026-4112,"product: SonicWall SMA1000 series appliances
+category: network device
+reason: This SQL injection vulnerability allows an attacker to escalate privileges, potentially gaining full control over the device, posing a significant risk to the entire network."
+CVE-2026-8992,"product: Ivanti Secure Access Client
+category: enterprise server software
+reason: This vulnerability allows remote code execution, posing a significant risk of unauthorized access and potential system compromise."
+CVE-2026-29146,"product: Apache Tomcat
+category: enterprise server software
+reason: This padding oracle vulnerability, if exploited, could allow unauthorized access to encrypted data, posing a significant risk to sensitive information in enterprise environments."
+CVE-2026-22731,"product: Spring Boot
+category: enterprise server software
+reason: This vulnerability allows unauthorized access to authenticated endpoints, posing a significant risk to sensitive data in enterprise applications."
+CVE-2026-18452,"product: DMS+ (Non-Mobile) by Rich Source
+category: enterprise server software
+reason: Exploitable by unauthenticated remote attackers, potentially granting control over all installed devices, posing significant enterprise risk."
+CVE-2026-65880,"product: Joomla Extension - Balbooa Forms
+category: web app or plugin
+reason: Unauthenticated remote code execution vulnerability allows potential attackers to execute arbitrary code, posing a significant risk to the integrity and confidentiality of the affected system."
+CVE-2026-25916,"product: Roundcube Webmail
+category: web app or plugin
+reason: This vulnerability allows for potential remote code execution via SVG feImage, posing a significant risk to internet-facing web applications."
+CVE-2026-66012,"product: SiYuan, category: enterprise server software
+reason: This vulnerability allows remote unauthenticated attackers to read sensitive configuration files, write arbitrary files, and execute arbitrary code with administrator privileges, leading to complete system compromise."
+CVE-2025-71389,"product: Cal.com (calcom/cal.diy)
+category: web app or plugin
+reason: This vulnerability allows unauthenticated remote code execution, posing a severe risk of full system compromise."
+CVE-2026-21628,"product: <Vendor X's File Management System>
+category: enterprise server software
+reason: This unpatched vulnerability allows unauthenticated remote code execution, posing a significant risk to the integrity and confidentiality of data managed by the system."
+CVE-2026-0265,"product: Palo Alto Networks PAN-OS software
+category: network device
+reason: This vulnerability allows unauthenticated attackers to bypass authentication controls, potentially gaining unauthorized access to the firewall management interface."
+CVE-2025-60021,"product: Apache bRPC
+category: enterprise server software
+reason: This vulnerability allows remote command injection, potentially enabling attackers to execute arbitrary code, posing a significant security risk."
+CVE-2025-9014,"product: TP-Link TL-WR841N v14
+category: network device
+reason: This Null Pointer Dereference vulnerability, if exploited, can cause a Denial of Service on the web portal service, impacting the availability of the router's web interface."
+CVE-2026-58231,"product: SAP Commerce Cloud
+category: enterprise server software
+reason: This vulnerability, if exploited, could allow arbitrary code execution, compromising internal components and impacting confidentiality, integrity, and availability of the application."
+CVE-2025-70974,"product: Fastjson library
+category: library or developer tool
+reason: This vulnerability allows for JNDI injection, potentially enabling unauthorized access to sensitive resources."
+CVE-2026-23869,"product: React Server Components
+category: library or developer tool
+reason: This denial of service vulnerability, triggered by specially crafted HTTP requests, could lead to excessive CPU usage and potential service disruption, posing a significant risk to system stability."
+CVE-2026-47668,"product: DbGate, category: enterprise server software
+reason: This vulnerability allows remote code execution, posing a significant risk of unauthorized access and potential system compromise."
+CVE-2026-46587,"product: Apache Camel
+category: enterprise server software
+reason: This vulnerability, an improper input validation issue, could potentially allow unauthorized access or data manipulation, posing a significant risk to enterprise systems."
+CVE-2026-46588,"product: Apache Camel
+category: enterprise server software
+reason: This vulnerability, an improper input validation issue, could potentially allow unauthorized access or data manipulation, posing a significant risk to enterprise systems."
+CVE-2026-16727,"product: ASUS Armoury Crate
+category: desktop app
+reason: This vulnerability allows a local user to execute arbitrary code with elevated privileges, posing a significant risk of unauthorized system access and control."
+CVE-2026-9044,"product: TP-Link AXE75 V1 routers
+category: network device
+reason: This vulnerability allows an attacker to execute arbitrary commands, potentially gaining full control of the device, compromising configuration integrity, network security, and service availability."
+CVE-2026-38360,"product: fohrloop dash-uploader
+category: enterprise server software
+reason: This Directory Traversal vulnerability could allow a remote attacker to execute arbitrary code, posing a significant risk to the integrity and confidentiality of data processed by the affected software."
+CVE-2026-32794,"product: Apache Airflow Provider for Databricks
+category: enterprise server software
+reason: This vulnerability allows for man-in-the-middle attacks, potentially exposing sensitive Databricks credentials, necessitating immediate patching to prevent unauthorized access."
+CVE-2026-60372,"product: Oracle Platform Security for Java
+category: enterprise server software
+reason: This vulnerability, if exploited, could lead to unauthorized takeover of Oracle Platform Security for Java, posing significant risk to confidentiality, integrity, and availability of enterprise data."
+CVE-2025-67888,"product: Control Web Panel (CWP)
+category: enterprise server software
+reason: This vulnerability allows unauthenticated attackers to execute arbitrary OS commands with root privileges, posing a severe risk to the server's security."
+CVE-2026-15719,"product: Firefox, Thunderbird
+category: browser
+reason: This vulnerability, if exploited, could allow an attacker to execute arbitrary code, posing a significant risk to user systems, especially given its wide usage."
+CVE-2026-6043,"Product: P4 Server
+Category: Enterprise server software
+Reason: This vulnerability allows unauthorized access to source code repositories and other managed assets, posing a significant risk of data breach and intellectual property theft."
+CVE-2026-8053,"product: MongoDB Server
+category: enterprise server software
+reason: This vulnerability allows arbitrary code execution, posing a significant risk of unauthorized access and potential system compromise."
+CVE-2026-60367,"product: Oracle Platform Security for Java
+category: enterprise server software
+reason: This vulnerability, if exploited, could lead to unauthorized takeover of Oracle Platform Security for Java, posing significant risk to confidentiality, integrity, and availability of enterprise data."
+CVE-2026-34486,"product: Apache Tomcat
+category: enterprise server software
+reason: This vulnerability allows bypass of encryption, potentially exposing sensitive data, and has a high likelihood of being exploited due to its wide enterprise usage."
+CVE-2025-68921,"product: SteelSeries Nahimic 3
+category: desktop app
+reason: This vulnerability allows directory traversal, potentially enabling unauthorized access to sensitive files, posing a significant risk to user data privacy."
+CVE-2026-31413,"product: Linux kernel
+category: operating system
+reason: This vulnerability, if exploited, could lead to out-of-bounds map access, potentially causing system crashes or arbitrary code execution."
+CVE-2025-71260,"product: BMC FootPrints ITSM
+category: enterprise server software
+reason: This vulnerability allows authenticated attackers to execute arbitrary code, potentially leading to full application compromise."
+CVE-2026-6423,"product: ESET Inspect Connector
+category: enterprise server software
+reason: This vulnerability poses a local privilege escalation risk due to improper authentication in an IPC channel, potentially allowing unauthorized access to sensitive data or system functions."
+CVE-2026-4649,"product: Apache Artemis, KNIME Business Hub
+category: enterprise server software
+reason: This vulnerability allows unauthorized access to read and inject messages, potentially exposing sensitive data and enabling message manipulation."
+CVE-2026-66804,"product: Windows Cross Device Service
+category: operating system
+reason: This vulnerability allows an attacker to elevate privileges locally, posing a significant risk of unauthorized access and potential system compromise."
+CVE-2026-15718,"product: Firefox, Thunderbird
+category: browser
+reason: This vulnerability, if exploited, could allow remote code execution, posing a significant risk to users, especially with public exploit code available."
+CVE-2026-6644,"product: PPTP VPN Clients, ADM
+category: network device
+reason: This vulnerability allows command injection, enabling Remote Code Execution (RCE), potentially leading to full system compromise."
+CVE-2026-1457,"product: TP-Link VIGI C385 V1
+category: network device
+reason: This vulnerability, if exploited, could allow remote code execution, posing a significant risk of unauthorized access and control over the device."
+CVE-2026-66374,"product: Knot Resolver, network device
+category: library or developer tool
+reason: This vulnerability allows remote code execution, posing a significant risk of unauthorized access and potential system compromise."
+CVE-2026-5270,"Product: Ciena Navigator Network Control Suite, Manage Control Plan, Blue Planet
+Category: Network device
+Reason: This vulnerability allows unauthenticated attackers to bypass authentication and audit logging, potentially leading to unauthorized network control and data manipulation."
+CVE-2026-0233,"product: Palo Alto Networks Autonomous Digital Experience Manager
+category: network device
+reason: This vulnerability allows arbitrary code execution with SYSTEM privileges, posing a severe risk of unauthorized system access and control."
+CVE-2026-2473,"product: Google Cloud Vertex AI
+category: enterprise server software
+reason: This vulnerability allows unauthenticated remote code execution and model theft, posing a significant risk of data compromise and system disruption."
+CVE-2026-82329,"product: JFrog Artifactory
+category: enterprise server software
+reason: This vulnerability allows unauthenticated attackers to gain administrative privileges, posing a significant risk of unauthorized access and control over the system."
+CVE-2026-1283,"product: SOLIDWORKS eDrawings
+category: desktop app
+reason: This Heap-based Buffer Overflow vulnerability could allow arbitrary code execution, posing a significant risk if exploited, especially given its wide enterprise usage."
+CVE-2026-4113,"product: SonicWall SMA1000 series appliances
+category: network device
+reason: This vulnerability allows unauthorized enumeration of SSL VPN user credentials, potentially exposing sensitive data to remote attackers."
+CVE-2026-12352,"product: Smart Home Device, category: IoT or consumer device
+reason: This vulnerability poses a significant risk as it allows unauthenticated access to restricted resources, potentially leading to data breaches or system manipulation."
+CVE-2026-42945,"product: NGINX Plus, NGINX Open Source
+category: network device
+reason: This vulnerability, if exploited, could lead to a heap buffer overflow, causing a restart and potentially enabling code execution on susceptible systems, posing a significant security risk."
+CVE-2026-4795,"product: Zyxel GS1200-5v3, GS1200-8v3, GS1200-5HPv3, GS1200-8HPv3, GS1200-10v3
+category: network device
+reason: This vulnerability allows unauthenticated attackers to read sensitive system configurations via crafted HTTP requests, posing a significant risk of data"
+CVE-2026-8793,"product: PaperCut NG/MF, category: enterprise server software
+reason: This vulnerability allows unrestricted brute-force attacks, potentially leading to unauthorized access."
+CVE-2026-48133,"product: Cisco Adaptive Security Appliance (ASA)
+category: network device
+reason: This vulnerability allows unauthorized access to internal files, potentially exposing sensitive data, and could be exploited by unauthenticated users."
+CVE-2026-10053,"product: GitLab CE/EE
+category: enterprise server software
+reason: This vulnerability allows authenticated users to execute remote code, potentially compromising the entire system."
+CVE-2026-16337,"product: dotCMS, category: enterprise server software
+reason: This vulnerability allows low-privileged users to self-assign administrative roles and execute arbitrary shell commands, leading to remote code execution."
+CVE-2026-3511,"product: Slovensko.Digital Autogram
+category: enterprise server software
+reason: This vulnerability allows remote unauthenticated attackers to conduct SSRF attacks, potentially exposing local files on filesystems, posing a significant risk of data leakage."
+CVE-2026-27180,"product: MajorDoMo (Vendor and Product not specified)
+category: enterprise server software
+reason: This vulnerability allows unauthenticated remote code execution, posing a significant risk of system compromise, especially for widely used enterprise software."
+CVE-2026-33826,"product: Windows Active Directory
+category: enterprise server software
+reason: This vulnerability, if exploited, could allow an attacker to execute arbitrary code, potentially leading to a complete system compromise, given its widespread use in enterprises."
+CVE-2026-12342,"product: IdentityIQ by Oracle
+category: enterprise server software
+reason: This unauthenticated remote code execution vulnerability poses a significant risk due to improper input validation, potentially allowing full system access."
+CVE-2026-22557,"product: UniFi Network Application
+category: network device
+reason: This vulnerability allows unauthorized access to sensitive files and potential account manipulation, posing a significant risk to enterprise data security."
+CVE-2026-48909,"product: SP LMS (com_splms) by JoomShaper
+category: enterprise server software
+reason: Unvalidated deserialization allows arbitrary code execution, posing a significant risk of remote exploitation."
+CVE-2026-21508,"product: Windows Storage
+category: operating system
+reason: This vulnerability allows an attacker to elevate privileges locally, posing a significant risk of unauthorized access and potential system compromise."
+CVE-2026-23918,"product: Apache HTTP Server
+category: enterprise server software
+reason: This vulnerability, a double free issue, could lead to remote code execution, posing a significant risk to internet-facing services, especially for enterprises using the affected version."
+CVE-2026-23870,"product: React Server, library or developer tool
+category: enterprise server software
+reason: This denial of service vulnerability, if exploited, could lead to server crashes, affecting widely used React server packages, necessitating immediate patching to maintain application stability and security."
+CVE-2026-1284,"product: SOLIDWORKS eDrawings
+category: desktop app
+reason: This vulnerability, if exploited, could allow arbitrary code execution, posing a significant risk of unauthorized system access or control."
+CVE-2026-46840,"Product: Oracle REST Data Services
+Category: Enterprise server software
+Reason: This vulnerability, affecting Oracle's widely used REST Data Services, allows unauthenticated attackers to compromise the service via HTTPS, posing significant risk to confidentiality, integrity, and availability."
+CVE-2026-22199,"product: Voltronic Power SNMP Web Pro version 1.1
+category: network device
+reason: This pre-authentication path traversal vulnerability allows unauthenticated attackers to read arbitrary files, potentially exposing sensitive data and enabling full system compromise."
+CVE-2026-79680,"product: Qt VNC Server
+category: network device
+reason: This CVE poses a significant risk as it allows unauthorized remote access, compromising session confidentiality and integrity."
+CVE-2026-18963,"product: Keycloak, enterprise server software
+category: enterprise server software
+reason: This vulnerability allows unauthenticated attackers to force password resets, potentially gaining full control over user accounts."
+CVE-2026-15724,"product: ShareFile Storage Zones Controller
+category: enterprise server software
+reason: This vulnerability allows authenticated administrative users to read arbitrary files, write files to arbitrary directories, and determine file existence, posing a significant risk of unauthorized data access and manipulation."
+CVE-2026-78416,"product: Craft CMS
+category: enterprise server software
+reason: This vulnerability allows authenticated remote code execution, potentially enabling full system compromise if exploited."
+CVE-2026-4415,"product: Gigabyte Control Center
+category: enterprise server software
+reason: This vulnerability allows arbitrary code execution or privilege escalation, posing a significant risk to the entire system when exploited."
+CVE-2026-8843,"product: MongoDB Server
+category: enterprise server software
+reason: This vulnerability could lead to a denial of service (DoS) attack, impacting the availability of MongoDB instances running affected versions."
+CVE-2026-3470,"product: SonicWall Email Security appliance
+category: network device
+reason: This vulnerability, if exploited, could lead to data corruption in the application database, potentially causing significant disruption to enterprise email services."
+CVE-2026-9198,"product: IBM Langflow OSS
+category: enterprise server software
+reason: This vulnerability allows full Remote Code Execution (RCE) on default deployments, posing a significant risk for unauthorized access and potential system compromise."
+CVE-2026-14960,"product: Pegatron Tdelo64.sys
+category: enterprise server software
+reason: This vulnerability allows unauthorized access to hardware registers, potentially leading to system instability, firmware tampering, and persistent low-level compromise."
+CVE-2026-12935,"product: TL-WR940N v6 router
+category: network device
+reason: This vulnerability, a stack-based buffer overflow in the RTSP module, can lead to remote code execution, potentially compromising the entire device, and is exploitable by unauthenticated attackers."
+CVE-2026-21994,"product: Oracle Edge Cloud Infrastructure Designer and Visualisation Toolkit
+category: desktop app
+reason: This vulnerability allows unauthenticated attackers to take over the product via easily exploitable HTTP-based flaw, posing significant risk to confidentiality, integrity, and availability."
+CVE-2026-41882,"product: IntelliJ IDEA, vendor and product
+category: desktop app
+reason: This vulnerability allows arbitrary local file reading, potentially exposing sensitive data, and could be exploited via the built-in web server, posing a significant risk to enterprises using this software."
+CVE-2026-1340,"product: Ivanti Endpoint Manager Mobile
+category: enterprise server software
+reason: This CVE poses a critical risk due to its potential for unauthenticated remote code execution, which could lead to full system compromise, especially given its widespread enterprise usage."
+CVE-2026-8979,"product: Mennekes Amtron series
+category: network device
+reason: This vulnerability allows unauthorized password changes, potentially leading to full system compromise."
+CVE-2025-69985,"product: FUXA 1.2.8
+category: enterprise server software
+reason: This vulnerability allows remote code execution, enabling full system compromise, posing a significant risk if exploited."
+CVE-2026-5039,"product: TP-Link TL-WR841N v13
+category: network device
+reason: This vulnerability allows unauthorized access, data reading, configuration modification, and device reboot, posing significant integrity and availability risks."
+CVE-2026-33006,"product: Apache HTTP Server 2.4.66
+category: enterprise server software
+reason: This vulnerability allows a timing attack, potentially bypassing Digest authentication, posing a significant risk to secure data transmission."
+CVE-2026-29201,"product: AdminBin software, category: enterprise server software
+reason: This vulnerability allows arbitrary file read, potentially exposing sensitive data, and could be exploited by attackers with administrative privileges."
+CVE-2026-3843,"product: Nefteprodukttekhnika BUK TS-G
+category: enterprise server software
+reason: This SQL Injection vulnerability in the system configuration module could allow a remote attacker to execute arbitrary SQL commands, potentially leading to remote code execution, posing a significant risk to the entire system."
+CVE-2026-46817,"product: Oracle E-Business Suite, Payments
+category: enterprise server software
+reason: This vulnerability allows unauthenticated attackers to take over Oracle Payments via HTTP, posing a high risk to confidentiality, integrity, and availability."
+CVE-2026-4913,"product: Ivanti N-ITSM
+category: enterprise server software
+reason: This vulnerability allows unauthorized access to a disabled account, posing a significant security risk."
+CVE-2026-66373,"product: Redis, category: enterprise server software
+reason: This vulnerability allows remote code execution, posing a significant risk if exploited, especially for authenticated users."
+CVE-2026-69414,"product: Microsoft Defender, category: enterprise server software
+reason: This vulnerability, if exploited, could allow attackers to elevate privileges, potentially gaining unauthorized access to sensitive data and system functions in Microsoft Defender."
+CVE-2026-2636,"product: Windows 11 2024 LTSC, Windows Server 2025
+category: operating system
+reason: This vulnerability allows unprivileged users to trigger a system crash, potentially leading to unauthorized access or denial-of-service attacks."
+CVE-2026-32688,"product: Plug.Cowboy, network device
+category: library or developer tool
+reason: This vulnerability allows unauthenticated remote denial of service via atom table exhaustion, potentially taking down the entire node."
+CVE-2026-8054,"product: dotCMS Core
+category: enterprise server software
+reason: This SQL injection vulnerability in the Publish Audit API allows remote unauthenticated attackers to read, modify, or destroy arbitrary database content, posing a significant risk to data integrity and confidentiality."
+CVE-2026-22733,"product: Spring Boot, Actuator
+category: enterprise server software
+reason: This vulnerability allows unauthorized access to authenticated endpoints, posing a significant risk of data breaches and system compromise."
+CVE-2019-25764,"product: ASUS AURA SYNC driver
+category: enterprise server software
+reason: This vulnerability allows local users to escalate privileges, potentially gaining unauthorized access to sensitive data or system functions."
+CVE-2026-53976,"product: OpenChamber 1.11.7
+category: enterprise server software
+reason: This vulnerability allows unauthenticated remote attackers to read sensitive files, potentially leading to full authentication bypass, posing a significant risk to data confidentiality and integrity."
+CVE-2025-21589,"product: Juniper Networks Session Smart Router, Session Smart Conductor, WAN Assurance Managed Routers
+category: network device
+reason: This vulnerability allows a network-based attacker to bypass authentication and gain administrative control, posing a significant risk to network security."
+CVE-2026-64633,"product: <Vendor and product not specified, assume generic software>
+category: network device
+reason: This vulnerability, if exploited, could allow unauthorized remote code execution, potentially leading to full system compromise, posing a significant risk to enterprise data and operations."
+CVE-2026-59509,"product: cve-search, category: web app or plugin
+reason: This vulnerability allows unauthenticated attackers to read sensitive data from the mgmt_users MongoDB collection, potentially exposing administrative credentials and enabling account compromise."
+CVE-2025-36911,"product: Key-based pairing software
+category: Network device
+reason: This vulnerability allows unauthorized access to user's conversations and location, posing a significant risk of data breach and privacy infringement."
+CVE-2026-54107,"product: Windows operating system
+category: operating system
+reason: This vulnerability, if exploited, could allow an attacker to gain elevated privileges, potentially leading to a complete system compromise."
+CVE-2026-31908,"product: Apache APISIX
+category: enterprise server software
+reason: This header injection vulnerability, if exploited, could allow unauthorized data manipulation, posing a significant risk to enterprise data integrity and confidentiality."
+CVE-2026-40970,"product: Spring Boot, Elasticsearch
+category: enterprise server software
+reason: This vulnerability allows unauthorized access to Elasticsearch by bypassing SSL hostname verification, posing a significant risk to sensitive data."
+CVE-2026-58586,"product: Image::WebP, Perl module
+category: library or developer tool
+reason: This vulnerability poses a risk as it allows exploitation of an outdated, bundled libwebp version, potentially leading to arbitrary code execution when processing untrusted WebP images."
+CVE-2026-41462,"product: ProjeQtor, category: enterprise server software
+reason: This unpatched SQL injection vulnerability in ProjeQtor's login functionality could allow attackers to create privileged accounts, read sensitive data, and execute OS commands, posing a significant risk to data integrity and system control."
+CVE-2026-6058,"product: Zyxel WRE6505 v2
+category: network device
+reason: This vulnerability allows an adjacent attacker to cause a denial-of-service (DoS) condition in the web management interface, posing a significant risk to network availability."
+CVE-2026-61343,"product: LibreBooking
+category: enterprise server software
+reason: This vulnerability allows arbitrary file write and code execution, posing a significant risk of unauthorized system access and potential data breaches."
+CVE-2026-60280,"product: Oracle Coherence
+category: enterprise server software
+reason: This vulnerability allows unauthenticated attackers to exploit Oracle Coherence via HTTP/2, potentially leading to full takeover, posing a significant risk to enterprise data and operations."
+CVE-2026-60290,"product: Oracle Coherence
+category: enterprise server software
+reason: This vulnerability allows unauthenticated attackers to take over Oracle Coherence via HTTP, posing a high risk to confidentiality, integrity, and availability."
+CVE-2026-25815,"product: Fortinet FortiOS
+category: network device
+reason: This vulnerability allows attackers to decrypt LDAP credentials, potentially gaining unauthorized access to the device and its network."
+CVE-2026-31843,"product: goodoneuz/pay-uz Laravel package
+category: library or developer tool
+reason: Unauthenticated attackers can overwrite PHP payment hook files, posing a critical risk to application integrity and data integrity."
+CVE-2026-21969,"Product: Oracle Agile Product Lifecycle Management for Process
+Category: Enterprise server software
+Reason: This vulnerability allows unauthenticated attackers to take over the affected product via HTTP, posing a significant risk to confidentiality, integrity, and availability."
+CVE-2025-15551,"product: TP-Link router models
+category: network device
+reason: This vulnerability allows attackers to execute arbitrary JavaScript code on the router's admin web portal, potentially leading to unauthorized access and control over the device."
+CVE-2026-18504,"product: fastify, category: library or developer tool
+reason: This vulnerability allows bypassing schema validation, potentially leading to unauthorized access or data corruption."
+CVE-2026-33001,"product: Jenkins, enterprise server software
+category: enterprise server software
+reason: This vulnerability allows attackers to deploy malicious scripts on the Jenkins controller, posing a significant risk to the entire system's integrity."
+CVE-2025-15545,"product: Backup Software, category: enterprise server software
+reason: This vulnerability allows arbitrary command execution with root privileges, compromising system integrity and availability."
+CVE-2026-65310,"product: ANDRITZ HIPASE-250, category: network device
+reason: This vulnerability exposes sensitive data and configuration without authentication, allowing unauthorized access and potential manipulation of live process values."
+CVE-2026-15583,"product: Grafana MCP Server
+category: enterprise server software
+reason: This CVE poses a significant risk due to its potential for unauthorized token exfiltration and Server-Side Request Forgery (SSRF), enabling access to internal services and cloud metadata endpoints."
+CVE-2026-6516,"product: ManageEngine ADAudit Plus
+category: enterprise server software
+reason: Unauthenticated remote code execution vulnerability poses a significant risk of unauthorized access and potential system takeover."
+CVE-2026-5509,"product: Archer BE450 v1, BE7200 v1 routers
+category: network device
+reason: This vulnerability allows authenticated attackers to execute arbitrary system commands, potentially leading to full compromise of the router's operating environment."
+CVE-2026-2812,"product: ArcGIS Server, category: enterprise server software
+reason: This vulnerability, if exploited, could disrupt the web-based browsing interface, impacting enterprise operations reliant on ArcGIS Server."
+CVE-2026-4368,"product: NetScaler ADC, NetScaler Gateway
+category: network device
+reason: This CVE, a race condition, could lead to user session mixup, potentially allowing unauthorized access to sensitive data or control of user sessions."
+CVE-2026-24423,"product: SmarterMail, vendor: SmarterTools
+category: enterprise server software
+reason: This unauthenticated remote code execution vulnerability could allow an attacker to execute arbitrary OS commands, posing a significant risk to the entire system."
+CVE-2026-6886,"product: Borg SPM 2007
+category: enterprise server software
+reason: This vulnerability allows unauthorized access as any user, posing a significant risk of data breaches and system manipulation."
+CVE-2025-69258,"product: Trend Micro Apex Central
+category: enterprise server software
+reason: This vulnerability, if exploited, could allow unauthenticated remote attackers to execute arbitrary code with SYSTEM privileges, posing a severe risk to the entire system."
+CVE-2026-89013,"product: Dolibarr ERP/CRM
+category: enterprise server software
+reason: This vulnerability allows unauthenticated attackers to read arbitrary files, potentially exposing sensitive data like application logs, business documents, and password hashes."
+CVE-2026-5965,"product: NewSoftOA
+category: enterprise server software
+reason: This OS Command Injection vulnerability, if exploited, could allow unauthorized access and control over the server, posing a significant risk to data integrity and confidentiality."
+CVE-2026-21902,"product: Juniper Networks Junos OS Evolved on PTX Series
+category: network device
+reason: This vulnerability allows an unauthenticated attacker to execute code as root, granting complete control over the device, posing a significant risk to network security."
+CVE-2026-60232,"product: Oracle Coherence
+category: enterprise server software
+reason: This vulnerability allows unauthenticated attackers to take over Oracle Coherence via HTTP, posing a high risk to confidentiality, integrity, and availability."
+CVE-2025-56005,"product: PLY library 3.11
+category: library or developer tool
+reason: This vulnerability allows Remote Code Execution (RCE) via an undocumented feature, posing a significant risk of stealthy backdoor and persistence, despite disputes over proof of concept success."
+CVE-2026-24017,"product: Fortinet FortiWeb
+category: network device
+reason: This vulnerability allows bypassing authentication rate-limit, potentially enabling unauthorized access to the FortiWeb platform."
+CVE-2026-43512,"product: Apache Tomcat
+category: enterprise server software
+reason: This CVE affects widely used Apache Tomcat versions, and there's a risk of authentication bypass, potentially leading to unauthorized access."
+CVE-2026-13585,"product: ASUS System Control Interface, ASUS Business Manager
+category: enterprise server software
+reason: This vulnerability allows a local administrator to disclose sensitive information and cause a Denial of Service (DoS), posing a significant risk to system integrity and availability."
+CVE-2025-14558,"product: rtsol, rtsold (network device)
+category: network device
+reason: This vulnerability could allow an attacker to execute arbitrary commands on the system by manipulating router advertisement messages, posing a significant network-level security risk."
+CVE-2025-64093,"product: Network device, category: Network device
+reason: This vulnerability, if exploited, could allow unauthorized remote control of devices, posing a significant risk to enterprise networks."
+CVE-2026-5189,"product: Sonatype Nexus Repository Manager
+category: enterprise server software
+reason: This vulnerability allows unauthorized access and OS command execution, posing a significant risk of data breach and system compromise."
+CVE-2026-18886,"product: ServiceNow AI platform
+category: enterprise server software
+reason: This vulnerability allows unauthenticated users to escalate privileges and modify instance data, posing a significant risk of unauthorized access and data manipulation."
+CVE-2026-15469,"product: Deco XE75, XE5300 v3.6, WE10800 v3.6
+category: network device
+reason: This vulnerability allows unauthorized impersonation of mesh nodes, potentially leading to unauthorized changes in device or mesh configuration, impacting confidentiality, integrity, and availability."
+CVE-2026-6057,"product: FalkorDB Browser 1.9.3
+category: browser
+reason: This unauthenticated path traversal vulnerability allows remote attackers to write arbitrary files and execute arbitrary code, posing a severe risk of unauthorized access and potential system compromise."
+CVE-2026-67401,"product: cPanel
+category: enterprise server software
+reason: This vulnerability, if exploited, allows remote code execution as root, posing a severe risk to the server's integrity and control."
+CVE-2026-22721,"product: VMware Aria Operations
+category: enterprise server software
+reason: This privilege escalation vulnerability could allow unauthorized administrative access, posing a significant risk to the security of VMware Aria Operations."
+CVE-2024-14027,"product: Linux kernel
+category: operating system
+reason: This vulnerability, if exploited, could lead to kernel memory exhaustion, potentially causing system crashes or denial of service."
+CVE-2026-14266,"product: 7-Zip
+category: desktop app
+reason: This vulnerability allows remote code execution, requiring only user interaction, posing a significant risk of unauthorized access and system compromise."
+CVE-2024-39024,"product: Packetfence 13.2.0
+category: enterprise server software
+reason: This vulnerability allows authenticated remote code execution, posing a significant risk of unauthorized access and potential system compromise."
+CVE-2026-18751,"product: Citrix WorkSpace App, category: enterprise server software
+reason: This vulnerability allows external control of file paths, potentially enabling attackers to execute arbitrary code, posing a significant risk to enterprise systems."
+CVE-2026-37073,"product: Veno File Manager Project
+category: enterprise server software
+reason: This vulnerability allows unauthenticated attackers to send emails via SMTP, potentially leading to email spoofing, phishing, or data theft."
+CVE-2026-6876,"product: ServiceNow AI Platform
+category: enterprise server software
+reason: This vulnerability allows unauthenticated users to execute arbitrary code, potentially leading to unauthorized access to the ServiceNow AI Platform."
+CVE-2026-7255,"product: Zyxel WRE6505 v2
+category: network device
+reason: This vulnerability allows for brute-force attacks, potentially leading to unauthorized access, posing a significant risk to network security."
+CVE-2026-0229,"product: Palo Alto Networks PAN-OS®
+category: network device
+reason: This vulnerability allows an unauthenticated attacker to initiate system reboots and force the firewall into maintenance mode, causing a denial-of-service (DoS) condition."
+CVE-2025-50881,"product: Use It Flow administration website
+category: enterprise server software
+reason: This vulnerability allows remote code execution, enabling unauthenticated attackers to execute arbitrary PHP code, posing a significant risk to the server's integrity and confidentiality."
+CVE-2026-5268,"product: Ciena products
+category: network device
+reason: This vulnerability allows unauthorized access to the underlying filesystem, potentially leading to data theft or corruption."
+CVE-2026-22737,"product: Spring Framework
+category: enterprise server software
+reason: This vulnerability allows disclosure of sensitive files, posing a significant risk to data confidentiality in applications using affected Spring versions."
+CVE-2026-40564,"product: Apache Flink Kubernetes Operator
+category: enterprise server software
+reason: This vulnerability allows unauthorized access to sensitive files and internal network resources, posing a significant risk of data leakage or system compromise."
+CVE-2025-62348,"product: Juniper Networks SaltStack
+category: network device
+reason: This vulnerability, if exploited, could allow unauthorized code execution on internet-facing SaltStack instances, posing a significant risk to enterprise networks."
+CVE-2026-75616,"product: Archer C20 v6 firmware
+category: network device
+reason: This vulnerability, if exploited, could lead to full device compromise, potentially compromising network traffic and data integrity, integrity, and availability."
+CVE-2026-1023,"product: Statistics Database System, Gotac
+category: enterprise server software
+reason: This vulnerability allows unauthenticated remote attackers to directly query database contents, posing a significant risk of data breach."
+CVE-2026-73519,"product: WolfStack, vendor and product
+category: enterprise server software
+reason: This vulnerability allows unauthenticated attackers to execute arbitrary commands as root, posing a severe risk of system compromise."
+CVE-2026-47836,"product: Spring Cloud Config Server
+category: enterprise server software
+reason: Due to its widespread use in enterprise environments and the potential for TOCTOU attacks, this vulnerability requires immediate patching to prevent unauthorized access or data manipulation."
+CVE-2025-15519,"product: TP-Link Archer NX200, NX210, NX500, NX600
+category: network device
+reason: This vulnerability allows arbitrary command execution on the operating system, potentially leading to full system compromise, impacting confidentiality, integrity, and availability."
+CVE-2026-66491,"product: Joomla Extension - Phoca.cz
+category: web app or plugin
+reason: This arbitrary file read vulnerability could allow unauthorized access to sensitive information, posing a significant risk to data integrity and confidentiality."
+CVE-2025-15518,"product: TP-Link Archer NX200, NX210, NX500, NX600
+category: network device
+reason: This vulnerability allows arbitrary command execution on the operating system, potentially leading to full system compromise, impacting confidentiality, integrity, and availability."
+CVE-2026-67363,"product: Joomla Extension - Balbooa Forms
+category: web app or plugin
+reason: This vulnerability allows unauthenticated attackers to purchase any priced item for an arbitrary amount, potentially leading to financial loss and unauthorized access."
+CVE-2026-28326,"product: SolarWinds Access Rights Manager
+category: enterprise server software
+reason: This unauthenticated remote code execution vulnerability, stemming from a hardcoded static key, poses a significant risk of unauthorized access and potential system compromise."
+CVE-2026-16723,"product: fastjson library
+category: library or developer tool
+reason: This RCE vulnerability, exploitable in default configuration, poses a significant risk of unauthorized code execution, potentially leading to system compromise."
+CVE-2026-3183,"product: ManageEngine ADSelfService Plus
+category: enterprise server software
+reason: This vulnerability allows bypass of Multi Factor Authentication, potentially exposing sensitive systems to unauthorized access."
+CVE-2026-40044,"product: Pachno 1.0.6
+category: enterprise server software
+reason: This vulnerability allows unauthenticated attackers to execute arbitrary code, posing a significant risk of unauthorized access and potential system compromise."
+CVE-2026-4312,"product: DrangSoft GCB/FCB Audit Software
+category: enterprise server software
+reason: This vulnerability allows unauthenticated remote attackers to create administrative accounts, potentially leading to full system control."
+CVE-2026-49042,"product: Apache Camel
+category: library or developer tool
+reason: This vulnerability, an improper input validation issue, could potentially allow unauthorized access or data manipulation, posing a significant risk to enterprise systems using Apache Camel."
+CVE-2026-16247,"product: Bizerba connect.BRAIN
+category: enterprise server software
+reason: This vulnerability grants unauthorized access to critical directories, posing a significant risk of data breaches or system manipulation."
+CVE-2026-74820,"product: ServiceNow AI platform
+category: enterprise server software
+reason: This SQL injection vulnerability, if exploited, could allow unauthenticated users to execute arbitrary SQL statements, potentially gaining unauthorized access to sensitive data."
+CVE-2026-2031,"product: Google Cloud Application Integration
+category: enterprise server software
+reason: This vulnerability allows remote, unauthenticated attackers to disclose sensitive information and execute arbitrary code, posing a significant risk of data breach and system compromise."
+CVE-2026-1022,"product: Statistics Database System, Gotac
+category: enterprise server software
+reason: This vulnerability allows unauthenticated remote attackers to read arbitrary system files, posing a significant risk of sensitive data exposure."
+CVE-2026-62422,"product: JetBrains YouTrack
+category: enterprise server software
+reason: This vulnerability allows for authentication bypass and administrative access, posing a significant risk of unauthorized system control."
+CVE-2026-22666,"product: Dolibarr ERP/CRM
+category: enterprise server software
+reason: This vulnerability allows authenticated attackers with administrator privileges to execute arbitrary commands, posing a significant risk of unauthorized access and system compromise."
+CVE-2026-67689,"product: FineAdmin V1.0
+category: enterprise server software
+reason: This SQL Injection vulnerability, if exploited, could allow a remote attacker to execute arbitrary code, posing a significant risk to the entire system's integrity and data confidentiality."
+CVE-2026-44907,"product: React server packages
+category: library or developer tool
+reason: This denial of service vulnerability, triggered by specially crafted HTTP requests, could lead to excessive CPU usage, potentially causing service disruption."
+CVE-2026-33371,"product: Zimbra Collaboration (ZCS)
+category: enterprise server software
+reason: This vulnerability allows disclosure of sensitive local files, potentially exposing confidential data, and can be exploited by authenticated attackers."
+CVE-2026-24306,"product: Azure Front Door, network device
+category: enterprise server software
+reason: This vulnerability allows unauthorized privilege escalation, posing a significant risk to the security of enterprise networks utilizing AFD."
+CVE-2026-67282,"product: Joomla Extension - fabrikar.com
+category: web app or plugin
+reason: This unauthenticated remote code execution vulnerability could allow an attacker to gain full control over the affected Joomla site, posing a significant risk to data integrity and confidentiality."
+CVE-2025-34171,"product: CasaOS
+category: operating system
+reason: This vulnerability exposes sensitive configuration files and system debug information, enabling reconnaissance and potential targeted attacks."
+CVE-2026-8697,"product: Archer C64 v1
+category: network device
+reason: Due to improper authentication rate-limiting, this vulnerability allows unrestricted SSH authentication attempts, potentially exposing administrative credentials and enabling full device control."
+CVE-2026-64600,"product: Linux kernel
+category: operating system
+reason: This vulnerability could allow unauthorized data access or modification due to stale data fork mappings, posing a significant risk to system integrity."
+CVE-2025-68721,"product: Axigen Mail Server
+category: enterprise server software
+reason: This vulnerability allows unauthorized access to sensitive SSL certificate files, posing a significant risk of data theft or service disruption."
+CVE-2026-48449,"product: Adobe Campaign Classic
+category: enterprise server software
+reason: This vulnerability, if exploited, could allow arbitrary code execution, posing a significant risk to the confidentiality, integrity, and availability of the affected system."
+CVE-2026-9177,"product: Axway SecureTransport
+category: enterprise server software
+reason: This SSTI vulnerability, if exploited, allows full host compromise, posing a severe risk to the server's integrity and data confidentiality."
+CVE-2026-16348,"product: TP-Link Archer BE800 V1
+category: network device
+reason: This vulnerability allows an attacker with administrative access to execute arbitrary system commands, potentially enabling persistent backdoors, credential theft, and router-assisted attacks against connected devices."
+CVE-2026-33824,"product: Windows IKE Extension
+category: network device
+reason: This vulnerability, a double free error, poses a significant risk as it allows unauthorized code execution over a network, impacting widely used enterprise software."
+CVE-2026-70553,"product: MaxSite CMS
+category: enterprise server software
+reason: This vulnerability allows unauthenticated remote code execution, enabling attackers to persistently execute arbitrary PHP code, posing a significant risk to the integrity and confidentiality of the affected system."
+CVE-2026-35253,"product: Oracle Macaron Tool
+category: library or developer tool
+reason: This vulnerability allows unauthenticated attackers to compromise the Oracle Macaron Tool, potentially leading to denial of service due to failed host address validation."
+CVE-2026-1333,"product: SOLIDWORKS eDrawings
+category: desktop app
+reason: This vulnerability, if exploited, could allow arbitrary code execution, posing a significant risk of unauthorized system access or control."
+CVE-2026-43831,"product: Log message functionality in enterprise server software
+category: enterprise server software
+reason: This vulnerability, if exploited, could allow unauthenticated attackers to execute arbitrary code, posing a significant risk to the entire system's integrity."
+CVE-2026-32997,"product: Veeam Backup & Replication
+category: enterprise server software
+reason: This vulnerability allows unauthorized file writing, potentially leading to system compromise, especially given its widespread enterprise use."
+CVE-2026-3071,"product: Flair library
+category: library or developer tool
+reason: This vulnerability poses a high risk of arbitrary code execution, potentially compromising any application utilizing Flair's LanguageModel class."
+CVE-2026-21858,"product: n8n workflow automation platform
+category: enterprise server software
+reason: This vulnerability allows unauthenticated remote attackers to access sensitive files, potentially exposing confidential data and enabling further system compromise."
+CVE-2026-58246,"Product: SAP NetWeaver Application Server for ABAP
+Category: enterprise server software
+Reason: This vulnerability allows high impact on confidentiality by enabling impersonation of legitimate users, potentially leading to unauthorized access and data breaches."
+CVE-2026-25770,"product: Wazuh Manager, category: enterprise server software
+reason: This vulnerability allows full Root Remote Code Execution, posing a severe risk of unauthorized system access and control."
+CVE-2026-1880,"product: ASUS DriverHub
+category: enterprise server software
+reason: This vulnerability allows local users to escalate privileges via unprivileged modifications during the update process, posing a significant risk of unauthorized system access."
+CVE-2025-50328,"product: B1 Free Archiver v1.5.86
+category: desktop app
+reason: This vulnerability allows untrusted code execution bypassing Windows security restrictions, posing a significant risk of malware infection."
+CVE-2026-43829,"product: SafeEnhancement feature in enterprise server software
+category: enterprise server software
+reason: This vulnerability, if exploited, could allow unauthenticated attackers to execute arbitrary code, posing a significant risk to the entire system's integrity."
+CVE-2026-23947,"product: Orval, library or developer tool
+category: enterprise server software
+reason: This vulnerability allows arbitrary code execution, posing a significant risk if untrusted OpenAPI specifications are used, potentially leading to full system compromise."
+CVE-2025-15038,"product: ASUS Business System Control Interface
+category: enterprise server software
+reason: This vulnerability, if exploited, could lead to unauthorized kernel information disclosure or system crashes, posing a significant risk to enterprise systems."
+CVE-2026-2742,"product: Vaadin, library or developer tool
+category: enterprise server software
+reason: This vulnerability allows unauthorized access and session creation, posing a significant risk to sensitive enterprise data."
+CVE-2014-125112,"product: Plack::Middleware::Session::Cookie, category: library or developer tool
+reason: This vulnerability allows remote code execution, posing a significant risk if exploited, as it targets a widely used Perl library."
+CVE-2026-6023,"product: Telerik UI for AJAX
+category: enterprise server software
+reason: This vulnerability allows for server-side remote code execution, posing a significant risk if exploited."
+CVE-2025-40552,"product: SolarWinds Web Help Desk
+category: enterprise server software
+reason: This vulnerability allows unauthorized access and execution of protected actions, posing a significant risk to enterprise data security."
+CVE-2022-25369,"product: Dynamicweb
+category: enterprise server software
+reason: This vulnerability allows unauthenticated attackers to add a new administrator user, potentially leading to command execution, posing a significant risk to the system's integrity and control."
+CVE-2026-91843,"product: Unspecified Enterprise Server Software
+category: Enterprise Server Software
+reason: This CVE, indicating a stack overflow in unauthenticated login, poses a significant risk of remote code execution with root privileges, which could lead to complete system compromise."
+CVE-2026-23864,"product: React Server Components
+category: library or developer tool
+reason: Multiple denial of service vulnerabilities could lead to server crashes, out-of-memory exceptions, or excessive CPU usage, impacting application availability."
+CVE-2026-5788,"product: Ivanti EPMM
+category: enterprise server software
+reason: This vulnerability allows remote unauthenticated attackers to invoke arbitrary methods, potentially leading to unauthorized access and control over the system."
+CVE-2026-50656,"product: Microsoft Defender, category: enterprise server software
+reason: This vulnerability, if exploited, could allow attackers to elevate privileges, potentially gaining unauthorized access to sensitive data or system functions in enterprise environments."
+CVE-2026-66916,"product: JoomlaExtension joomgalleryfriends.net
+category: web app or plugin
+reason: This vulnerability allows unauthenticated access to password-protected categories, posing a significant risk of unauthorized data exposure."
+CVE-2026-5170,"product: MongoDB Server
+category: enterprise server software
+reason: This vulnerability can lead to a denial of service by causing a crash of the primary replica set during promotion, potentially disrupting services."
+CVE-2026-24728,"product: Interinfo DreamMaker
+category: enterprise server software
+reason: This vulnerability allows remote attackers to access critical administrative functionality without authentication, posing a significant risk of unauthorized access and potential system compromise."
+CVE-2025-12548,"product: Eclipse Che, enterprise server software
+category: enterprise server software
+reason: This vulnerability allows unauthenticated remote command execution and secret exfiltration, posing a significant risk to confidential data and system control."
+CVE-2026-20200,"product: Cisco IMC
+category: network device
+reason: This vulnerability allows an attacker to execute arbitrary commands as root, posing a significant risk of unauthorized system access and control."
+CVE-2026-53435,"product: Jenkins
+category: enterprise server software
+reason: This vulnerability allows attackers to impersonate users and execute arbitrary code, posing a significant risk to sensitive data and system control."
+CVE-2026-81849,"product: amazon-ssm-agent, category: enterprise server software
+reason: This vulnerability allows arbitrary code execution as root, posing a significant risk if exploited, especially given its wide enterprise usage."
+CVE-2025-11250,"product: ManageEngine ADSelfService Plus
+category: enterprise server software
+reason: This vulnerability allows unauthorized access due to improper authentication filters, posing a significant risk of data breach and system compromise."
+CVE-2025-60012,"product: Apache Livy, Apache Spark
+category: enterprise server software
+reason: This vulnerability allows unauthorized file access, posing a significant risk to sensitive data integrity and confidentiality."
+CVE-2026-19913,"product: Kaltura HTML5 player
+category: web app or plugin
+reason: This vulnerability allows unauthenticated, remote attackers to read internal files, posing a significant risk of sensitive data exposure."
+CVE-2026-50402,"product: Windows NTFS
+category: operating system
+reason: This vulnerability allows an attacker to elevate privileges locally, potentially leading to full system control."
+CVE-2025-15037,"product: ASUS Business System Control Interface
+category: enterprise server software
+reason: This vulnerability, if exploited, could allow unauthorized access to sensitive hardware resources and kernel information, posing a significant risk to the system's integrity and confidentiality."
+CVE-2026-8508,"product: Zyxel WAX650S
+category: network device
+reason: This vulnerability allows unauthorized access to the captive portal, potentially exposing sensitive data and network resources."
+CVE-2026-62737,"product: Windows Kernel
+category: operating system
+reason: This vulnerability allows an authorized attacker to elevate privileges locally, posing a significant risk of unauthorized access and control over the system."
+CVE-2026-27944,"product: Nginx UI
+category: enterprise server software
+reason: This vulnerability allows unauthenticated attackers to download and decrypt sensitive system backups, posing a significant risk of data theft and system compromise."
+CVE-2026-20129,"product: Cisco Catalyst SD-WAN Manager
+category: network device
+reason: This vulnerability allows unauthenticated remote attackers to gain netadmin role access, potentially executing commands with high privileges."
+CVE-2026-6902,"product: P4 (Helix Core) Server, Command-Line Client
+category: enterprise server software
+reason: This vulnerability allows remote code execution, posing a significant risk of unauthorized access and potential system compromise."
+CVE-2026-48313,"product: ColdFusion
+category: enterprise server software
+reason: This vulnerability could allow unauthorized access to sensitive files and directories, posing a significant risk to data integrity and confidentiality."
+CVE-2025-15568,"product: Archer AXE75 v1.6/v1.0 router
+category: network device
+reason: This vulnerability allows remote code execution (RCE) with root-level privileges, impacting confidentiality, integrity, and availability, and is exploitable via adjacent-network access."
+CVE-2026-69836,"product: Microsoft Entra ID
+category: enterprise server software
+reason: This vulnerability allows unauthorized code execution, posing a significant risk of a complete system compromise."
+CVE-2026-27842,"product: MR-GM5L-S1, MR-GM5A-L1
+category: network device
+reason: This vulnerability allows authentication bypass, potentially enabling unauthorized configuration changes, posing a significant risk to network integrity and data security."
+CVE-2026-76071,"product: Netis NC63 router
+category: network device
+reason: This vulnerability allows unauthenticated remote attackers to execute arbitrary code as root, posing a severe risk of complete system compromise."
+CVE-2026-32297,"product: Angeet ES3 KVM
+category: enterprise server software
+reason: This vulnerability allows remote, unauthenticated attackers to write arbitrary files, potentially leading to complete system control, posing a significant risk to enterprise data and operations."
+CVE-2026-62644,"product: Roundcube Webmail
+category: enterprise server software
+reason: This vulnerability, if exploited, could lead to unauthorized account takeover, posing a significant risk to sensitive email communications."
+CVE-2026-35031,"product: Jellyfin, category: enterprise server software
+reason: This vulnerability allows arbitrary file write, escalation of privileges, and potential remote code execution, posing a significant risk if exploited, especially for administrators or users with elevated permissions."
+CVE-2026-9586,"product: Sangoma Switchvox SMB Edition 8.3
+category: network device
+reason: This unauthenticated SQL injection vulnerability allows arbitrary SQL execution and potential remote code execution, posing a significant risk to the backend PostgreSQL database."
+CVE-2026-8651,"product: Progress MOVEit Transfer
+category: enterprise server software
+reason: This vulnerability allows limited authentication bypass by spoofing, potentially enabling unauthorized access to sensitive data."
+CVE-2026-19650,"product: GitLab CE/EE
+category: enterprise server software
+reason: This vulnerability allows unauthenticated users to execute mutations via GET requests, potentially leading to unauthorized data manipulation or system compromise."
+CVE-2026-23903,"product: Apache Shiro
+category: enterprise server software
+reason: This vulnerability allows authentication bypass, potentially exposing sensitive data or services to unauthorized users."
+CVE-2026-35545,"product: Roundcube Webmail
+category: web app or plugin
+reason: This vulnerability allows for information disclosure or access-control bypass via SVG content in e-mail messages, posing a significant risk to confidentiality and integrity."
+CVE-2026-75099,"product: Apache Allura, category: enterprise server software
+reason: This vulnerability allows unauthenticated disclosure of certain content items, potentially exposing sensitive data, necessitating immediate patching."
+CVE-2026-22444,"product: Apache Solr
+category: enterprise server software
+reason: This vulnerability allows unauthorized access to sensitive system files and NTLM hashes, posing a significant risk to enterprise data security."
+CVE-2026-5724,"product: gRPC frontend server, vendor and product: Google
+category: network device
+reason: This vulnerability allows unauthenticated access to a critical streaming endpoint, potentially leading to data exfiltration, posing a significant risk to data integrity and confidentiality."
+CVE-2026-6885,"product: Borg SPM 2007
+category: enterprise server software
+reason: Arbitrary code execution risk due to unauthenticated remote file upload vulnerability."
+CVE-2026-43832,"product: Cookie handling software, category: library or developer tool
+reason: This stack-based buffer overflow vulnerability, if exploited, could allow unauthenticated attackers to execute arbitrary code, posing a significant risk to the entire system."
+CVE-2026-23744,"product: MCPJam inspector
+category: enterprise server software
+reason: This vulnerability allows remote code execution, enabling unauthorized server installation, posing a significant risk to the integrity and security of the affected systems."
+CVE-2026-45584,"product: Microsoft Defender
+category: enterprise server software
+reason: This heap-based buffer overflow vulnerability, if exploited, could allow unauthorized code execution, posing a significant risk to the entire network infrastructure."
+CVE-2026-96515,"product: Netlink ICT HG323RW router
+category: network device
+reason: This vulnerability allows for complete compromise of the device with root privileges, enabling arbitrary command execution, posing a significant risk to network integrity and control."
+CVE-2026-45659,"product: Microsoft Office SharePoint
+category: enterprise server software
+reason: This vulnerability allows an attacker to execute arbitrary code, posing a significant risk of unauthorized access and potential system compromise."
+CVE-2026-21992,"Product: Oracle Identity Manager, Oracle Web Services Manager
+Category: Enterprise server software
+Reason: This vulnerability allows unauthenticated attackers to exploit REST WebServices, potentially taking over Oracle Identity Manager and Oracle Web Services Manager, impacting confidentiality, integrity, and availability."
+CVE-2026-98164,"product: Linux kernel
+category: operating system
+reason: This vulnerability could allow an attacker to exploit the KVM's memory management unit (MMU) to trigger a BUG, potentially leading to arbitrary code execution."
+CVE-2025-59468,"product: Backup Software
+category: enterprise server software
+reason: This vulnerability allows remote code execution as the postgres user, posing a significant risk of unauthorized system access and potential data breaches."
+CVE-2026-44417,"product: Apache CXF
+category: enterprise server software
+reason: Untrusted JMS configuration can lead to remote code execution, posing a significant risk if exploited."
+CVE-2025-67325,"product: QloApps
+category: enterprise server software
+reason: Unrestricted file upload allows remote code execution, posing significant risk to the entire system's integrity."
+CVE-2026-73905,"product: Helidon (Oracle Fusion Middleware)
+category: enterprise server software
+reason: This vulnerability allows unauthenticated attackers to take over Helidon via HTTP, posing a high risk to confidentiality, integrity, and availability."
+CVE-2026-76651,"product: TL-WR841N v14 router
+category: network device
+reason: This buffer overflow vulnerability in the HTTP service could allow an attacker to execute arbitrary code, disclose information, or cause a denial-of-service, posing a significant risk to the device's integrity and availability."
+CVE-2026-73912,"product: Helidon (Oracle Fusion Middleware)
+category: enterprise server software
+reason: This vulnerability allows unauthenticated attackers to take over Helidon via HTTP, posing a high risk to confidentiality, integrity, and availability."
+CVE-2026-14890,"product: SGLang, category: network device
+reason: This vulnerability allows unauthenticated remote code execution due to lack of authentication and deserialization safeguards in the ZeroMQ PULL socket, posing a significant risk of exploitation."
+CVE-2026-24301,"product: Microsoft Copilot
+category: enterprise server software
+reason: This vulnerability, classified as command injection, could allow unauthorized disclosure of sensitive information over a network, posing a significant risk to enterprise data security."
+CVE-2026-10056,"product: Network Optix Nx Witness VMS
+category: enterprise server software
+reason: This vulnerability allows Administrator Account Takeover via a malicious cross-origin web page, posing a significant risk of unauthorized access and control."
+CVE-2026-70926,"product: Oracle E-Business Suite Workflow
+category: enterprise server software
+reason: This vulnerability allows unauthenticated attackers to compromise Oracle Workflow via SMTP, potentially leading to complete takeover, posing a significant risk to confidentiality, integrity, and availability."
+CVE-2026-62144,"product: Check Point Security Management, Multi-Domain Security Management
+category: network device
+reason: This vulnerability allows unauthenticated remote attackers to execute administrative commands and potentially command execution on managed Security Gateways, posing a significant risk of unauthorized access and control."
+CVE-2026-76036,"product: Google Chrome on Android
+category: browser
+reason: Critical buffer overflow vulnerability allows remote code execution, posing significant risk of unauthorized access and system compromise."
+CVE-2025-68493,"product: Apache Struts
+category: enterprise server software
+reason: This vulnerability, a missing XML validation issue, could allow unauthorized access or data manipulation, posing a significant risk to enterprise systems."
+CVE-2026-27282,"product: ColdFusion 2023.18, 2025.6
+category: enterprise server software
+reason: This vulnerability allows unauthorized access, posing a significant security risk if exploited, requiring user interaction."
+CVE-2026-33439,"product: Open Access Management (OpenAM)
+category: enterprise server software
+reason: Pre-authentication Remote Code Execution (RCE) vulnerability via unsafe Java deserialization, allowing arbitrary command execution on the server."
+CVE-2026-30655,"product: esiclivre v0.2.2
+category: web app or plugin
+reason: This SQL injection vulnerability in the password reset function could allow unauthorized access to sensitive information, posing a significant risk to data integrity and confidentiality."
+CVE-2026-13014,"product: Thales CERT ""Suspicious"" application
+category: enterprise server software
+reason: This vulnerability allows remote code execution and persistent denial of service, potentially compromising application secrets or integrations, and enabling root-level execution."
+CVE-2026-1665,"product: nvm (Node Version Manager)
+category: library or developer tool
+reason: This vulnerability allows command injection, potentially enabling attackers to execute arbitrary shell commands, posing a significant risk to system integrity and confidentiality."
+CVE-2026-1331,"product: MeetingHub by HAMASTAR Technology
+category: enterprise server software
+reason: Arbitrary code execution risk due to lack of authentication and potential for web shell backdoors."
+CVE-2026-8199,"product: MongoDB Server
+category: enterprise server software
+reason: This vulnerability, if exploited, could lead to an Out-of-Memory (OOM) condition, causing MongoDB server unavailability, impacting enterprise operations."
+CVE-2026-18367,"product: Sophos Endpoint for macOS, Sophos Home for macOS
+category: enterprise server software
+reason: This privilege escalation vulnerability could allow local users to execute arbitrary code as root, posing a significant risk of unauthorized system access and control."
+CVE-2026-77113,"product: Canonical Apport
+category: enterprise server software
+reason: This vulnerability allows attackers to execute arbitrary code with system privileges, potentially leading to unauthorized access or system compromise."
+CVE-2026-6919,"product: Google Chrome
+category: browser
+reason: High severity use-after-free vulnerability could enable remote attackers to execute arbitrary code and potentially escape the sandbox, posing a significant risk to user systems."
+CVE-2025-14543,"Product: RTI Connext Professional (Core Libraries)
+Category: Enterprise server software
+Reason: This vulnerability, if exploited, could allow an attacker to perform a serialized data external linking, potentially leading to unauthorized data access or system compromise."
+CVE-2026-18885,"product: ServiceNow AI platform
+category: enterprise server software
+reason: This CVE poses a high risk of code injection, potentially enabling unauthenticated users to execute arbitrary code and access sensitive data, necessitating immediate patching."
+CVE-2026-46300,"product: Linux kernel
+category: operating system
+reason: This vulnerability can lead to unauthorized data access and encryption bypass, posing a significant security risk to networked systems."
+CVE-2026-85978,"product: Akana API Platform
+category: enterprise server software
+reason: This vulnerability allows arbitrary code execution, enabling unauthenticated remote attackers to execute malicious scripts, posing a significant risk of system compromise."
+CVE-2026-27876,"product: Grafana Enterprise plugin
+category: enterprise server software
+reason: This vulnerability allows for remote arbitrary code execution (RCE), posing a significant risk if exploited, due to its potential impact on internet-facing services."
+CVE-2026-6807,"product: GRASSMARLIN v3.2.1
+category: enterprise server software
+reason: This vulnerability, if exploited, could expose sensitive information due to improper XML input handling, posing a significant risk to data integrity and confidentiality."
+CVE-2026-45585,"product: Windows operating system
+category: enterprise server software
+reason: This vulnerability, ""YellowKey,"" allows for a security feature bypass, potentially enabling unauthorized access to sensitive data, thus posing a significant risk to enterprise security."
+CVE-2026-54121,"product: Active Directory Certificate Services (AD CS)
+category: enterprise server software
+reason: This vulnerability allows unauthorized privilege escalation, posing a significant risk to enterprise security."
+CVE-2026-3502,"product: TrueConf Client
+category: desktop app
+reason: This vulnerability allows arbitrary code execution, potentially leading to a complete system compromise if exploited."
+CVE-2024-58330,"product: Bosch IP cameras (CPP13, CPP14)
+category: IoT or consumer device
+reason: This vulnerability allows unauthenticated attackers to access sensitive video analytics data, potentially exposing confidential information."
+CVE-2026-7191,"product: qnabot-on-aws
+category: enterprise server software
+reason: This vulnerability allows authenticated administrators to execute arbitrary code, potentially gaining unauthorized access to backend resources."
+CVE-2026-43494,"product: Linux kernel
+category: operating system
+reason: This vulnerability could lead to memory corruption and potential privilege escalation, posing a significant security risk to network-facing systems."
+CVE-2026-71381,"product: Adobe Genuine Software Integrity Service
+category: desktop app
+reason: This vulnerability allows unauthorized limited write access, potentially enabling malware installation or data theft on affected systems."
+CVE-2025-62349,"product: SaltStack Salt
+category: enterprise server software
+reason: This vulnerability allows malicious minions to bypass security features, potentially leading to unauthorized minion impersonation and system compromise."
+CVE-2026-21579,"product: Confluence Data Center
+category: enterprise server software
+reason: This high severity Information Disclosure vulnerability allows unauthenticated attackers to view sensitive information, posing a significant risk to data confidentiality."
+CVE-2023-49900,"product: <Undisclosed Vendor's IoT or Consumer Device>
+category: <IoT or Consumer Device>
+reason: This vulnerability, if exploited, could allow unauthorized remote code execution, potentially leading to complete system control, posing a significant risk to connected devices."
+CVE-2026-34311,"Product: Oracle Hospitality OPERA 5
+Category: enterprise server software
+Reason: This vulnerability allows unauthenticated attackers to exploit the HTTP interface, potentially leading to complete takeover of the Oracle Hospitality OPERA 5 Property Services, posing a significant risk to enterprise data and operations."
+CVE-2025-70342,"product: Erase-Install, network device
+category: enterprise server software
+reason: This vulnerability allows unauthenticated attackers to intercept admin credentials, potentially leading to unauthorized system reinstall/erase operations."
+CVE-2026-72899,"product: Metabase, category: enterprise server software
+reason: This vulnerability allows unauthenticated attackers to inject arbitrary SQL, potentially leading to data breaches or system compromise."
+CVE-2026-47074,"product: ex_aws_sns, category: library or developer tool
+reason: This vulnerability allows Signature Spoofing, enabling attackers to forge SNS messages and bypass verification, posing a significant risk to secure communication."
+CVE-2026-49049,"product: Helix3 plugin for Joomla
+category: web app or plugin
+reason: This vulnerability allows unauthenticated attackers to delete arbitrary files, write arbitrary JSON files, and update template parameters, posing a significant risk of data corruption and unauthorized access."
+CVE-2026-5423,"product: @neo4j/graphql library
+category: enterprise server software
+reason: This vulnerability allows unauthenticated remote clients to forge JWT claims, potentially gaining unauthorized access to subscription events."
+CVE-2026-75118,"product: TL-MR100 V3.20 router
+category: network device
+reason: This vulnerability allows for arbitrary code execution, potentially leading to complete control over the router, posing a significant risk to enterprise data and network integrity."
+CVE-2026-49176,"product: Windows WalletService
+category: enterprise server software
+reason: This vulnerability allows an attacker to elevate privileges locally, posing a significant risk to the integrity and confidentiality of the system."
+CVE-2026-15977,"product: SGLang, category: enterprise server software
+reason: This vulnerability exposes sensitive API keys and SSL keyfile information, potentially leading to unauthorized access and data breaches."
+CVE-2026-21570,"product: Bamboo Data Center
+category: enterprise server software
+reason: This high severity RCE vulnerability, if exploited, could allow an authenticated attacker to execute arbitrary code, posing a significant risk to the integrity and confidentiality of the affected systems."
+CVE-2026-35255,"Product: Oracle Cloud Native Environment Command Line Interface
+Category: enterprise server software
+Reason: This vulnerability allows unauthenticated attackers to execute arbitrary code, posing a significant risk of unauthorized access and potential system compromise."
+CVE-2020-36875,"product: AccessAlly WordPress plugin
+category: web app or plugin
+reason: This unauthenticated vulnerability allows arbitrary PHP code execution, posing a significant risk of remote code execution, impacting all WordPress sites using this plugin."
+CVE-2026-48448,"product: Adobe Campaign Classic
+category: enterprise server software
+reason: This SQL injection vulnerability could allow an attacker to read sensitive files, posing a significant risk to data confidentiality."
+CVE-2026-0601,"product: Nexus Repository 3
+category: enterprise server software
+reason: This reflected XSS vulnerability, if exploited, could lead to unauthorized JavaScript execution, potentially compromising user sessions and data integrity."
+CVE-2026-67180,"product: Google Turbinia
+category: enterprise server software
+reason: This vulnerability allows arbitrary command execution, potentially enabling full system compromise if exploited, due to its high signal (EPSS 0.002) and wide enterprise usage (25%)."
+CVE-2026-2587,"Product: Glassfish server software
+Category: Enterprise server software
+Reason: This critical RCE vulnerability allows remote attackers to fully compromise the underlying host, enabling data manipulation, arbitrary command execution, and potential lateral movement."
+CVE-2026-16626,"product: JasperReports Server
+category: enterprise server software
+reason: This unauthenticated vulnerability could allow an attacker to access sensitive data or perform unauthorized actions, posing a significant risk to enterprise security."
+CVE-2026-34615,"product: Adobe Connect
+category: desktop app
+reason: This vulnerability allows arbitrary code execution, potentially enabling an attacker to gain control over the victim's account or session, posing a significant risk of unauthorized access and data breaches."
+CVE-2026-21962,"product: Oracle HTTP Server, Oracle Weblogic Server Proxy Plug-in
+category: enterprise server software
+reason: This vulnerability allows unauthenticated attackers to create, delete, or modify critical data, posing a significant risk of unauthorized access and potential system compromise."
+CVE-2026-6815,"product: Casdoor, Local File System storage provider
+category: enterprise server software
+reason: This vulnerability allows arbitrary file write, enabling attackers to bypass security sandboxes and potentially gain full control over the host filesystem, posing a severe risk."
+CVE-2026-21665,"product: Fiserv Originate Loans Peripherals
+category: enterprise server software
+reason: This CVE describes a critical remote code execution vulnerability in an unsupported legacy version of Fiserv's software due to unsafe deserialization of untrusted data via.NET Remoting, posing a significant risk if exploited."
+CVE-2026-15576,"product: Checkmk <2.5.0p10
+category: enterprise server software
+reason: This vulnerability allows unauthenticated remote attackers to bypass authentication, potentially leading to unauthorized access."
+CVE-2026-0163,"product: vpu_ioctl.c (part of Linux kernel)
+category: network device
+reason: This vulnerability, if exploited, could allow an attacker to execute arbitrary code, leading to a complete system compromise."
+CVE-2026-8920,"product: Aura Wallpaper Service, ASUS
+category: desktop app
+reason: This vulnerability allows local users to perform unauthorized file operations, potentially leading to data breaches or service unavailability on specific ASUS models."
+CVE-2026-3476,"product: SOLIDWORKS Desktop
+category: desktop app
+reason: This Code Injection vulnerability could allow arbitrary code execution, posing a significant risk of unauthorized access and potential system compromise."
+CVE-2026-73633,"product: Apache Struts
+category: enterprise server software
+reason: This vulnerability, affecting widely used Struts versions, can lead to denial of service by exhausting heap memory, impacting internet-facing applications."
+CVE-2025-40536,"product: SolarWinds Web Help Desk
+category: enterprise server software
+reason: This vulnerability allows unauthenticated attackers to bypass security controls, potentially gaining access to restricted functionality, posing a significant risk to enterprise data and operations."
+CVE-2026-60721,"product: Oracle Identity Manager
+category: enterprise server software
+reason: This vulnerability allows unauthenticated attackers to take over Oracle Identity Manager via HTTP, posing a significant risk to confidentiality, integrity, and availability."
+CVE-2026-2254,"product: Hitachi Vantara Pentaho
+category: enterprise server software
+reason: This vulnerability allows unauthorized access to platform mail notifications due to lack of ACLs, potentially exposing sensitive data."
+CVE-2026-1460,"product: Zyxel DX3301-T0, EX3301-T0
+category: network device
+reason: This post-authentication command injection vulnerability could allow an attacker to execute arbitrary OS commands, posing a significant risk of unauthorized system access and control."
+CVE-2026-50601,"product: Planet9 desktop app
+category: desktop app
+reason: This hardcoded API key poses a significant risk of unauthorized access, potentially enabling attackers to extract administrative keys and modify software source code."
+CVE-2026-22200,"product: osTicket, Enhancesoft
+category: enterprise server software
+reason: This vulnerability allows arbitrary file read, potentially exposing sensitive local files, which can be exploited by remote attackers in default configurations."
+CVE-2026-59309,"product: VMware vCenter
+category: enterprise server software
+reason: This vulnerability allows unauthorized access to vCenter, posing a significant risk to sensitive enterprise data and systems."
+CVE-2026-12341,"product: IdentityIQ by Oracle
+category: enterprise server software
+reason: This unpatched vulnerability allows unauthenticated attackers to access protected APIs and data, posing a significant risk of data breach."
+CVE-2026-48363,"product: ColdFusion
+category: enterprise server software
+reason: This vulnerability, if exploited, could allow arbitrary code execution, posing a significant risk to the integrity and confidentiality of data processed by ColdFusion applications."
+CVE-2026-48364,"product: ColdFusion
+category: enterprise server software
+reason: This vulnerability, if exploited, could allow arbitrary code execution, posing a significant risk to the integrity and confidentiality of data processed by ColdFusion applications."
+CVE-2026-23399,"product: Linux kernel
+category: operating system
+reason: This vulnerability, if exploited, could lead to a denial of service or potential privilege escalation due to unreleased memory in the nf_tables component."
+CVE-2026-71040,"product: Oracle Agile PLM
+category: enterprise server software
+reason: This vulnerability allows unauthenticated attackers to take over Oracle Agile PLM, posing a significant risk to confidentiality, integrity, and availability."
+CVE-2026-34275,"product: Oracle E-Business Suite Advanced Inbound Telephony
+category: enterprise server software
+reason: This vulnerability allows unauthenticated attackers to take over Oracle Advanced Inbound Telephony, posing a significant risk to enterprise operations due to potential data breaches and service disruption."
+CVE-2026-21360,"product: Adobe Commerce
+category: enterprise server software
+reason: This vulnerability allows high-privileged attackers to access unauthorized files, potentially leading to data breaches or system compromise."
+CVE-2026-2417,"product: Pharos Controls Mosaic Show Controller
+category: network device
+reason: This vulnerability allows unauthenticated attackers to execute arbitrary commands with root privileges, posing a severe risk of system compromise."
+CVE-2026-3823,"product: EHG2408 series switch, Atop Technologies
+category: network device
+reason: This stack-based buffer overflow vulnerability could allow unauthenticated remote attackers to execute arbitrary code, posing a significant risk to the switch's integrity and potential network control."
+CVE-2026-29923,"product: pstrip64.sys, EnTech Taiwan PowerStrip
+category: enterprise server software
+reason: This vulnerability allows local users to escalate privileges to SYSTEM, enabling unauthorized control over the system."
+CVE-2026-1330,"product: MeetingHub by HAMASTAR Technology
+category: enterprise server software
+reason: This vulnerability allows unauthenticated remote attackers to read arbitrary system files, posing a significant risk of sensitive data exposure."
+CVE-2026-26157,"product: BusyBox
+category: enterprise server software
+reason: This vulnerability, if exploited, could lead to arbitrary file overwrite and potential code execution, posing a significant risk to system integrity and confidentiality."
+CVE-2026-55727,"product: Genetec Security Center 5.14.0.0
+category: enterprise server software
+reason: This vulnerability allows unauthenticated access to live video streams, posing a significant risk of unauthorized surveillance and potential data breaches."
+CVE-2026-4342,"product: ingress-nginx, category: network device
+reason: This vulnerability allows arbitrary code execution and disclosure of Secrets, posing a significant risk to the security of the entire cluster."
+CVE-2026-5363,"product: TP-Link Archer C7 router
+category: network device
+reason: Inadequate encryption strength allows potential brute-force recovery of the administrator password, leading to unauthorized access and compromise of device configuration."
+CVE-2026-11841,"product: Google Cloud Platform App Engine
+category: enterprise server software
+reason: This vulnerability allows unauthenticated access to sensitive filesystem areas, potentially exposing customer-defined passwords and enabling arbitrary Lua code execution, posing a significant risk to data integrity and application security."
+CVE-2025-60949,"product: Census CSWeb 8.0.1
+category: enterprise server software
+reason: This vulnerability allows unauthenticated attackers to access and potentially steal sensitive configuration data via HTTP, posing a significant risk of data leakage and unauthorized system access."
+CVE-2026-14807,"product: PROG MIS ERP App
+category: enterprise server software
+reason: This vulnerability allows unauthorized access to sensitive database credentials, posing a significant risk of data breach and system compromise."
+CVE-2026-25201,"product: MagicINFO9 Server, vendor and product
+category: enterprise server software
+reason: This vulnerability allows unauthenticated users to execute arbitrary code, leading to privilege escalation, posing a significant risk of unauthorized access and control over the system."
+CVE-2026-17544,"product: PHP, category: enterprise server software
+reason: This vulnerability, if exploited, could lead to arbitrary code execution, posing a significant risk to the integrity and availability of PHP-based web applications."
+CVE-2026-76055,"product: Black Duck blackduck-c-cpp
+category: enterprise server software
+reason: This vulnerability allows unauthorized execution of OS commands, potentially leading to a full system compromise if exploited."
+CVE-2025-57783,"product: Hiawatha webserver version 11.7
+category: network device
+reason: This vulnerability, CVE-2025-57783, allows unauthenticated attackers to access restricted resources, posing a significant risk of unauthorized data access."
+CVE-2026-76570,"product: Joomla Extension - joomcode.com
+category: web app or plugin
+reason: This unauthenticated SQL injection vulnerability in JCTables 1.21.1 poses a significant risk as it allows for both reading and writing operations, potentially leading to data theft or manipulation without any authentication or token validation."
+CVE-2026-50229,"product: Apache Tomcat
+category: enterprise server software
+reason: This vulnerability allows for a basic XSS attack, potentially enabling attackers to steal sensitive data or take control of user sessions."
+CVE-2016-15057,"product: Apache Continuum
+category: enterprise server software
+reason: This vulnerability allows attackers to execute arbitrary commands on the server via the REST API, posing a significant risk of unauthorized access and potential system compromise."
+CVE-2026-20224,"product: Cisco Catalyst SD-WAN Manager
+category: network device
+reason: This vulnerability allows unauthenticated remote attackers to read arbitrary files, potentially exposing sensitive data, and could be exploited via a crafted request."
+CVE-2026-21627,"product: Tassos Framework plugin
+category: web app or plugin
+reason: This vulnerability could allow unauthorized internal functionality invocation, potentially leading to a security breach, especially for enterprises using this widely used plugin."
+CVE-2026-65640,"product: WordPress
+category: web app or plugin
+reason: This vulnerability allows remote code execution, enabling attackers to take control of the server, posing a significant risk to data integrity and confidentiality."
+CVE-2026-0400,"product: SonicOS firewall
+category: network device
+reason: This post-authentication Format String vulnerability could allow a remote attacker to crash the firewall, potentially leading to service disruption for enterprises relying on SonicOS."
+CVE-2026-4266,"product: WatchGuard Fireware OS
+category: network device
+reason: This insecure deserialization vulnerability, if exploited, could allow arbitrary code execution, posing a significant risk to the integrity and confidentiality of the affected systems."
+CVE-2026-21717,"product: V8 JavaScript engine, Node.js
+category: enterprise server software
+reason: This vulnerability can lead to significant performance degradation, impacting the overall efficiency of Node.js processes, especially those using JSON.parse() on untrusted input."
+CVE-2026-82082,"product: NUMail, Green-Computing
+category: network device
+reason: Unauthenticated remote attackers can execute arbitrary OS commands, posing a severe risk of unauthorized server access and potential system compromise."
+CVE-2026-27305,"product: ColdFusion
+category: enterprise server software
+reason: This vulnerability could allow unauthorized access to sensitive files, posing a significant risk to data confidentiality and integrity."
+CVE-2026-62145,"product: Check Point Gaia Portal
+category: enterprise server software
+reason: This vulnerability allows an attacker to escalate privileges, potentially gaining full control over the system, posing a significant risk to data integrity and confidentiality."
+CVE-2026-22236,"product: BLUVOYIX
+category: enterprise server software
+reason: This vulnerability, if exploited, could allow unauthorized access to customer data, posing a significant risk to data privacy and system integrity."
+CVE-2025-60889,"product: StellarGroup HPX 1.11.0
+category: enterprise server software
+reason: Insecure deserialization could allow attackers to execute arbitrary code, posing a significant risk to the system's integrity."
+CVE-2017-20212,"product: FLIR Thermal Camera F/FC/PT/D
+category: IoT or consumer device
+reason: This vulnerability allows unauthenticated attackers to read arbitrary files, potentially exposing sensitive data and system information."
+CVE-2026-21231,"product: Windows Kernel
+category: operating system
+reason: This vulnerability, a race condition, could allow an attacker to elevate privileges locally, posing a significant risk of unauthorized access and control."
+CVE-2026-10523,"product: Ivanti Sentry
+category: enterprise server software
+reason: This vulnerability allows unauthenticated remote attackers to create arbitrary administrative accounts, granting full administrative access, posing a significant risk of unauthorized control over the system."
+CVE-2026-28779,"product: Apache Airflow
+category: enterprise server software
+reason: This vulnerability allows full session takeover, enabling unauthorized access to Airflow, which is widely used by enterprises."
+CVE-2026-47837,"product: Spring Cloud Config
+category: enterprise server software
+reason: This vulnerability allows unauthorized access to monitor endpoint, potentially leading to unauthorized configuration changes."
+CVE-2026-9051,"product: NI SystemLink Enterprise Dashboard
+category: enterprise server software
+reason: This vulnerability allows unauthenticated remote attackers to bypass authentication, potentially leading to privilege escalation or information disclosure."
+CVE-2026-71878,"product: GBIF Integrated Publishing Toolkit
+category: enterprise server software
+reason: This vulnerability allows remote authenticated attackers to gain administrative control, posing a significant risk of unauthorized access and potential system manipulation."
+CVE-2026-24302,"product: Azure Arc
+category: enterprise server software
+reason: This vulnerability allows unauthorized privilege escalation, potentially leading to full control over affected systems."
+CVE-2026-51785,"product: Hugo Leisink Hiawatha v.12.1
+category: network device
+reason: This vulnerability allows remote code execution, posing a significant risk of unauthorized access and potential system compromise."
+CVE-2026-3609,"product: Wellbia's XIGNCODE3 xhunter1.sys kernel driver
+category: operating system
+reason: This vulnerability allows privilege escalation, enabling any user process to request high-level access, posing a significant security risk."
+CVE-2026-23699,"product: AP180 series, network device
+category: network device
+reason: This vulnerability allows for OS command injection, potentially enabling full system control, posing a significant risk of unauthorized access and data breaches."
+CVE-2026-25200,"product: MagicInfo9 Server, vendor and product
+category: enterprise server software
+reason: This vulnerability allows Stored XSS, potentially leading to account takeover, impacting less than 21.1090.1 version, an internet-facing product widely used by enterprises."
+CVE-2026-4893,"product: dnsmasq, category: network device
+reason: This vulnerability allows information disclosure, potentially exposing sensitive data, and can be exploited remotely via crafted DNS packets."
+CVE-2026-40971,"product: Spring Boot, RabbitMQ
+category: library or developer tool
+reason: This vulnerability allows unauthorized connections to RabbitMQ broker due to lack of hostname verification, potentially leading to data interception or manipulation."
+CVE-2026-22628,"product: Fortinet FortiSwitchAX
+category: network device
+reason: This vulnerability allows an authenticated admin to execute system commands, potentially leading to a full system compromise."
+CVE-2025-29847,"product: Apache Linkis
+category: enterprise server software
+reason: This moderate severity vulnerability allows unauthorized access to system files, posing a significant risk to data integrity and confidentiality."
+CVE-2026-82072,"product: Google Chrome
+category: browser
+reason: This CVE indicates a medium-severity out-of-bounds read vulnerability in V8, which could allow remote attackers to execute arbitrary code, posing a significant risk if exploited."
+CVE-2026-47670,"product: DbGate, category: enterprise server software
+reason: This vulnerability allows authenticated attackers to execute arbitrary OS commands as root, posing a severe risk of system compromise."
+CVE-2026-73632,"product: Apache Struts, category: enterprise server software
+reason: This vulnerability exposes sensitive data due to improper session handling, potentially leading to unauthorized access."
+CVE-2026-76148,"product: CorvusSKK, a network device
+category: network device
+reason: This code injection vulnerability could allow unauthorized access and control over the device, posing a significant risk to network security."
+CVE-2026-46333,"product: Linux kernel
+category: operating system
+reason: This vulnerability, if exploited, could potentially allow unauthorized access to kernel thread details, posing a significant security risk."
+CVE-2026-18729,"product: IBM Langflow OSS
+category: enterprise server software
+reason: This vulnerability allows remote code execution, posing a significant risk of unauthorized access and potential system compromise."
+CVE-2026-77136,"product: Powermail extension for PHP
+category: enterprise server software
+reason: This vulnerability allows arbitrary code execution, disclosure of sensitive server information, and potential remote code execution, posing a significant risk to the entire server if exploited."
+CVE-2026-14903,"product: Ivanti Xtraction
+category: enterprise server software
+reason: This vulnerability allows a remote authenticated attacker to read arbitrary files outside the web root, posing a significant risk of sensitive data exposure."
+CVE-2026-15265,"product: Tenable Agent
+category: enterprise server software
+reason: This path traversal vulnerability, if exploited, could allow a privileged attacker to execute arbitrary code, posing a significant risk to the entire system's integrity."
+CVE-2026-86158,"product: Progress Software Fiddler Everywhere 8.0.2
+category: enterprise server software
+reason: This vulnerability allows unauthenticated attackers to mint OAuth tokens and read sensitive machine-in-the-middle root certificate, posing significant risk of unauthorized access and data theft."
+CVE-2026-7480,"product: ASUS System Control Interface
+category: enterprise server software
+reason: This vulnerability allows local users to elevate privileges and execute arbitrary code, posing a significant risk of unauthorized system access and control."
+CVE-2022-50992,"product: Weaver (Fanwei) E-cology 9.5
+category: enterprise server software
+reason: This vulnerability allows unauthenticated remote attackers to read arbitrary files, potentially exposing sensitive system configuration files and database credentials."
+CVE-2026-90898,"product: Bifrost, transports
+category: enterprise server software
+reason: This vulnerability allows unauthenticated remote code execution as the Bifrost process user, posing a significant risk of unauthorized access and potential system compromise."
+CVE-2026-65311,"product: ANDRITZ HIPASE-250, category: network device
+reason: This vulnerability allows unauthenticated remote attackers to suppress audit logging, potentially concealing malicious activities."
+CVE-2026-10037,"product: OpenJDK packages in Ubuntu
+category: enterprise server software
+reason: This vulnerability allows for a sandbox escape, enabling arbitrary code execution, posing a significant risk to the system's integrity and confidentiality."
+CVE-2026-6726,"product: TCG TPM 2.0 reference code
+category: enterprise server software
+reason: This vulnerability allows local attackers to falsify TPM 2.0 attestations, potentially compromising the integrity of secure boot and remote attestation processes."
+CVE-2026-18446,"product: fast-uri library
+category: library or developer tool
+reason: This vulnerability can lead to unintended host extraction, potentially bypassing security measures like allowlists and SSRF filtering, posing a significant risk of unauthorized access or data manipulation."
+CVE-2026-12593,"product: Dashboard API (vendor and product unspecified)
+category: enterprise server software
+reason: This vulnerability allows unauthorized creation of API tokens for any user, potentially enabling an attacker to escalate privileges to Dashboard Administrator."
+CVE-2026-24018,"product: Fortinet FortiClientLinux
+category: enterprise server software
+reason: This vulnerability allows local and unprivileged users to escalate privileges to root, posing a significant risk of unauthorized system access and control."
+CVE-2026-48611,"product: OAuth implementation by <vendor, at most 6 words>
+category: enterprise server software
+reason: This vulnerability allows unauthorized access, potentially leading to account hijacking, impacting default installations regardless of configuration status."
+CVE-2026-21437,"product: eopkg, Solus package manager
+category: operating system
+reason: This vulnerability allows for the installation of malicious packages, potentially compromising the system if users install packages from untrusted sources."
+CVE-2026-39813,"product: Fortinet FortiSandbox
+category: network device
+reason: This vulnerability allows for privilege escalation, potentially enabling an attacker to gain unauthorized access to the system via specially crafted HTTP requests."
+CVE-2026-87827,"product: KGUARD DVR devices
+category: network device
+reason: This vulnerability allows remote unauthenticated command execution, potentially leading to complete DVR compromise, exploited in the wild by Mirai botnets."

@@ -1,10 +1,9 @@
 # Project context · IBM "Before the Breach" (Sheridan Datathon 2026)
 
-Handoff document. Last updated Nov 7, 2026, ~4:30 pm. Written so a teammate with a stronger machine can pick up the work without re-deriving anything. Every number below comes from a script in `analysis/` and is backed by a file listed in **§13 Evidence index**.
+Handoff document. Last updated Nov 7, 2026, ~5:15 pm. Written so a teammate with a stronger machine can pick up the work without re-deriving anything. Every number below comes from a script in `analysis/` and is backed by a file listed in **§13 Evidence index**.
 
-- **Team hub (web):** https://claude.ai/artifact/Np2SfMguMKySJnBfvNfnjR (rules, CSV/column explorer, data map, shared notes; code in `site/breach-hub.html`)
-- **Best ranking right now:** `submissions/top500_v1_cap5.csv` (see §9 for why)
-- **Running when this was written:** `analysis/granite_instruct.py` (IBM Granite Instruct re-ranking). Its results will land in `reports/granite_instruct_results.csv` and `submissions/top500_v2.csv`.
+- **Team hub (web):** https://claude.ai/artifact/Np2SfMguMKySJnBfvNfnjR (ranked Top 500 table with Granite reasons, rules, CSV/column explorer, data map, shared notes; code in `site/breach-hub.html`)
+- **Best ranking right now:** `submissions/top500_v2.csv`, with explanations in `reports/top500_v2_explained.csv` (see §9)
 
 ---
 
@@ -16,8 +15,9 @@ Handoff document. Last updated Nov 7, 2026, ~4:30 pm. Written so a teammate with
 4. **Best clean result so far:** LightGBM on leak-free features with a TF-IDF text model, then **at most 5 CVEs per assigner per month** in the top 500: **A = 23, B = 12** (vs exploit+EPSS 17 / 8, CVSS 6 / 1).
 5. **Noise is ±3 hits.** The same model gave 20 or 23 in A just by changing CPU thread count. Don't trust gaps under ~4.
 6. **Key insights:** the description text is the strongest single signal (AUC 0.91); 58% of exploited CVEs have no public exploit signal; NIST status columns leak the answer; a single vendor patch batch (Oracle, 1,097 CVEs on one day) can flood the top 500, and capping per assigner fixes it.
-7. **IBM Granite:** embeddings give great clusters (which technologies get attacked) but don't beat TF-IDF for ranking. Granite Instruct (yes/no questions on top candidates) is being evaluated.
-8. **Next on a strong PC:** bigger Granite models and more questions on more candidates, more seeds + bootstrap for stable numbers, and a smarter cap (exempt multi-vendor CNAs like MITRE/VulnCheck/GitHub). See §11.
+7. **IBM Granite:** embeddings give great clusters (which technologies get attacked) but don't beat TF-IDF for ranking. Granite Instruct's yes/no answers carry signal: internet-facing 1.75× and enterprise 1.85× the KEV rate, and **0 of 67 "niche product" CVEs reached KEV**. Re-ranking with them adds +2 without the cap, but nothing once the cap is on (34 vs 35). Granite also writes the product, category and reason for every CVE in our top 500.
+8. **The top-500 boundary is unstable:** two runs of the same method (`top500_v2` vs `top500_v1_cap5`) share only 409 of 500 CVEs, from LightGBM randomness alone.
+9. **Next on a strong PC:** average many runs/seeds to stabilize the boundary, bigger Granite models and more questions on more candidates, bootstrap CIs, and a smarter cap (exempt multi-vendor CNAs like MITRE/VulnCheck/GitHub). See §11.
 
 ---
 
@@ -190,14 +190,37 @@ A CVE counts once: in the month it was published, with that month's signals. A C
 | Cisco IOS / IOS XE, small-business routers | 4.5% | 776 |
 | Veritas, Juniper Junos, PAN-OS, ManageEngine | 4.0% | 3,272 |
 
-### 7.2 Granite Instruct (`analysis/granite_instruct.py`), in progress
+### 7.2 Granite Instruct (`analysis/granite_instruct.py`)
 - Model `ibm-granite/granite-3.3-2b-instruct` (2.5B params, bf16, ~5 GB VRAM).
 - **Design:** stage 1 = the v1 LightGBM, scored out-of-sample (2024 rows by a 2025 model, 2025 by a 2024 model, 2026 by both). The top 5% of each year (2024: 1,823 · 2025: 2,129 · 2026: 3,634) are candidates. They contain 16/27 (2024) and 28/48 (2025) of the test positives (at 8%: 17/27 and 33/48). Granite answers yes/no questions per candidate; we read **log P(yes) − log P(no)** from one forward pass (no text generation). A logistic stage 2 (stage-1 percentile + answers), trained on the other year, re-orders the candidates. Options are evaluated with and without the per-assigner cap (§8.3).
 - **Questions:** `q_internet` (usually exposed to the internet: VPN, firewall, gateway, mail/web server, file transfer, remote access?), `q_enterprise` (widely used by large companies or governments?), `q_niche` (small plugin, hobby or niche product?). Also tested but dropped for speed (they overlap with regex flags): `q_preauth`, `q_takeover`.
 - Example answers (log-odds): Cisco IKEv2 bug → internet +6.3, enterprise +4.9; FortiOS heap overflow → internet +5.4, enterprise +3.9; Shenzhen Wi-Fi repeater → enterprise −12.5; SMM firmware bug → internet −12.2.
 - Then Granite **writes product, category and a one-sentence reason** for each CVE in the final 2026 top 500 (`reports/top500_v2_explained.csv`), which feeds the hub's Top 500 table.
 - **Speed lessons (laptop RTX 4070):** text generation ~0.6 s per CVE. Yes/no scoring ~4–6 min per question per 2,000 CVEs. Raw forward of 32×155 tokens takes 1.0 s (GPU does 36 TFLOPS bf16). Two fixes mattered: `logits_to_keep=1` (only the last position goes through the vocab head) and `OMP_WAIT_POLICY=PASSIVE` (idle LightGBM threads were spinning and starving GPU kernel launches: 118 s → 72 s).
-- **Status:** 2024 and part of 2025 scored when this was written. Answers are cached in `derived/granite/instruct_{year}.csv`, so re-runs only score new CVEs.
+- **Runtime on the laptop:** 2024 candidates ~15 min, 2025 ~10 min, 2026 ~15 min (3 questions each), 500 reasons ~4 min. Answers are cached in `derived/granite/instruct_{year}.csv` and reasons in `derived/granite/reasons_2026.csv`, so re-runs only score new CVEs (a cached re-run takes ~4 min).
+- **What Granite's answers say** (candidate pool 2024+2025: 3,952 CVEs, KEV rate 1.42%; `reports/granite_instruct_lift.csv`):
+
+| Question | Granite says yes | KEV among yes | KEV rate yes | KEV rate no | Lift |
+|---|---|---|---|---|---|
+| internet-facing | 1,246 | 25 | 2.01% | 1.15% | 1.75× |
+| widely used by enterprises | 1,262 | 26 | 2.06% | 1.12% | 1.85× |
+| niche / hobby product | 67 | **0** | 0% | 1.44% | 0 |
+
+- **Re-ranking results** (`reports/granite_instruct_results.csv`; stage 1 here = the v1 LightGBM re-run in this script):
+
+| Option | A | B | Total |
+|---|---|---|---|
+| stage 1 (v1 LightGBM) | 20 | 9 | 29 |
+| stage 2 logistic [stage-1 rank only] (control) | 20 | 9 | 29 |
+| stage 2 logistic [stage-1 rank + Granite answers] | 21 | 10 | 31 |
+| stage 2 rank average [stage 1, Granite] | 20 | 10 | 30 |
+| **stage 1 + cap 5** | **23** | **12** | **35** |
+| control + cap 5 | 23 | 12 | 35 |
+| stage 2 Granite + cap 5 | 23 | 11 | 34 |
+| stage 2 rank average + cap 5 | 22 | 11 | 33 |
+
+  Granite adds +1 in each direction without the cap (the control proves it's Granite, not the re-ordering), but the cap captures the same gain and more. The script picked **stage 1 + cap 5** for 2026 (`reports/final_ranking_choice.txt`).
+- **Explanations:** for each 2026 top-500 CVE Granite wrote product, category and a reason (`reports/top500_v2_explained.csv`). Category mix: enterprise server software 282, network device 92, other 44, library/dev tool 19, web app/plugin 19, OS 19, desktop app 15, browser 7, IoT 3. Granite sometimes echoes the template instead of a product name (15 blank after cleanup) and once gave no reason. `analysis/export_top500_json.py` cleans this for the hub.
 
 ## 8. All experiments and results
 
@@ -279,10 +302,12 @@ Every cap from 3 to 8 beats no cap in **both** directions; that's a plateau, not
 |---|---|---|
 | `top500_v0.csv` | LightGBM safe (incl. TF-IDF), trained on 2024+2025 | 212 with exploit flag, 1 WordPress, 62 Oracle |
 | `top500_v1.csv` | Same, re-run with Granite features available but TF-IDF variant picked | 208 flags, 0 WordPress, 56 Oracle; 420 shared with v0 |
-| **`top500_v1_cap5.csv`** | **v1 + cap of 5 per assigner per month** | **Current best evidence.** 211 flags, 19 Oracle, 137 assigners, deepest v1 rank used = 595; 438 shared with v1 |
-| `top500_v2.csv` | Granite Instruct stage 2 (+ cap if it wins on A/B) | Being produced by `granite_instruct.py` |
+| `top500_v1_cap5.csv` | v1 + cap of 5 per assigner per month | 211 flags, 19 Oracle, 137 assigners, deepest v1 rank used = 595; 438 shared with v1 |
+| **`top500_v2.csv`** | **Stage 1 (v1 LightGBM, re-trained in `granite_instruct.py`) + cap 5; Granite reasons** | **Current pick.** Best A+B (23 + 12). Shares 409 CVEs with `top500_v1_cap5` (same method, different random run) and 388 with v1 |
 
-Full rankings with reasons: `derived/scored_2026_v0.csv`, `derived/scored_2026_v1.csv` (rank, score, assigner, EPSS, flags, top 3 SHAP reasons). Monthly mix of `top500_v1_cap5`: Jan 48 · Feb 43 · Mar 69 · Apr 70 · May 58 · Jul 99 (includes June) · Aug 78 · Sep 35.
+Full rankings: `derived/scored_2026_v0.csv`, `derived/scored_2026_v1.csv` (rank, score, assigner, EPSS, flags, top 3 SHAP reasons), and the explained v2 top 500 in `reports/top500_v2_explained.csv` (product, category, Granite probabilities, signals, reason). Monthly mix of `top500_v1_cap5`: Jan 48 · Feb 43 · Mar 69 · Apr 70 · May 58 · Jul 99 (includes June) · Aug 78 · Sep 35.
+
+**Before submitting:** the 91 CVEs that differ between `top500_v2` and `top500_v1_cap5` sit near the boundary. A safer final file averages the scores of many runs (10+ seeds, both scripts) and then applies the cap once (§11.1).
 
 ## 10. Conclusions and insights (for the write-up and the video)
 
@@ -293,24 +318,26 @@ Full rankings with reasons: `derived/scored_2026_v0.csv`, `derived/scored_2026_v
 5. **NIST metadata leaks the answer** (100% of positives "Analyzed"). We exclude it and show it inflates results by only ~2–4 hits.
 6. **Diversify across vendors.** Capping 5 CVEs per assigner per month is the most consistent gain we found (+6 across A+B). One noisy vendor batch (Oracle, 1,097 CVEs in a day) can flood a naive model.
 7. **Sibling CVEs carry real but weak signal** (3–8× base rate), already captured by features; a post-hoc boost doesn't help.
-8. **IBM Granite** maps which technologies get exploited (Windows/Exchange 15%, Chromium 8.8%, Apple 6.3%, edge appliances 5.9%), gives a semantic text model, and reads candidates like an analyst (internet-facing, enterprise, niche) plus writes per-CVE reasons.
-9. **Honest uncertainty:** ±3 hits is noise; we report A as the forecast-style test and A+B for robustness.
+8. **IBM Granite** maps which technologies get exploited (Windows/Exchange 15%, Chromium 8.8%, Apple 6.3%, edge appliances 5.9%), gives a semantic text model, and reads candidates like an analyst: internet-facing (1.75×) and enterprise (1.85×) raise the KEV rate, and products it calls niche never reached KEV (0/67). It also writes the per-CVE reasons engineers see.
+9. **Honest uncertainty:** ±3 hits is noise; we report A as the forecast-style test and A+B for robustness. Two random runs of the same method agree on only 409 of 500 CVEs.
 
 ## 11. What to do next on a strong lab PC (prioritized)
 
-1. **Finish and extend Granite Instruct.**
+1. **Stabilize the final ranking (quick win).** Train the stage-1 LightGBM with 20–50 seeds (and `deterministic=True, force_row_wise=True` to remove the thread effect), average the scores, apply the cap of 5, and use that as the final `top500.csv`. Re-check A/B with the averaged score. Today two runs of the same method share only 409/500 CVEs.
+2. **Extend Granite Instruct.**
    - Use all 5 questions, more candidates (top 10–15%), and a bigger model: `ibm-granite/granite-3.3-8b-instruct`, or Granite 4.0 if the installed `transformers` supports it.
    - On Linux, serve it with **vLLM** (Red Hat AI Inference Server is also an IBM option) for 10–50× throughput.
    - Use prefix caching: same description, 5 questions.
    - Add questions such as "Is a patch-gap/edge device likely targeted by ransomware groups?" or "Is this product typically deployed by governments?". Check each on A/B.
-2. **Stabilize the evaluation.**
+   - Use `q_niche` as a hard negative filter (0/67 reached KEV) and check it on A/B with the cap on.
+3. **Stabilize the evaluation.**
    - 20+ seeds, bootstrap CIs on hits@500 (resample positives/cohorts), and rolling monthly origin (train on months < m, test on m) to get many more test points.
    - Then tune LightGBM (num_leaves, min_child_samples, scale_pos_weight, objective `lambdarank`) with **time-based** CV only.
-3. **Smarter cap.** MITRE, VulnCheck, GitHub, VulDB and ZDI assign CVEs for many vendors, so per-assigner may be too coarse. Try a cap per **(vendor/product extracted by Granite, month)**, or exempt multi-vendor CNAs. Also try caps per publish day.
-4. **Bigger / tuned embeddings.** Try `granite-embedding-english-r2` or the 278M multilingual model. Fine-tune contrastively on KEV vs non-KEV using only pre-Y data. Add sibling similarity (cosine between same-day CVEs).
-5. **Product-level KEV history.** Use Granite to extract a normalized vendor/product for every CVE (not just KEV names found by n-grams), then count past KEV per product. TF-IDF suggests product identity is the key signal.
-6. **Month quotas.** January CVEs had ~10 months to reach KEV, September ~5 weeks. Check whether the model under-ranks late months (top500_v1_cap5 has only 35 from September) and whether a quota helps on A/B.
-7. **Freeze a final pipeline** (one command from raw data to `top500.csv`), and write the columns-used table with the traffic light for the write-up.
+4. **Smarter cap.** MITRE, VulnCheck, GitHub, VulDB and ZDI assign CVEs for many vendors, so per-assigner may be too coarse. Try a cap per **(vendor/product extracted by Granite, month)**, or exempt multi-vendor CNAs. Also try caps per publish day.
+5. **Bigger / tuned embeddings.** Try `granite-embedding-english-r2` or the 278M multilingual model. Fine-tune contrastively on KEV vs non-KEV using only pre-Y data. Add sibling similarity (cosine between same-day CVEs).
+6. **Product-level KEV history.** Use Granite to extract a normalized vendor/product for every CVE (not just KEV names found by n-grams), then count past KEV per product. TF-IDF suggests product identity is the key signal.
+7. **Month quotas.** January CVEs had ~10 months to reach KEV, September ~5 weeks. Check whether the model under-ranks late months (top500_v1_cap5 has only 35 from September) and whether a quota helps on A/B.
+8. **Freeze a final pipeline** (one command from raw data to `top500.csv`), and write the columns-used table with the traffic light for the write-up.
 
 ## 12. Environment and reproduction
 
@@ -353,7 +380,9 @@ python -E -P analysis/export_top500_json.py   # site/top500.json for the hub's T
 | Granite clusters (§7.1) | `reports/granite_clusters_2026.csv` |
 | Sibling boost grid and retro check (§8.3) | `reports/sibling_boost_results.csv`, `reports/sibling_retro_check.csv` |
 | Every backtest candidate with model rank, final rank, label (§4.2) | `derived/backtest_rankings_A.csv`, `derived/backtest_rankings_B.csv` |
-| Granite Instruct answers (cache) and results (§7.2) | `derived/granite/instruct_{year}.csv`, `reports/granite_instruct_results.csv`, `reports/granite_instruct_lift.csv` |
+| Granite Instruct answers (cache) and results (§7.2) | `derived/granite/instruct_{year}.csv`, `reports/granite_instruct_results.csv`, `reports/granite_instruct_lift.csv`, `reports/granite_instruct_coefficients.csv` (if a stage-2 option wins) |
+| Which option the script picked for 2026 | `reports/final_ranking_choice.txt` |
+| Explained 2026 top 500 (product, category, Granite probabilities, reason) | `reports/top500_v2_explained.csv`, `derived/granite/reasons_2026.csv`, `site/top500.json` (hub table) |
 | 2026 rankings (§9) | `submissions/*.csv`, `derived/scored_2026_v*.csv` |
 
 Not in git (too big or regenerated in minutes): raw data, `derived/features_*.csv`, `derived/leak_only_*.csv`, `derived/backtest_cohorts_2025.csv`, `derived/granite/emb_granite30m.npy`, `derived/granite/granite_features_*.csv`.

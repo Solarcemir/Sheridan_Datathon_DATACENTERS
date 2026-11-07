@@ -282,7 +282,7 @@ log(f"2026 ranking uses: {best}")
 
 # ----------------------------------------------------------------------------- Granite explains the top 500
 top = s26.head(500).copy()
-flags = lambda r: ", ".join(f for f in ("exploitdb", "metasploit", "nuclei", "poc_github") if r[f]) or "none"  # noqa: E731
+flags = lambda r: ", ".join(f for f in ("exploitdb", "metasploit", "nuclei", "poc_github") if getattr(r, f)) or "none"  # noqa: E731
 prob = lambda x: f"{100 / (1 + np.exp(-x)):.0f}%"  # noqa: E731
 EXPLAIN = """Vulnerability {cve}: {desc}
 
