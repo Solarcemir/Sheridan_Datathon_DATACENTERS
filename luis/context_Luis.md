@@ -413,6 +413,7 @@ Chen, judge-aligned labels (75 positives, top 517 of 75,148): exploit+EPSS 20 ·
 
 ### 14.3 What each side brings to the final pipeline
 - **From us → add to Chen's CV:** `text_kev_lr` / `text_kev_sim` (TF-IDF KEV text model, AUC 0.91; his embedding features don't replace exact product names), the per-assigner-month cap, `n_adjacent_ids` and sibling features, LightGBM settings (`scale_pos_weight=25`, 5+ seeds), `days_to_cutoff` and `age_days` (his §10.3–10.4 to-dos), the leak-inflation demo, the Granite 2B yes/no finding (niche → 0/67), and the explained top 500 / hub table.
+- **Ready-made for Chen's CV:** `derived/for_chen/luis_features_hist_2024_2025.parquet` (87,908 rows, Jan 2024–Dec 2025, same cohort rule as his `historical_2024_2025.parquet`, which has 87,907) and `derived/for_chen/luis_features_scoreboard_2026.parquet` (72,670). Keyed by `cve_id`, with all our leak-free features, `y_nov4` (76 positives; 75 through Sep 2025) and `luis_y_dec31_of_year`. Built by `python -E -P luis/analysis/build_features.py --all-months`.
 - **From Chen → already beyond our §11:** Granite 30B structured extraction on all CVEs (§11.2, §11.6), purged CV with bootstrap CIs (§11.3), granite-embedding-english-r2 (§11.5), LoRA 8B, memorization probe (0/122), strong negative filters (unknown CWE 0/3,551; CVSS 4 E:P 0/2,669; WordPress CNAs), out-of-band advisory 5.5×, EOL text 13×, and the missed-positives analysis (22/52 invisible at publish time: 0% exploit code).
 
 ### 14.4 Proposed split of work (Nov 7–8)

@@ -12,6 +12,7 @@ Team hub (Top 500 table with Granite reasons, rules, data map, shared notes): ht
 | `derived/` | Feature dictionaries, full 2026 rankings with reasons, row-by-row A/B backtest rankings, Granite Instruct answers |
 | `site/` | Source of the team hub page and its `top500.json` |
 | `received/` | Snapshots of teammates' docs this work refers to (Chen's GPU-box context) |
+| `derived/for_chen/` | Our features as Parquet for Jan 2024–Dec 2025 + the 2026 scoreboard, keyed by `cve_id`, to merge into Chen's CV (`build_features.py --all-months`) |
 
 Not committed (big or regenerated in minutes): `derived/features_*.csv`, `derived/leak_only_*.csv`, `derived/backtest_cohorts_2025.csv`, `derived/granite/emb_granite30m.npy`, `derived/granite/granite_features_*.csv`.
 
