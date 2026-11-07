@@ -1,0 +1,21 @@
+model,cap,hits@441,95% CI,vs exploit+EPSS,vs reference,AP
+"Exploit code, then EPSS",none,19,12-29,+0 to +0,-16 to -1,0.0287
+"Exploit code, then EPSS",3,22,14-31,-2 to +8,-13 to +2,0.0338
+"Static prior LR (no signals, 2022+ cohorts)",none,14,7-23,-14 to +4,-21 to -5,0.0243
+"Static prior LR (no signals, 2022+ cohorts)",3,15,8-24,-13 to +5,-20 to -4,0.0256
+Static prior LightGBM,none,17,8-25,-12 to +6,-19 to -3,0.0303
+Static prior LightGBM,3,17,9-25,-13 to +7,-19 to -2,0.0309
+v4: XGBoost + LR  [reference],none,26,17-36,-1 to +14,-6 to +2,0.0602
+v4: XGBoost + LR  [reference],3,28,18-38,+1 to +16,+0 to +0,0.0631
+v4 + static LR,none,24,15-34,-5 to +15,-10 to +4,0.0419
+v4 + static LR,3,25,15-36,-4 to +15,-9 to +4,0.043
+v4 + static LightGBM,none,25,16-36,-3 to +15,-9 to +4,0.0525
+v4 + static LightGBM,3,27,17-38,-1 to +17,-6 to +6,0.0555
+v4 + both static,none,24,14-34,-5 to +15,-11 to +4,0.0466
+v4 + both static,3,24,15-34,-5 to +15,-10 to +4,0.0483
+XGBoost + static LR,none,22,14-33,-6 to +13,-12 to +2,0.0431
+XGBoost + static LR,3,24,14-34,-5 to +15,-11 to +4,0.0426
+LR + static LR,none,18,11-27,-11 to +8,-16 to -2,0.034
+LR + static LR,3,21,12-30,-8 to +11,-14 to +0,0.0349
+Exploit code + static LR (no ML on signals),none,23,14-34,-4 to +12,-12 to +4,0.046
+Exploit code + static LR (no ML on signals),3,20,12-30,-8 to +9,-15 to +0,0.0448

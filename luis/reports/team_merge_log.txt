@@ -1,0 +1,127 @@
+﻿python : C:\Users\Luis Hoi\Desktop\Sheridan II\Sheridan_Datathon_DATACENTERS\luis\analysis\team_merge.py:62: 
+PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, 
+which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a 
+de-fragmented frame, use `newframe = frame.copy()`
+At line:1 char:464
++ ... oding utf8; python -E -P "$R\luis\analysis\team_merge.py" 2>&1 | Wher ...
++                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (C:\Users\Luis H...= frame.copy()`:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+  df["b_cvss_missing"] = df.cvss3.isna().astype(int)
+C:\Users\Luis Hoi\Desktop\Sheridan II\Sheridan_Datathon_DATACENTERS\luis\analysis\team_merge.py:64: 
+PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, 
+which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a 
+de-fragmented frame, use `newframe = frame.copy()`
+  df["text_kev_logit"] = np.log(p / (1 - p))           # Chen feeds the TF-IDF score to the LR as a logit
+C:\Users\Luis Hoi\Desktop\Sheridan II\Sheridan_Datathon_DATACENTERS\luis\analysis\team_merge.py:62: 
+PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, 
+which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a 
+de-fragmented frame, use `newframe = frame.copy()`
+  df["b_cvss_missing"] = df.cvss3.isna().astype(int)
+C:\Users\Luis Hoi\Desktop\Sheridan II\Sheridan_Datathon_DATACENTERS\luis\analysis\team_merge.py:64: 
+PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, 
+which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a 
+de-fragmented frame, use `newframe = frame.copy()`
+  df["text_kev_logit"] = np.log(p / (1 - p))           # Chen feeds the TF-IDF score to the LR as a logit
+C:\Users\Luis Hoi\Desktop\Sheridan II\Sheridan_Datathon_DATACENTERS\luis\analysis\team_merge.py:62: 
+PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, 
+which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a 
+de-fragmented frame, use `newframe = frame.copy()`
+  df["b_cvss_missing"] = df.cvss3.isna().astype(int)
+C:\Users\Luis Hoi\Desktop\Sheridan II\Sheridan_Datathon_DATACENTERS\luis\analysis\team_merge.py:64: 
+PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, 
+which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a 
+de-fragmented frame, use `newframe = frame.copy()`
+  df["text_kev_logit"] = np.log(p / (1 - p))           # Chen feeds the TF-IDF score to the LR as a logit
+C:\Users\Luis Hoi\Desktop\Sheridan II\Sheridan_Datathon_DATACENTERS\luis\analysis\team_merge.py:62: 
+PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, 
+which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a 
+de-fragmented frame, use `newframe = frame.copy()`
+  df["b_cvss_missing"] = df.cvss3.isna().astype(int)
+C:\Users\Luis Hoi\Desktop\Sheridan II\Sheridan_Datathon_DATACENTERS\luis\analysis\team_merge.py:64: 
+PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, 
+which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a 
+de-fragmented frame, use `newframe = frame.copy()`
+  df["text_kev_logit"] = np.log(p / (1 - p))           # Chen feeds the TF-IDF score to the LR as a logit
+[    9s] Chen features merged: 29 meta, 55 Granite-30B, 4 embedding; Granite coverage {'train24': 1.0, 'train25': 0.829, 'test25': 1.0, 'test24': 1.0}
+[   35s] A: Luis models done
+[   62s] A: Chen-feature models done
+[   91s] B: Luis models done
+[  121s] B: Chen-feature models done
+                                                   model  cap  A@243  B@198  A+B @density
+                                 Exploit code, then EPSS none     13      6            19
+                                 Exploit code, then EPSS    3     15      7            22
+                                      XGBoost big (Luis) none     16      7            23
+                                      XGBoost big (Luis)    3     17      9            26
+     LR, Chen-style (base + meta + TF-IDF + Granite 30B) none     15     10            25
+     LR, Chen-style (base + meta + TF-IDF + Granite 30B)    3     17     11            28
+                     LR, Chen-style + Luis safe features none     16      8            24
+                     LR, Chen-style + Luis safe features    3     15      9            24
+                          XGBoost big with Chen features none     18      7            25
+                          XGBoost big with Chen features    3     18      8            26
+                                LoRA 8B alone (Chen OOF) none     15      8            23
+                                LoRA 8B alone (Chen OOF)    3     17      8            25
+         v4: XGBoost + LR(Luis + Chen-lite)  [reference] none     18      8            26
+         v4: XGBoost + LR(Luis + Chen-lite)  [reference]    3     18     11            29
+                                XGBoost + LR(Chen-style) none     18      7            25
+                                XGBoost + LR(Chen-style)    3     17      9            26
+                         XGBoost + LR(Chen-style + Luis) none     17      6            23
+                         XGBoost + LR(Chen-style + Luis)    3     16     10            26
+                               LightGBM + LR(Chen-style) none     18      7            25
+                               LightGBM + LR(Chen-style)    3     17      7            24
+                     XGBoost + LightGBM + LR(Chen-style) none     18      6            24
+                     XGBoost + LightGBM + LR(Chen-style)    3     17      8            25
+                    XGBoost(Chen feats) + LR(Chen-style) none     18      7            25
+                    XGBoost(Chen feats) + LR(Chen-style)    3     17      7            24
+                                        +LoRA: v4 + LoRA none     20      9            29
+                                        +LoRA: v4 + LoRA    3     18      9            27
+                  +LoRA: XGBoost + LR(Chen-style) + LoRA none     18     10            28
+                  +LoRA: XGBoost + LR(Chen-style) + LoRA    3     17     10            27
+           +LoRA: XGBoost + LR(Chen-style + Luis) + LoRA none     19      9            28
+           +LoRA: XGBoost + LR(Chen-style + Luis) + LoRA    3     17     10            27
++LoRA: LightGBM + LR(Chen-style) + LoRA  (Chen's recipe) none     19      9            28
++LoRA: LightGBM + LR(Chen-style) + LoRA  (Chen's recipe)    3     18      9            27
+                            +LoRA: LR(Chen-style) + LoRA none     19      9            28
+                            +LoRA: LR(Chen-style) + LoRA    3     19      9            28
+      Chen's own OOF: LR + LoRA + LightGBM(Luis), 5-fold none     17      9            26
+      Chen's own OOF: LR + LoRA + LightGBM(Luis), 5-fold    3     18      9            27
+pooled: top 441 of 64,120, 75 positives  ('vs reference' = vs v4 with cap 3)
+                                                   model  cap  hits@441 95% CI vs exploit+EPSS vs reference     AP
+                                 Exploit code, then EPSS none        19  12-29        +0 to +0    -16 to -1 0.0287
+                                 Exploit code, then EPSS    3        22  14-31        -2 to +8    -13 to +2 0.0338
+                                      XGBoost big (Luis) none        23  15-34       -3 to +13    -10 to +3 0.0526
+                                      XGBoost big (Luis)    3        26  17-36       -1 to +15     -6 to +3 0.0505
+     LR, Chen-style (base + meta + TF-IDF + Granite 30B) none        25  15-34       -2 to +13    -10 to +5 0.0421
+     LR, Chen-style (base + meta + TF-IDF + Granite 30B)    3        27  17-37       +0 to +15     -8 to +7 0.0431
+                     LR, Chen-style + Luis safe features none        23  14-32       -3 to +11    -11 to +2 0.0429
+                     LR, Chen-style + Luis safe features    3        26  16-34       -1 to +14     -8 to +3 0.0433
+                          XGBoost big with Chen features none        28  17-38       -1 to +16     -7 to +5 0.0481
+                          XGBoost big with Chen features    3        26  17-37       -1 to +16     -6 to +4 0.0487
+                                LoRA 8B alone (Chen OOF) none        23  15-33       -4 to +12    -13 to +5 0.0400
+                                LoRA 8B alone (Chen OOF)    3        26  16-36       -3 to +15    -11 to +7 0.0412
+         v4: XGBoost + LR(Luis + Chen-lite)  [reference] none        26  17-36       -1 to +14     -6 to +2 0.0602
+         v4: XGBoost + LR(Luis + Chen-lite)  [reference]    3        28  18-38       +1 to +16     +0 to +0 0.0631
+                                XGBoost + LR(Chen-style) none        26  16-36       -1 to +14     -7 to +2 0.0519
+                                XGBoost + LR(Chen-style)    3        26  17-36       -1 to +14     -5 to +1 0.0522
+                         XGBoost + LR(Chen-style + Luis) none        26  16-36       +0 to +14     -6 to +2 0.0577
+                         XGBoost + LR(Chen-style + Luis)    3        25  16-36       -1 to +14     -6 to +1 0.0575
+                               LightGBM + LR(Chen-style) none        26  16-37       -1 to +15     -7 to +3 0.0525
+                               LightGBM + LR(Chen-style)    3        26  17-38       +0 to +15     -6 to +3 0.0513
+                     XGBoost + LightGBM + LR(Chen-style) none        26  16-37       +0 to +14     -6 to +3 0.0569
+                     XGBoost + LightGBM + LR(Chen-style)    3        25  16-36       -1 to +13     -6 to +1 0.0556
+                    XGBoost(Chen feats) + LR(Chen-style) none        26  16-37       +0 to +15     -6 to +4 0.0449
+                    XGBoost(Chen feats) + LR(Chen-style)    3        25  15-35       -1 to +14     -7 to +2 0.0451
+                                        +LoRA: v4 + LoRA none        30  20-41       +4 to +18     -3 to +9 0.0688
+                                        +LoRA: v4 + LoRA    3        28  19-39       +3 to +16     -4 to +6 0.0673
+                  +LoRA: XGBoost + LR(Chen-style) + LoRA none        31  20-42       +4 to +19    -3 to +10 0.0572
+                  +LoRA: XGBoost + LR(Chen-style) + LoRA    3        29  18-40       +3 to +18     -5 to +8 0.0566
+           +LoRA: XGBoost + LR(Chen-style + Luis) + LoRA none        31  20-43       +5 to +20    -2 to +10 0.0615
+           +LoRA: XGBoost + LR(Chen-style + Luis) + LoRA    3        30  19-41       +3 to +18     -3 to +8 0.0607
++LoRA: LightGBM + LR(Chen-style) + LoRA  (Chen's recipe) none        30  19-41       +4 to +19     -4 to +9 0.0648
++LoRA: LightGBM + LR(Chen-style) + LoRA  (Chen's recipe)    3        28  18-38       +3 to +17     -5 to +7 0.0629
+                            +LoRA: LR(Chen-style) + LoRA none        31  21-42       +5 to +20    -3 to +12 0.0544
+                            +LoRA: LR(Chen-style) + LoRA    3        29  19-40       +3 to +18     -5 to +8 0.0532
+      Chen's own OOF: LR + LoRA + LightGBM(Luis), 5-fold none        28  18-39       +2 to +17     -5 to +8 0.0516
+      Chen's own OOF: LR + LoRA + LightGBM(Luis), 5-fold    3        29  19-40       +2 to +18     -5 to +9 0.0550
+[  145s] done

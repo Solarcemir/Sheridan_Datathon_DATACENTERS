@@ -1,0 +1,5 @@
+               labels  positives  cap baseline hits  best hits      difference baseline AP best AP       AP diff CI
+   KEV by Dec 31 2025        119 none    27 (17-37) 44 (33-56) +17 (+8 to +26)       0.046   0.093 +0.001 to +0.100
+   KEV by Dec 31 2025        119    3    32 (22-43) 44 (31-58) +12 (+3 to +21)                                     
+KEV by Nov 4 (judges)         75 none    20 (12-30) 30 (21-42) +10 (+4 to +17)       0.032   0.055 -0.014 to +0.053
+KEV by Nov 4 (judges)         75    3    23 (14-32) 29 (19-40)  +6 (+0 to +13)                                     

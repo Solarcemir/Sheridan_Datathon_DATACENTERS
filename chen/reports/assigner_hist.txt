@@ -1,0 +1,31 @@
+missed positives       assigner has prior KEV:   82% | median prior KEV     8 | median KEV per CVE 0.0145
+found positives        assigner has prior KEV:   87% | median prior KEV    14 | median KEV per CVE 0.0156
+all negatives          assigner has prior KEV:   64% | median prior KEV     3 | median KEV per CVE 0.0004
+        cve_id                             assigner  prior_kev  cves_3y  kev_rate
+CVE-2023-52163                        cve@mitre.org        257    19734    0.0130
+CVE-2024-13159 3c1d8aa1-5a33-4ea4-8992-aadd6440af75          6       90    0.0667
+CVE-2024-13160 3c1d8aa1-5a33-4ea4-8992-aadd6440af75          6       90    0.0667
+CVE-2024-13161 3c1d8aa1-5a33-4ea4-8992-aadd6440af75          6       90    0.0667
+CVE-2024-53704                  PSIRT@sonicwall.com         11       84    0.1310
+CVE-2024-57968                        cve@mitre.org        257    19734    0.0130
+ CVE-2025-0411       zdi-disclosures@trendmicro.com          1     1757    0.0006
+ CVE-2025-3935 7d616e1a-3288-43b1-a0dd-0a65d3e70a49          0        1    0.0000
+ CVE-2025-6204     3DS.Information-Security@3ds.com          0       74    0.0000
+ CVE-2025-6205     3DS.Information-Security@3ds.com          0       74    0.0000
+ CVE-2025-6554          chrome-cve-admin@google.com         64      894    0.0716
+ CVE-2025-9377 f23511db-6c3e-4e32-a477-6aa17d310630          0       14    0.0000
+CVE-2025-21042          mobile.security@samsung.com         11      711    0.0155
+CVE-2025-21043          mobile.security@samsung.com         11      711    0.0155
+CVE-2025-23209       security-advisories@github.com         12     5316    0.0023
+CVE-2025-24054                 secure@microsoft.com        319     3093    0.1031
+CVE-2025-24472                   psirt@fortinet.com         16      482    0.0332
+CVE-2025-25181                        cve@mitre.org        257    19734    0.0130
+CVE-2025-27915                        cve@mitre.org        264    19501    0.0135
+CVE-2025-35939 9119a7d8-5eab-497f-8521-727c672e3725          5       54    0.0926
+CVE-2025-38352 416baaa9-dc9f-4396-8d5f-8c081fb06d67          5     7231    0.0007
+CVE-2025-55177                    cve-assign@fb.com          3       40    0.0750
+
+rank by assigner kev_rate: hits@243 3, hits@1000 5
+
+rank by assigner prior_kev: hits@243 0, hits@1000 2
+among no-exploit-code CVEs (34,520, 30 positives): top 1000 by assigner KEV rate holds 2

@@ -1,0 +1,21 @@
+{
+  "mode": "many",
+  "target": "val2024",
+  "model": "ibm-granite/granite-4.2-30b",
+  "shots_file": "processed/shots_2024h1.parquet",
+  "seed": 0,
+  "shard": 0,
+  "nshards": 1,
+  "limit": 0,
+  "max_model_len": 49152,
+  "tp": 2,
+  "out": "results/val2024_many.parquet",
+  "rows": 19527,
+  "shots": 84,
+  "system_tokens": 18262,
+  "seconds": 708.6,
+  "first_tokens": {
+    "No": 15704,
+    "Yes": 3823
+  }
+}

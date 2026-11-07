@@ -1,0 +1,37 @@
+model,cap,A@243,B@198,A+B @density
+"Exploit code, then EPSS",none,13,6,19
+"Exploit code, then EPSS",3,15,7,22
+XGBoost big (Luis),none,16,7,23
+XGBoost big (Luis),3,17,9,26
+"LR, Chen-style (base + meta + TF-IDF + Granite 30B)",none,15,10,25
+"LR, Chen-style (base + meta + TF-IDF + Granite 30B)",3,17,11,28
+"LR, Chen-style + Luis safe features",none,16,8,24
+"LR, Chen-style + Luis safe features",3,15,9,24
+XGBoost big with Chen features,none,18,7,25
+XGBoost big with Chen features,3,18,8,26
+LoRA 8B alone (Chen OOF),none,15,8,23
+LoRA 8B alone (Chen OOF),3,17,8,25
+v4: XGBoost + LR(Luis + Chen-lite)  [reference],none,18,8,26
+v4: XGBoost + LR(Luis + Chen-lite)  [reference],3,18,11,29
+XGBoost + LR(Chen-style),none,18,7,25
+XGBoost + LR(Chen-style),3,17,9,26
+XGBoost + LR(Chen-style + Luis),none,17,6,23
+XGBoost + LR(Chen-style + Luis),3,16,10,26
+LightGBM + LR(Chen-style),none,18,7,25
+LightGBM + LR(Chen-style),3,17,7,24
+XGBoost + LightGBM + LR(Chen-style),none,18,6,24
+XGBoost + LightGBM + LR(Chen-style),3,17,8,25
+XGBoost(Chen feats) + LR(Chen-style),none,18,7,25
+XGBoost(Chen feats) + LR(Chen-style),3,17,7,24
++LoRA: v4 + LoRA,none,20,9,29
++LoRA: v4 + LoRA,3,18,9,27
++LoRA: XGBoost + LR(Chen-style) + LoRA,none,18,10,28
++LoRA: XGBoost + LR(Chen-style) + LoRA,3,17,10,27
++LoRA: XGBoost + LR(Chen-style + Luis) + LoRA,none,19,9,28
++LoRA: XGBoost + LR(Chen-style + Luis) + LoRA,3,17,10,27
++LoRA: LightGBM + LR(Chen-style) + LoRA  (Chen's recipe),none,19,9,28
++LoRA: LightGBM + LR(Chen-style) + LoRA  (Chen's recipe),3,18,9,27
++LoRA: LR(Chen-style) + LoRA,none,19,9,28
++LoRA: LR(Chen-style) + LoRA,3,19,9,28
+"Chen's own OOF: LR + LoRA + LightGBM(Luis), 5-fold",none,17,9,26
+"Chen's own OOF: LR + LoRA + LightGBM(Luis), 5-fold",3,18,9,27

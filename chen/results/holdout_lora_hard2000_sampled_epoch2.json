@@ -1,0 +1,23 @@
+{
+  "mode": "zero",
+  "target": "holdout",
+  "model": "ibm-granite/granite-4.2-8b",
+  "shots_file": null,
+  "seed": 0,
+  "shard": 0,
+  "nshards": 1,
+  "limit": 0,
+  "max_model_len": 4096,
+  "tp": 1,
+  "lora": "runs/hard2000_sampled/epoch2",
+  "meta": false,
+  "out": "results/holdout_lora_hard2000_sampled_epoch2.parquet",
+  "rows": 35280,
+  "shots": 0,
+  "system_tokens": 127,
+  "seconds": 205.9,
+  "first_tokens": {
+    "No": 35266,
+    "Yes": 14
+  }
+}

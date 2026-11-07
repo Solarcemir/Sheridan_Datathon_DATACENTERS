@@ -21,7 +21,8 @@ IBM-*/
 .env
 *.env
 
-# Environments and caches
+# Environments, caches and training logs
+catboost_info/
 __pycache__/
 *.pyc
 .venv/

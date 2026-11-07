@@ -1,0 +1,86 @@
+﻿{'A': (36441, 40, 35281, 48), 'B': (42563, 55, 28839, 27)}
+PCA-64 fit on 38,129 pre-2024 non-KEV descriptions; explained variance 0.57
+LR C chosen inside training years: {'LR: Luis safe [A]': 0.001, 'LR: + Chen safe + careful [A]': 0.003, 'LR: + Chen + PCA-64 [A]': 0.1, 'LR: Luis safe [B]': 0.003, 'LR: + Chen safe + careful [B]': 0.0001, 'LR: + Chen + PCA-64 [B]': 0.003}
+                                                    model  cap  A@243  A@500  B@198  B@500  A+B @density  A+B @500
+                                  Exploit code, then EPSS none     13     17      6      8            19        25
+                                  Exploit code, then EPSS    3     15     18      7     10            22        28
+                                  Exploit code, then EPSS    5     14     18      6     10            20        28
+                                      LightGBM: Luis safe none     15     22      5      8            20        30
+                                      LightGBM: Luis safe    3     14     20      7     10            21        30
+                                      LightGBM: Luis safe    5     16     22      7     10            23        32
+                                    LightGBM: + Chen safe none     13     22      6      9            19        31
+                                    LightGBM: + Chen safe    3     14     20      7     11            21        31
+                                    LightGBM: + Chen safe    5     15     22      7     11            22        33
+                          LightGBM: + Chen safe + careful none     13     20      6      9            19        29
+                          LightGBM: + Chen safe + careful    3     15     20      7     12            22        32
+                          LightGBM: + Chen safe + careful    5     15     20      7     10            22        30
+                                            LR: Luis safe none     14     19      5      9            19        28
+                                            LR: Luis safe    3     15     22      6     10            21        32
+                                            LR: Luis safe    5     15     21      6     10            21        31
+                                LR: + Chen safe + careful none     13     18      7     12            20        30
+                                LR: + Chen safe + careful    3     15     19      9     13            24        32
+                                LR: + Chen safe + careful    5     14     21      8     13            22        34
+                                      LR: + Chen + PCA-64 none     12     14      6      9            18        23
+                                      LR: + Chen + PCA-64    3     13     15      8     11            21        26
+                                      LR: + Chen + PCA-64    5     13     14      7     12            20        26
+                Rank avg: LightGBM(+Chen) + LR(+Chen+PCA) none     13     19      8     10            21        29
+                Rank avg: LightGBM(+Chen) + LR(+Chen+PCA)    3     15     17      8     11            23        28
+                Rank avg: LightGBM(+Chen) + LR(+Chen+PCA)    5     15     18      8     13            23        31
+                 Rank avg: LightGBM(Luis) + LR(+Chen+PCA) none     14     19      7     11            21        30
+                 Rank avg: LightGBM(Luis) + LR(+Chen+PCA)    3     15     16      8     11            23        27
+                 Rank avg: LightGBM(Luis) + LR(+Chen+PCA)    5     16     18      8     13            24        31
+                     Rank avg: LightGBM(Luis) + LR(+Chen) none     18     20      7     12            25        32
+                     Rank avg: LightGBM(Luis) + LR(+Chen)    3     18     21      9     14            27        35
+                     Rank avg: LightGBM(Luis) + LR(+Chen)    5     18     21      8     15            26        36
+Rank avg of 3: LightGBM(Luis) + LR(+Chen) + LR(+Chen+PCA) none     16     19      8     11            24        30
+Rank avg of 3: LightGBM(Luis) + LR(+Chen) + LR(+Chen+PCA)    3     17     18      8     11            25        29
+Rank avg of 3: LightGBM(Luis) + LR(+Chen) + LR(+Chen+PCA)    5     17     19      8     12            25        31
+
+pooled: top 441 of 64,120, 75 positives
+                                                    model  cap  hits@441 95% CI vs exploit+EPSS (95% CI)     AP
+                                  Exploit code, then EPSS none        19  12-29                 +0 to +0 0.0287
+                                  Exploit code, then EPSS    3        22  14-31                 -2 to +8 0.0338
+                                      LightGBM: Luis safe none        23  14-33                -4 to +11 0.0351
+                                      LightGBM: Luis safe    3        22  13-32                -5 to +10 0.0353
+                                    LightGBM: + Chen safe none        20  12-30                 -6 to +8 0.0349
+                                    LightGBM: + Chen safe    3        23  14-32                -5 to +11 0.0359
+                          LightGBM: + Chen safe + careful none        20  12-30                 -7 to +8 0.0364
+                          LightGBM: + Chen safe + careful    3        20  12-30                 -7 to +8 0.0376
+                                            LR: Luis safe none        20  12-30                 -8 to +9 0.0311
+                                            LR: Luis safe    3        21  12-31                -7 to +10 0.0348
+                                LR: + Chen safe + careful none        22  13-30                -5 to +10 0.0365
+                                LR: + Chen safe + careful    3        24  15-33                -4 to +12 0.0391
+                                      LR: + Chen + PCA-64 none        18  10-26                 -9 to +6 0.0282
+                                      LR: + Chen + PCA-64    3        20  13-29                 -7 to +9 0.0313
+                Rank avg: LightGBM(+Chen) + LR(+Chen+PCA) none        20  12-29                 -7 to +8 0.0472
+                Rank avg: LightGBM(+Chen) + LR(+Chen+PCA)    3        23  15-33                -3 to +12 0.0478
+                 Rank avg: LightGBM(Luis) + LR(+Chen+PCA) none        20  12-30                -7 to +10 0.0472
+                 Rank avg: LightGBM(Luis) + LR(+Chen+PCA)    3        25  16-33                -2 to +13 0.0453
+                     Rank avg: LightGBM(Luis) + LR(+Chen) none        26  16-37                +1 to +14 0.0579
+                     Rank avg: LightGBM(Luis) + LR(+Chen)    3        26  16-37                +0 to +14 0.0605
+Rank avg of 3: LightGBM(Luis) + LR(+Chen) + LR(+Chen+PCA) none        26  17-36                +0 to +14 0.0496
+Rank avg of 3: LightGBM(Luis) + LR(+Chen) + LR(+Chen+PCA)    3        25  16-35                -1 to +13 0.0504
+
+Chen's features on our test replicas (base rate 0.1170%):
+            feature  rows  kev  kev_rate  lift_vs_base
+        id_year_lag 14346   10   0.00070          0.60
+             old_id 14346   10   0.00070          0.60
+             wp_cna 14136    0   0.00000          0.00
+            txt_eol   401    3   0.00748          6.40
+txt_vuldb_disclosed  5826    0   0.00000          0.00
+    txt_auth_bypass   588    8   0.01361         11.63
+assigner_ransom_kev 18718   47   0.00251          2.15
+   is_patch_tuesday  6203   15   0.00242          2.07
+              twins  2947    7   0.00238          2.03
+        cwe_unknown  3020    0   0.00000          0.00
+         cv4_urgent   188    0   0.00000          0.00
+           cv4_auto   180    0   0.00000          0.00
+          cv4_e_poc  2645    0   0.00000          0.00
+     cv4_e_attacked     9    0   0.00000          0.00
+
+positives found in the top 882 by [Rank avg of 3: LightGBM(Luis) + LR(+Chen) + LR(+Chen+PCA), cap none] vs missed:
+        n  exploit_code  median_epss_pct  median_cvss  ui_required
+found                                                             
+False  44         0.182            0.615          7.8        0.136
+True   31         0.742            0.960          9.0        0.032
+missed examples: CVE-2025-24893, CVE-2025-3935, CVE-2024-26169, CVE-2024-21338, CVE-2025-2747, CVE-2024-58136, CVE-2025-4008, CVE-2024-37383, CVE-2025-2746, CVE-2025-48928, CVE-2025-35939, CVE-2025-55177, CVE-2024-53704, CVE-2024-38094, CVE-2024-27348

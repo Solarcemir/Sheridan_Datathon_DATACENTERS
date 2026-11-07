@@ -967,7 +967,7 @@ function meter(label, v){ const w = (v==null||isNaN(v)) ? 0 : Math.round(v*100);
 function t5Filtered(){
   const q=$('#t5Search').value.trim().toLowerCase(), cat=$('#t5Cat').value, mo=$('#t5Month').value, ex=$('#t5Exploit').checked;
   return T5.rows.filter(r => (!cat || r.category===cat) && (!mo || r.month===mo) && (!ex || r.edb||r.msf||r.nuc||r.poc)
-    && (!q || [r.cve,r.product,r.assigner,r.reason,r.category].join(' ').toLowerCase().includes(q)));
+    && (!q || [r.cve,r.product,r.assigner,r.reason,r.category,r.granite||''].join(' ').toLowerCase().includes(q)));
 }
 function renderT5(){
   const list = t5Filtered(), shown = T5.all ? list : list.slice(0,100);
@@ -981,21 +981,22 @@ function renderT5(){
       <td class="prod"><b>${esc(r.product||'—')}</b><span>${esc(r.category||'')}</span></td>
       <td><div class="xc">${xc.length?xc.map(x=>`<span class="chip leak">${x}</span>`).join(''):'<span class="small">none</span>'}</div></td>
       <td class="ep">${(+r.epss).toFixed(3)}</td>
-      <td>${meter('internet', r.p_internet)}${meter('enterprise', r.p_enterprise)}</td>
+      <td>${r.granite ? `<span class="small">${esc(r.granite)}</span>` : meter('internet', r.p_internet) + meter('enterprise', r.p_enterprise)}</td>
       <td class="why">${esc(r.reason||'')}</td></tr>`;
   }).join('');
 }
 function renderT5Summary(){
   const rows=T5.rows, n=rows.length;
   const withX = rows.filter(r=>r.edb||r.msf||r.nuc||r.poc).length;
-  const hiInet = rows.filter(r=>r.p_internet>=0.5).length;
+  const hasG = rows.some(r=>r.granite);
+  const hiInet = hasG ? rows.filter(r=>/appeal: high/.test(r.granite||'')).length : rows.filter(r=>r.p_internet>=0.5).length;
   const cats = {}; rows.forEach(r=>{ const c=r.category||'other'; cats[c]=(cats[c]||0)+1; });
   const top = Object.entries(cats).sort((a,b)=>b[1]-a[1]).slice(0,6), max = top.length?top[0][1]:1;
   const m = T5.meta||{};
   $('#t5Summary').innerHTML = `
     <div><b>${n}</b><span>CVEs ranked, out of 72,670</span></div>
     <div><b>${withX}</b><span>have public exploit code</span></div>
-    <div><b>${hiInet}</b><span>Granite reads as internet-facing</span></div>
+    <div><b>${hiInet}</b><span>${hasG ? 'Granite 30B rates high attacker appeal' : 'Granite reads as internet-facing'}</span></div>
     <div><span>Top categories</span><div class="catbars">${top.map(([c,k])=>`<div class="catbar"><span class="l" title="${esc(c)}">${esc(c)}</span><span class="tr"><i style="width:${Math.round(k/max*100)}%"></i></span><span class="n">${k}</span></div>`).join('')}</div></div>`;
   if(m.version) $('#t5Version').textContent = m.version;
   if(m.note) $('#t5Sub').textContent = m.note;

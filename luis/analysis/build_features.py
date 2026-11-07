@@ -306,29 +306,37 @@ def build(c, gap, year, suffix=""):
     return out
 
 
-pd.DataFrame([(k, *v_) for k, v_ in FEATURES.items()], columns=["feature", "group", "risk", "description"]) \
-    .to_csv(os.path.join(OUT, "feature_dictionary.csv"), index=False)
+def run_all():
+    if not ALL_MONTHS:
+        c24, g24 = replica_cohort(2024, [f"2024-{i:02d}" for i in range(1, 12)], "2024-12-31", "exploit_signals_2024.csv")
+        build(c24, g24, 2024)
+        c25, g25 = replica_cohort(2025, [f"2025-{i:02d}" for i in range(1, 12)], "2025-12-31", "exploit_signals_2025.csv")
+        build(c25, g25, 2025)
+        c26, g26 = cohort_2026()
+        build(c26, g26, 2026)
+    else:
+        # Same features for every month Chen's historical view covers (Jan 2024 - Dec 2025) + the scoreboard,
+        # exported as Parquet keyed by cve_id. Labels: y_nov4 (judge-aligned) and luis_y_dec31_of_year.
+        EXP = os.path.join(OUT, "for_chen")
+        os.makedirs(EXP, exist_ok=True)
+        parts = []
+        for yr in (2024, 2025):
+            c, g = replica_cohort(yr, [f"{yr}-{i:02d}" for i in range(1, 13)], f"{yr}-12-31", f"exploit_signals_{yr}.csv")
+            parts.append(build(c, g, yr, "_allmonths"))
+        hist = pd.concat(parts, ignore_index=True).rename(columns={"y": "luis_y_dec31_of_year"})
+        hist.to_parquet(os.path.join(EXP, "luis_features_hist_2024_2025.parquet"), index=False)
+        p26 = os.path.join(OUT, "features_2026.csv")
+        s26 = pd.read_csv(p26, parse_dates=["snapshot_end", "published"]) if os.path.exists(p26) else build(*cohort_2026(), 2026)
+        s26.to_parquet(os.path.join(EXP, "luis_features_scoreboard_2026.parquet"), index=False)
+        log(f"for_chen: hist {len(hist):,} rows ({hist.y_nov4.sum()} y_nov4 positives), scoreboard {len(s26):,} rows")
+    log("done")
 
-if not ALL_MONTHS:
-    c24, g24 = replica_cohort(2024, [f"2024-{i:02d}" for i in range(1, 12)], "2024-12-31", "exploit_signals_2024.csv")
-    build(c24, g24, 2024)
-    c25, g25 = replica_cohort(2025, [f"2025-{i:02d}" for i in range(1, 12)], "2025-12-31", "exploit_signals_2025.csv")
-    build(c25, g25, 2025)
-    c26, g26 = cohort_2026()
-    build(c26, g26, 2026)
-else:
-    # Same features for every month Chen's historical view covers (Jan 2024 - Dec 2025) + the scoreboard,
-    # exported as Parquet keyed by cve_id. Labels: y_nov4 (judge-aligned) and luis_y_dec31_of_year.
-    EXP = os.path.join(OUT, "for_chen")
-    os.makedirs(EXP, exist_ok=True)
-    parts = []
-    for yr in (2024, 2025):
-        c, g = replica_cohort(yr, [f"{yr}-{i:02d}" for i in range(1, 13)], f"{yr}-12-31", f"exploit_signals_{yr}.csv")
-        parts.append(build(c, g, yr, "_allmonths"))
-    hist = pd.concat(parts, ignore_index=True).rename(columns={"y": "luis_y_dec31_of_year"})
-    hist.to_parquet(os.path.join(EXP, "luis_features_hist_2024_2025.parquet"), index=False)
-    p26 = os.path.join(OUT, "features_2026.csv")
-    s26 = pd.read_csv(p26, parse_dates=["snapshot_end", "published"]) if os.path.exists(p26) else build(*cohort_2026(), 2026)
-    s26.to_parquet(os.path.join(EXP, "luis_features_scoreboard_2026.parquet"), index=False)
-    log(f"for_chen: hist {len(hist):,} rows ({hist.y_nov4.sum()} y_nov4 positives), scoreboard {len(s26):,} rows")
-log("done")
+
+def main():
+    pd.DataFrame([(k, *v_) for k, v_ in FEATURES.items()], columns=["feature", "group", "risk", "description"]) \
+        .to_csv(os.path.join(OUT, "feature_dictionary.csv"), index=False)
+    run_all()
+
+
+if __name__ == "__main__":   # importable: static_prior.py reuses the feature functions
+    main()

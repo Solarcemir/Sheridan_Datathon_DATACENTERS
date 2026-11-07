@@ -1,0 +1,34 @@
+model,cap,A@243,A@500,B@198,B@500,A+B @density,A+B @500
+"Exploit code, then EPSS",none,13,17,6,8,19,25
+"Exploit code, then EPSS",3,15,18,7,10,22,28
+"Exploit code, then EPSS",5,14,18,6,10,20,28
+LightGBM: Luis safe,none,15,22,5,8,20,30
+LightGBM: Luis safe,3,14,20,7,10,21,30
+LightGBM: Luis safe,5,16,22,7,10,23,32
+LightGBM: + Chen safe,none,13,22,6,9,19,31
+LightGBM: + Chen safe,3,14,20,7,11,21,31
+LightGBM: + Chen safe,5,15,22,7,11,22,33
+LightGBM: + Chen safe + careful,none,13,20,6,9,19,29
+LightGBM: + Chen safe + careful,3,15,20,7,12,22,32
+LightGBM: + Chen safe + careful,5,15,20,7,10,22,30
+LR: Luis safe,none,14,19,5,9,19,28
+LR: Luis safe,3,15,22,6,10,21,32
+LR: Luis safe,5,15,21,6,10,21,31
+LR: + Chen safe + careful,none,13,18,7,12,20,30
+LR: + Chen safe + careful,3,15,19,9,13,24,32
+LR: + Chen safe + careful,5,14,21,8,13,22,34
+LR: + Chen + PCA-64,none,12,14,6,9,18,23
+LR: + Chen + PCA-64,3,13,15,8,11,21,26
+LR: + Chen + PCA-64,5,13,14,7,12,20,26
+Rank avg: LightGBM(+Chen) + LR(+Chen+PCA),none,13,19,8,10,21,29
+Rank avg: LightGBM(+Chen) + LR(+Chen+PCA),3,15,17,8,11,23,28
+Rank avg: LightGBM(+Chen) + LR(+Chen+PCA),5,15,18,8,13,23,31
+Rank avg: LightGBM(Luis) + LR(+Chen+PCA),none,14,19,7,11,21,30
+Rank avg: LightGBM(Luis) + LR(+Chen+PCA),3,15,16,8,11,23,27
+Rank avg: LightGBM(Luis) + LR(+Chen+PCA),5,16,18,8,13,24,31
+Rank avg: LightGBM(Luis) + LR(+Chen),none,18,20,7,12,25,32
+Rank avg: LightGBM(Luis) + LR(+Chen),3,18,21,9,14,27,35
+Rank avg: LightGBM(Luis) + LR(+Chen),5,18,21,8,15,26,36
+Rank avg of 3: LightGBM(Luis) + LR(+Chen) + LR(+Chen+PCA),none,16,19,8,11,24,30
+Rank avg of 3: LightGBM(Luis) + LR(+Chen) + LR(+Chen+PCA),3,17,18,8,11,25,29
+Rank avg of 3: LightGBM(Luis) + LR(+Chen) + LR(+Chen+PCA),5,17,19,8,12,25,31

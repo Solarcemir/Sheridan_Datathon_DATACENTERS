@@ -1,0 +1,9 @@
+positives: our label (KEV by 2025-12-31) 119 | judge-aligned (KEV by Nov 4 of publish year) 75
+                                model  cap- our  cap- nov4  cap3 our  cap3 nov4  cap5 our  cap5 nov4  cap8 our  cap8 nov4  max per assigner-month     top assigner-month
+                   baseline_code_epss        27         20        32         23        31         22        29         22                      16          cve@mitre.org
+                     lr_features_meta        34         24        34         24        34         24        34         24                      11          cve@mitre.org
+              lr_features_meta_embknn        35         23        38         25        34         22        35         23                      16   secure@microsoft.com
+        lr_features_meta_embknn_pca64        36         26        38         27        37         27        36         26                      17   secure@microsoft.com
+lr_features_meta_embknn_pca64_granite        33         24        38         25        36         24        33         24                      11          cve@mitre.org
+                         lora_control        36         25        38         26        38         27        37         26                      22 disclosure@vulncheck.c
+                          avg_lr_lora        42         28        45         30        43         29        42         28                      16 disclosure@vulncheck.c
