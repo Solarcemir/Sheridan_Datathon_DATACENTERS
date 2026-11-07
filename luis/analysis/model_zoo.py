@@ -153,7 +153,7 @@ def m_cat(tr, te, F, split, seeds=3):
     out = []
     for s in range(seeds):
         kw = dict(iterations=1000, depth=6, learning_rate=0.03, l2_leaf_reg=5, auto_class_weights="Balanced", random_seed=s,
-                  verbose=0, cat_features=CAT_COLS)
+                  verbose=0, cat_features=CAT_COLS, allow_writing_files=False)   # no catboost_info/ folder
         try:
             m = CatBoostClassifier(task_type="GPU", devices="0", **kw).fit(tr[cols], tr.y)
         except Exception as e:  # noqa: BLE001
