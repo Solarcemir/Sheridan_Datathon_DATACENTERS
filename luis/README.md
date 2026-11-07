@@ -30,7 +30,9 @@ python -E -P luis/analysis/granite_instruct.py     # IBM Granite Instruct re-ran
 python -E -P luis/analysis/export_top500_json.py   # site/top500.json for the hub's Top 500 table
 python -E -P luis/analysis/density_check.py        # numbers at scoreboard density, comparable with Chen's CV
 python -E -P luis/analysis/chen_insights.py        # Chen's features/models on our A/B, bootstrap, missed positives
-python -E -P luis/analysis/chen_insights.py --score-2026   # current pick: submissions/top500_v3.csv
+python -E -P luis/analysis/chen_insights.py --score-2026   # submissions/top500_v3.csv (LightGBM + LR)
+python -E -P luis/analysis/model_zoo.py            # XGBoost / CatBoost / LambdaRank / big linear + ensembles (~11 min, GPU)
+python -E -P luis/analysis/model_zoo.py --score-2026       # current pick: submissions/top500_v4.csv (XGBoost big + LR)
 ```
 
 Environment notes and known install issues: `context_Luis.md` §12.

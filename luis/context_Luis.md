@@ -3,7 +3,7 @@
 Luis's handoff document (folder `luis/`; paths below are relative to it unless they start with `luis/`). Last updated Nov 7, 2026, ~5:15 pm. Written so a teammate with a stronger machine can pick up the work without re-deriving anything. Every number below comes from a script in `luis/analysis/` and is backed by a file listed in **§13 Evidence index**.
 
 - **Team hub (web):** https://claude.ai/artifact/Np2SfMguMKySJnBfvNfnjR (ranked Top 500 table with Granite reasons, rules, CSV/column explorer, data map, shared notes; code in `site/breach-hub.html`)
-- **Best ranking right now:** `submissions/top500_v3.csv` (LightGBM + LR with Chen's features, rank average, cap 3; §14.5). `submissions/top500_v2.csv` has Granite-written explanations in `reports/top500_v2_explained.csv` (§9).
+- **Best ranking right now:** `submissions/top500_v4.csv` (XGBoost big + LR with Chen's features, rank average, cap 3; §14.7). `submissions/top500_v3.csv` (LightGBM instead of XGBoost; §14.5) is statistically tied and shares 406 of 500 CVEs. `submissions/top500_v2.csv` has Granite-written explanations in `reports/top500_v2_explained.csv` (§9).
 
 ---
 
@@ -12,7 +12,7 @@ Luis's handoff document (folder `luis/`; paths below are relative to it unless t
 1. **Task:** pick 500 of 72,670 CVEs (published Jan–Sep 2026). Score = how many CISA adds to KEV by Nov 4, 2026. Official baselines: 6–8 hits.
 2. **We built a local exam** that copies the benchmark on 2024 and 2025 data (the "replicas"), because the 2026 answer is secret. Everything is measured as hits in the top 500 on those replicas.
 3. **Two directions:** A = train 2024 → test 2025 (realistic, past predicts future). B = train 2025 → test 2024 (robustness only, uses future data). Report A as the headline, A+B to pick between methods.
-4. **Best clean result on this side:** LightGBM on leak-free features with a TF-IDF text model, then **at most 5 CVEs per assigner per month**: **A = 23, B = 12** in the top 500 of each year (vs exploit+EPSS 17 / 8, CVSS 6 / 1). **At the real scoreboard density** (top 243 of 35k, top 198 of 29k) it's **A 16 + B 7 = 23 vs 20** for exploit+EPSS, and pooled like Chen's CV it's 23 vs 19. **Chen's GPU-box pipeline (LR + LoRA Granite 8B) gets 28–30 on a comparable set, so it's the stronger core.** See §14. **Update after testing Chen's insights on our data (§14.5):** a rank average of our LightGBM and a strongly regularized LR with Chen's features gets **25 at density (27 with cap 3) and 26 pooled**, the first result here whose paired bootstrap CI beats exploit+EPSS (**+1 to +14**). That ranking is `submissions/top500_v3.csv`.
+4. **Best clean result on this side:** LightGBM on leak-free features with a TF-IDF text model, then **at most 5 CVEs per assigner per month**: **A = 23, B = 12** in the top 500 of each year (vs exploit+EPSS 17 / 8, CVSS 6 / 1). **At the real scoreboard density** (top 243 of 35k, top 198 of 29k) it's **A 16 + B 7 = 23 vs 20** for exploit+EPSS, and pooled like Chen's CV it's 23 vs 19. **Chen's GPU-box pipeline (LR + LoRA Granite 8B) gets 28–30 on a comparable set, so it's the stronger core.** See §14. **Update after testing Chen's insights on our data (§14.5):** a rank average of our LightGBM and a strongly regularized LR with Chen's features gets **25 at density (27 with cap 3) and 26 pooled**, the first result here whose paired bootstrap CI beats exploit+EPSS (**+1 to +14**). That ranking is `submissions/top500_v3.csv`. Swapping LightGBM for a bigger XGBoost is slightly better (29 at density, 28 pooled, AP 0.063; tied within the CI) and is the current pick, `submissions/top500_v4.csv` (§14.7). Heavier models alone don't beat LightGBM; the gain comes from pairing a tree model with a linear one.
 5. **Noise is ±3 hits.** The same model gave 20 or 23 in A just by changing CPU thread count. Don't trust gaps under ~4.
 6. **Key insights:** the description text is the strongest single signal (AUC 0.91); 58% of exploited CVEs have no public exploit signal; NIST status columns leak the answer; a single vendor patch batch (Oracle, 1,097 CVEs on one day) can flood the top 500, and capping per assigner fixes it.
 7. **IBM Granite:** embeddings give great clusters (which technologies get attacked) but don't beat TF-IDF for ranking. Granite Instruct's yes/no answers carry signal: internet-facing 1.75× and enterprise 1.85× the KEV rate, and **0 of 67 "niche product" CVEs reached KEV**. Re-ranking with them adds +2 without the cap, but nothing once the cap is on (34 vs 35). Granite also writes the product, category and reason for every CVE in our top 500.
@@ -304,7 +304,8 @@ Every cap from 3 to 8 beats no cap in **both** directions; that's a plateau, not
 | `top500_v1.csv` | Same, re-run with Granite features available but TF-IDF variant picked | 208 flags, 0 WordPress, 56 Oracle; 420 shared with v0 |
 | `top500_v1_cap5.csv` | v1 + cap of 5 per assigner per month | 211 flags, 19 Oracle, 137 assigners, deepest v1 rank used = 595; 438 shared with v1 |
 | `top500_v2.csv` | Stage 1 (v1 LightGBM, re-trained in `granite_instruct.py`) + cap 5; Granite reasons | Previous pick. A+B 23 + 12 at top 500 per year. Shares 409 CVEs with `top500_v1_cap5` (same method, different random run) and 388 with v1 |
-| **`top500_v3.csv`** | **Rank average of LightGBM (Luis safe features, 10 deterministic seeds) and LR (C = 0.001, chosen inside training) on Luis safe + Chen features; cap 3 per assigner-month; trained on all 2024+2025 months; `txt_in_wild` dropped** | **Current pick.** Only option whose pooled paired bootstrap beats exploit+EPSS (§14.5). 230 with exploit flag, 11 Oracle, 0 WordPress CNAs, 4 blank-CWE, 143 assigners; month mix Jan 49 · Feb 43 · Mar 65 · Apr 56 · May 65 · Jul 91 · Aug 85 · Sep 46. Shares 298 CVEs with v2. No Granite reasons yet for the CVEs that are new vs v2 |
+| **`top500_v4.csv`** | **Rank average of XGBoost big (all features incl. Chen's, 5 GPU seeds) and LR (Luis safe + Chen, C tuned inside training); cap 3; trained on all 2024+2025 months** | **Current pick.** Best in the model zoo: 29 at density, 28 pooled (+1 to +16 vs exploit+EPSS), AP 0.063 (§14.7). 237 flags, 10 Oracle, 0 WordPress, 147 assigners. Shares 406 CVEs with v3 |
+| `top500_v3.csv` | Rank average of LightGBM (Luis safe features, 10 deterministic seeds) and LR (C = 0.001, chosen inside training) on Luis safe + Chen features; cap 3 per assigner-month; trained on all 2024+2025 months; `txt_in_wild` dropped | Statistically tied with v4. First option whose pooled paired bootstrap beat exploit+EPSS (§14.5). 230 with exploit flag, 11 Oracle, 0 WordPress CNAs, 4 blank-CWE, 143 assigners; month mix Jan 49 · Feb 43 · Mar 65 · Apr 56 · May 65 · Jul 91 · Aug 85 · Sep 46. Shares 298 CVEs with v2. No Granite reasons yet for the CVEs that are new vs v2 |
 
 Full rankings: `derived/scored_2026_v0.csv`, `derived/scored_2026_v1.csv` (rank, score, assigner, EPSS, flags, top 3 SHAP reasons), and the explained v2 top 500 in `reports/top500_v2_explained.csv` (product, category, Granite probabilities, signals, reason). Monthly mix of `top500_v1_cap5`: Jan 48 · Feb 43 · Mar 69 · Apr 70 · May 58 · Jul 99 (includes June) · Aug 78 · Sep 35.
 
@@ -346,6 +347,7 @@ Full rankings: `derived/scored_2026_v0.csv`, `derived/scored_2026_v1.csv` (rank,
 
 **Packages installed during this work** (on top of an existing env with numpy 1.26.4, pandas 2.3.3, scikit-learn 1.8.0, matplotlib 3.10.8):
 - `lightgbm 4.7.0`
+- `xgboost 3.4.1` (CUDA build) and `catboost 1.2.10` (+ `graphviz`, `plotly`), installed with `numpy==1.26.4 anyio==3.7.1 click==8.1.7 h11==0.14.0` pinned so nothing else moved
 - `sentence-transformers 3.4.1`, `transformers 4.49.0`, `huggingface_hub 0.29.3`, `tokenizers 0.21.4`
 - Pin `numpy==1.26.4`. `shap` pulled numpy 2.x and broke OpenCV, so it was removed (LightGBM gives SHAP via `pred_contrib=True`). Newer `transformers 5.x` / `huggingface_hub 2.x` bumped `anyio`, `click` and `h11` and broke FastAPI/gTTS/httpcore on this machine, so we stayed on 4.49.
 - No `accelerate`: models are loaded and moved with `.to("cuda")`.
@@ -388,6 +390,8 @@ python -E -P luis/analysis/export_top500_json.py   # site/top500.json for the hu
 | Density-matched numbers, `txt_in_wild` ablation, vendor vs product matching (§14) | `analysis/density_check.py`, `reports/density_check.txt` |
 | Chen's insights on our setup: new features, LR, ensembles, bootstrap, missed positives (§14.5) | `analysis/chen_insights.py`, `reports/chen_insights_results.csv`, `reports/chen_insights_bootstrap.csv`, `reports/chen_features_lift.csv`, `reports/chen_missed_positives.csv`, `reports/chen_insights_log.txt` |
 | Clean vs leak-only vs clean+leak (§3, §14.6) | `python -E -P luis/analysis/chen_insights.py --leak-test` → `reports/leak_vs_clean.csv`, `reports/leak_vs_clean_log.txt` |
+| Model zoo: XGBoost, CatBoost, LambdaRank, big linear, ensembles, diversity (§14.7) | `analysis/model_zoo.py`, `reports/model_zoo_results.csv`, `reports/model_zoo_bootstrap.csv`, `reports/model_zoo_correlation.csv`, `reports/model_zoo_catboost_importance.csv`, `reports/model_zoo_log.txt` |
+| `top500_v4` (§9, §14.7) | `python -E -P luis/analysis/model_zoo.py --score-2026` → `derived/scored_2026_v4.csv`, `submissions/top500_v4.csv` |
 | `top500_v3` (§9, §14.5) | `python -E -P luis/analysis/chen_insights.py --score-2026` → `derived/scored_2026_v3.csv`, `submissions/top500_v3.csv` |
 | Chen's GPU-box workstream (CV, LR + LoRA, Granite 30B/8B, embeddings r2) | `received/CHEN_context_gpu_box_2026-11-07.md` |
 
@@ -502,6 +506,44 @@ Same splits and bootstrap as §14.5. "Leak" = `nvd_status` analyzed, `n_referenc
 - **Clean and leak models pick different CVEs:** their top 441 share 3 CVEs and 0 hits. Added to the clean model, the leak gives +2 to +4 hits. That's the "inflation" number for the write-up.
 - **For 2026 the leak would be stronger than this shows.** Our 2024–25 replicas are now 74% analyzed; the 2026 scoreboard is only ~50% (Analyzed 31,265 + Modified 5,118 of 72,670). The filter would cut half the 2026 haystack, so these numbers are a **lower bound** on what the leak is worth. This is exactly why the README warns about it, and why we excluded it.
 - **Write-up message:** "We beat the baselines without NIST's after-the-fact metadata. Those columns alone can't rank (2–5 hits), and adding them would add 2–4 hits on our replicas, more on 2026, for the wrong reason."
+
+### 14.7 Model zoo: heavier and different models (`analysis/model_zoo.py`)
+
+Same setup as §14.5 (A/B, `y_nov4`, scoreboard density, pooled paired bootstrap vs exploit+EPSS **and vs the current best**, LightGBM + LR(+Chen)). Features: Luis safe (no `txt_in_wild`) + Chen safe/careful + a new "assigner heat" group (Chen's to-do #5: count, exploit-code share and mean EPSS percentile of the same assigner's CVEs from earlier snapshot months, each at its own snapshot). XGBoost and CatBoost ran on the GPU. Full run ≈ 11 min on the laptop.
+
+| Model | A@243 + B@198 (no cap / cap 3) | Pooled hits@441 (95% CI) | vs exploit+EPSS | vs current best | AP |
+|---|---|---|---|---|---|
+| Exploit code, then EPSS | 19 / 22 | 19 (12–29) | – | −14 to −1 | 0.029 |
+| LightGBM, Luis safe | 20 / 21 | 23 (14–33) | −4 to +11 | −8 to +2 | 0.035 |
+| LightGBM, all features | 23 / 22 | 22 (13–32) | −6 to +11 | −10 to +2 | 0.037 |
+| LR, Luis safe + Chen | 20 / 24 | 22 (13–30) | −5 to +10 | −11 to +1 | 0.037 |
+| LR, all features (+ heat) | 16 / 21 | 18 (10–26) | −10 to +5 | −16 to −2 | 0.031 |
+| XGBoost small (depth 4, 400 trees) | 23 / 24 | 22 (14–32) | −5 to +11 | −10 to +2 | 0.041 |
+| **XGBoost big (depth 6, 1,500 trees)** | 23 / **26** | 23 (15–34); cap 3: 26 | −3 to +13 | −8 to +4 | **0.053** |
+| CatBoost (assigner + main CWE as categoricals) | 13 / 15 | **14** (7–22) | −15 to +3 | −21 to −4 | 0.023 |
+| LightGBM LambdaRank (query = month) | 23 / 23 | 21 (13–31) | −6 to +10 | −10 to +1 | 0.041 |
+| Big linear (TF-IDF of the cohort + tabular) | 16 / 21 | 18 (10–27) | −10 to +8 | −15 to −1 | 0.028 |
+| Current best: LightGBM + LR(+Chen) | 25 / 27 | 26 (16–37) | +1 to +14 | – | 0.058 |
+| LightGBM(all) + LR(all, +heat) | 25 / 25 | 26 (16–37) | −1 to +14 | −4 to +4 | 0.052 |
+| XGBoost small + LR(+Chen) | 25 / 26 | 25–26 | −1 to +14 | −5 to +3 | 0.053 |
+| **XGBoost big + LR(+Chen), cap 3** | **29** | **28 (18–38)** | **+1 to +16** | −2 to +5 | **0.063** |
+| LambdaRank + LR(+Chen) | 26 / 26 | 24–25 | −2 to +13 | −6 to +2 | 0.055 |
+| CatBoost + LR(+Chen) | 17 / 21 | 19–21 | −8 to +10 | −14 to +2 | 0.033 |
+| LightGBM + LR(+Chen) + CatBoost | 19 / 21 | 21–24 | −6 to +14 | −11 to +4 | 0.037 |
+| LightGBM + LR(+Chen) + big linear | 25 / 26 | 25 | −2 to +14 | −5 to +4 | 0.050 |
+| Everything (7 models) | 20 / 24 | 22–23 | −5 to +12 | −10 to +4 | 0.044 |
+
+**Prediction diversity** (Spearman of pooled scores; `reports/model_zoo_correlation.csv`): the tree models agree with each other at 0.85–0.96 (top-441 overlap ~275–365 CVEs). The LR agrees with trees at only 0.68–0.73 (overlap ~150–165). CatBoost is the odd one out (0.54–0.70) but mostly because it's worse.
+
+**Insights:**
+1. **Gains come from pairing one tree model with one linear model, not from heavier models.** Every tree + LR pair beats its parts; averaging 7 models is worse than the best pair because weak, correlated members dilute it.
+2. **XGBoost big is the best single model** (AP 0.053 vs 0.035 for LightGBM), and **XGBoost big + LR(+Chen) with cap 3 is the best option overall** (29 at density, 28 pooled, AP 0.063). Against the current best its CI is −2 to +5: better point estimate, not a proven improvement.
+3. **High-cardinality categoricals overfit.** CatBoost with the raw assigner gets 14 hits. Encoding the assigner as a smoothed historical KEV rate (`assigner_rate_3y`) works; letting the model memorize assigners doesn't.
+4. **Learn text from history, not from the cohort.** A TF-IDF model trained on the cohort's own 40–55 positives (big linear) gets 18. `text_kev_lr`, trained on ~1,000 past KEV descriptions, is still the #1 feature everywhere (CatBoost importance: `text_kev_lr` 20.5, `n_same_day` 10.8, `desc_len` 6.7, `assigner_rate_3y` 6.0).
+5. **Assigner heat (Chen's to-do #5) doesn't help:** neutral for trees, worse for the LR.
+6. **Ceiling of the current features:** across all single models, only **35 of 75** positives ever make a top 441. The other 40 are Chen's "invisible" positives. More model capacity won't find them; new information might (Granite 30B extraction, product-level history).
+
+**`submissions/top500_v4.csv`** = XGBoost big (all features, 5 GPU seeds) + LR(Luis safe + Chen, C tuned inside training), rank average, cap 3, trained on all 2024+2025 months (`python -E -P luis/analysis/model_zoo.py --score-2026`). 237 with exploit flag, 10 Oracle, 0 WordPress CNAs, 4 blank-CWE, 147 assigners; shares 406 CVEs with v3. Month mix: Jan 41 · Feb 37 · Mar 61 · Apr 53 · May 67 · Jul 110 · Aug 69 · Sep 62.
 
 ## 15. Research sources
 
