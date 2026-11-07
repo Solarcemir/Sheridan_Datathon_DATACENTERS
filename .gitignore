@@ -1,0 +1,15 @@
+# Raw hackathon data (~850 MB). Download and unzip it separately.
+IBM-*/
+*.zip
+
+# Regenerated in minutes by analysis/build_features.py and analysis/granite_features.py
+derived/features_*.csv
+derived/leak_only_*.csv
+derived/backtest_cohorts_2025.csv
+derived/granite/emb_granite30m.npy
+derived/granite/emb_ids.csv
+derived/granite/granite_features_*.csv
+
+# Python
+__pycache__/
+*.pyc

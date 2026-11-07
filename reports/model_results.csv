@@ -1,0 +1,23 @@
+model,features,hits@500 A 2024->2025,AP A 2024->2025,hits@500 B 2025->2024,AP B 2025->2024,hits@500 total
+CVSS 3 first,baseline,6,0.0063,1,0.003,7
+EPSS first,baseline,8,0.0321,4,0.0147,12
+"Exploit flag, then EPSS",baseline,17,0.0479,8,0.0242,25
+Hand heuristic (fair on B only),baseline,21,0.079,9,0.0212,30
+Text only,TF-IDF,9,0.0174,6,0.0092,15
+Text only,Granite,4,0.0062,3,0.0053,7
+Text only,hybrid TF-IDF+Granite,9,0.0172,8,0.0105,17
+Logistic regression,"safe, TF-IDF + Granite",15,0.058,8,0.0149,23
+LightGBM,"safe, TF-IDF text",23,0.0624,7,0.0183,30
+LightGBM,"safe, Granite text",17,0.0558,8,0.0298,25
+LightGBM,"safe, hybrid text (TF-IDF+Granite)",19,0.0672,7,0.0146,26
+LightGBM,"safe, all text",19,0.0741,7,0.0149,26
+LightGBM,safe hybrid + kev_now,19,0.0714,7,0.0154,26
+LightGBM,safe hybrid + kev_now + cvss,21,0.0892,6,0.0175,27
+LightGBM,all + LEAK (demo only),22,0.1149,10,0.0165,32
+Ensemble: LightGBM + exploit/EPSS,"safe, TF-IDF text",18,0.1122,9,0.0258,27
+LightGBM ablation,- Granite / hybrid text,23,0.0624,7,0.0183,30
+LightGBM ablation,- TF-IDF text model,17,0.0494,8,0.0323,25
+LightGBM ablation,- text keyword flags,20,0.0517,9,0.0166,29
+LightGBM ablation,- siblings,19,0.0424,8,0.0521,27
+LightGBM ablation,- history,18,0.0389,8,0.0176,26
+LightGBM ablation,- exploit signals,11,0.0148,3,0.0064,14

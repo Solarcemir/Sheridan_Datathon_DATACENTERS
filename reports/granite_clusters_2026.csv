@@ -1,0 +1,61 @@
+cluster,kev_refs,sampled_non_kev,kev_rate_smoothed,scoreboard_2026_cves,top_terms,top_kev_products
+27,137,730,0.1506,1091,"elevation privilege, elevation, privilege vulnerability, windows, privilege, cve, microsoft, privileges","Microsoft Windows, Microsoft Win32k, Microsoft Exchange Server, Microsoft Active Directory"
+26,113,1029,0.0957,483,"remote code, code execution, execution vulnerability, execution, code, remote, windows, microsoft","Microsoft Windows, Microsoft Exchange Server, Microsoft Office, Microsoft SharePoint"
+48,48,433,0.0925,550,"chrome, google chrome, chrome prior, google, allowed remote, exploit heap, heap corruption, allowed","Google Chromium V8, Google Chromium, Google Chromium Blink, Google Chromium Skia"
+57,28,286,0.0799,72,"cve, microsoft, microsoft edge, edge, internet explorer, explorer, internet, cve 2017","Microsoft Internet Explorer, Microsoft Windows, Microsoft Office, Microsoft Edge"
+24,62,843,0.0661,846,"windows, disclosure vulnerability, information disclosure, microsoft, information, disclosure, cve, dll","Microsoft Windows, Microsoft Office, Microsoft Exchange Server, Microsoft Internet Explorer"
+31,79,1135,0.0634,729,"macos, issue, addressed, ios, issue fixed, addressed improved, improved, issue addressed","Apple Multiple Products, Apple iOS, iPadOS, and macOS, Apple iOS, Apple iOS, iPadOS, and watchOS"
+29,92,1435,0.059,1861,"command, command injection, injection, commands, os, injection vulnerability, os command, execute","Nagios Nagios XI, Accellion FTA, Zyxel DSL CPE Devices, SonicWall SMA100 Appliances"
+5,22,352,0.0545,2547,"chrome, google chrome, google, allowed remote, allowed, chrome prior, html page, crafted html","Google Chromium V8, Google Chromium Intents, Google Chromium Mojo, Google Chromium"
+36,51,1059,0.0449,786,"service, denial, denial service, service vulnerability, attacker, cisco, cause, device","Cisco IOS and IOS XE Software, Cisco Small Business RV160, RV260, RV340, and RV345 Series Routers, Cisco IOS software, Cisco IOS Software"
+54,69,1607,0.0406,3240,"authentication, bypass, user, access, attacker, authentication bypass, password, account","Veritas Backup Exec Agent, Juniper Junos OS, Palo Alto Networks PAN-OS, Zoho ManageEngine"
+22,27,685,0.0369,260,"cisco, attacker, allow, interface, exploit, affected, device, affected device","Cisco IOS and IOS XE Software, Cisco Adaptive Security Appliance (ASA) and Firepower Threat Defense (FTD), Cisco HyperFlex HX, Cisco Identity Services Engine"
+13,23,640,0.0338,466,"xml, entity, external entity, external, xml external, xxe, code, entity xxe","Juniper Junos OS, SysAid SysAid On-Prem, SAP NetWeaver, XWiki Platform"
+12,57,1638,0.0333,2465,"traversal, directory, path, files, directory traversal, path traversal, traversal vulnerability, file","Microsoft Windows, RARLAB WinRAR, Ivanti Endpoint Manager (EPM), SAP NetWeaver"
+30,24,817,0.0282,103,"earlier, adobe, cve, 2015, acrobat, cve 2016, 011, acrobat reader","Adobe Flash Player, Adobe Acrobat and Reader, Adobe Flash Player and AIR, Adobe ColdFusion"
+19,28,1074,0.0253,2850,"oracle, cvss, 12, access, vulnerability oracle, 12 12, attacks, successful attacks","Oracle WebLogic Server, Oracle Fusion Middleware, Oracle E-Business Suite, Oracle Java SE"
+7,30,1166,0.025,1623,"overflow, buffer, buffer overflow, stack, based buffer, stack based, based, overflow vulnerability","Cisco IOS and IOS XE Software, Zyxel Multiple Firewalls, Ivanti Connect Secure, Policy Secure, and ZTA Gateways, Fortinet FortiOS and FortiProxy SSL-VPN"
+6,52,2093,0.0242,4225,"code, manipulation, attack, issue, file, leads, component, affected","Adobe ColdFusion, Dassault Systèmes DELMIA Apriso, Mozilla Firefox and Thunderbird, ServiceNow Utah, Vancouver, and Washington DC Now Platform"
+14,19,792,0.0233,707,"memory, memory corruption, corruption, needed, leak, memory leak, free, discovered","Qualcomm Multiple Chipsets, Samsung Mobile Devices, Arm Mali Graphics Processing Unit (GPU), Realtek Jungle Software Development Kit (SDK)"
+8,36,1506,0.0233,1009,"devices, firmware, device, attacker, access, authentication, attackers, remote","Fortinet FortiOS, NETGEAR Multiple Devices, Dahua IP Camera Firmware, WatchGuard Firebox"
+28,31,1306,0.0231,1696,"upload, file, php, file upload, arbitrary, file inclusion, inclusion, files","Roundcube Roundcube Webmail, Telerik User Interface (UI) for ASP.NET AJAX, SAP NetWeaver, Synacor Zimbra Collaboration Suite (ZCS)"
+0,23,1052,0.0214,2169,"redirect, http, url, open redirect, header, server, request, apache","Apache Struts, Hitachi Vantara Pentaho Business Analytics (BA) Server, Apache Tomcat, Apache HTTP Server"
+2,26,1203,0.0212,1530,"privilege, escalation, privileges, privilege escalation, local, escalate, escalate privileges, user","Microsoft Open Management Infrastructure (OMI), Red Hat Polkit, Android Pixel, VMware Multiple Products"
+10,33,1530,0.0211,2393,"information, sensitive, remote, ibm, attacker, sensitive information, attackers, allows remote","SAP NetWeaver, Ivanti Pulse Connect Secure, Cacti Cacti, Smartbedded Meteobridge"
+59,13,610,0.0209,840,"ssrf, request, forgery, request forgery, csrf, server request, server, forgery ssrf","CrushFTP CrushFTP, Sitecore CMS and Experience Platform (XP), ImageMagick ImageMagick, Accellion FTA"
+56,20,1079,0.0184,1688,"sql, sql injection, injection, injection vulnerability, database, arbitrary sql, sql commands, parameter","Sophos SFOS, SonicWall SSLVPN SMA100, Sophos CyberoamOS, Palo Alto Networks Expedition"
+40,27,1476,0.0181,2639,"user, users, access, local, permissions, privileges, authenticated, ibm","Android Framework, Citrix Application Delivery Controller (ADC), Gateway, and SD-WAN WANOP Appliance, Apache HTTP Server, Grafana Labs Grafana"
+51,18,1045,0.0172,839,"intel, firmware, potentially, allow, local, access, user potentially, local access","Samsung Mobile Devices, Arm Mali Graphics Processing Unit (GPU), Arm Trusted Firmware, Intel Active Management Technology (AMT), Small Business Technology (SBT), and Standard Manageability"
+38,6,418,0.015,153,"jenkins, earlier, plugin, plugin earlier, permission, earlier does, attacker specified, attackers","Jenkins Jenkins Stapler Web Framework, Jenkins Matrix Project Plugin, Jenkins Script Security Plugin, Jenkins Jenkins User Interface (UI)"
+21,3,245,0.0137,324,"sql, sql injection, sql command, used sql, command sql, special elements, elements used, neutralization special","SonicWall Secure Remote Access (SRA), Fortinet FortiClient EMS, Fortinet FortiWeb"
+46,7,599,0.0123,177,"needed, bounds, possible bounds, privileges needed, execution privileges, interaction needed, needed exploitation, needed user","Android Android Kernel, MediaTek Multiple Chipsets, Apple macOS, Google Pixel"
+47,12,1029,0.012,1013,"file, imagemagick, crafted, memory, code, cause, user, coders","Adobe Flash Player, ImageMagick ImageMagick, Samsung Mobile Devices, Mozilla Firefox and Thunderbird"
+11,5,488,0.0112,627,"file, kernel, linux, local, files, cause, local users, filesystem",Linux Kernel
+45,11,1018,0.0112,704,"password, credentials, passwords, user, access, information, cleartext, coded","TeamViewer Desktop, Zyxel Multiple Products, Kaseya Virtual System/Server Administrator (VSA), Atlassian Confluence"
+43,13,1222,0.011,2146,"certificate, key, tls, certificates, cryptographic, attacker, middle, man middle","DotNetNuke (DNN) DotNetNuke (DNN), Citrix StoreFront Server, F5 BIG-IP, MinIO MinIO"
+58,5,511,0.0108,605,"kernel, linux, linux kernel, net, denial service, denial, null, service","Linux Kernel, Intel Ethernet Diagnostics Driver for Windows, Android Kernel"
+23,13,1433,0.0094,2193,"service, denial, denial service, cause, cause denial, attackers cause, versions, packet","TeleMessage TM SGNL, VMware ESXi, F5 BIG-IP and BIG-IQ Centralized Management, Apache Log4j2"
+3,5,598,0.0093,88,"snapdragon, sd, iot snapdragon, iot, android, mobile, msm, snapdragon mobile","Qualcomm Multiple Chipsets, Samsung Mobile Devices, Qualcomm Snapdragon Auto, Snapdragon Compute, Snapdragon Connectivity, Snapdragon Consumer IOT, Snapdragon Industrial IOT, Snapdragon Mobile, Snapdragon Voice & Music, Snapdragon Wearables"
+44,1,216,0.0078,84,"hpe, plat, imc, intelligent management, hpe intelligent, intelligent, management center, imc plat",Kaseya Virtual System/Server Administrator (VSA)
+32,14,2020,0.0072,1302,"xss, scripting xss, site scripting, scripting, site, cross site, cross, xss vulnerability","Roundcube Webmail, Synacor Zimbra Collaboration Suite (ZCS), Fortra Cobalt Strike, PlaySMS PlaySMS"
+35,8,1207,0.0072,1089,"buffer, overflow, buffer overflow, heap, based buffer, heap based, based, function","Microsoft Windows, Exim Exim, VMware VMware ESXi and Horizon DaaS, Exim Exim Internet Mailer"
+25,5,792,0.0072,374,"needed, information, android, information disclosure, disclosure, execution privileges, lead local, privileges needed","Android Pixel, Micro Focus Micro Focus Access Manager, Android Framework, D-Link DIR-605 Router"
+33,3,535,0.007,499,"gitlab, github, repository, discovered gitlab, ee, 11, github repository, versions starting","GitLab Community and Enterprise Editions, GitLab GitLab CE/EE, Git Git"
+16,7,1093,0.007,205,"android, samsung, id, application, app, product, android id, android versions","Meta Platforms WhatsApp, SIMalliance Toolbox Browser, Android Android Kernel, Samsung Mobile Devices"
+34,1,251,0.0069,244,"experience manager, adobe experience, experience, manager versions, victim browser, malicious, victim, malicious javascript",Adobe Experience Manager (AEM) Forms
+53,5,857,0.0067,1693,"authorization vulnerability, missing authorization, authorization, missing, issue affects, security levels, exploiting incorrectly, incorrectly configured","Adobe ColdFusion, Atlassian Confluence Data Center and Server, Joomla! Joomla!, Apache OFBiz"
+17,6,1338,0.0051,3849,"kernel, linux, linux kernel, following, kernel following, vulnerability resolved, following vulnerability, resolved","Linux Kernel, Android Kernel, Samsung Mobile Devices"
+1,5,1239,0.0047,852,"sql, sql injection, injection, php, parameter, injection vulnerability, vulnerable sql, contain sql","ThinkPHP noneCms, Fuel CMS Fuel CMS, Webmin Webmin, SugarCRM Multiple Products"
+37,5,1257,0.0046,2969,"kernel, linux, following, linux kernel, kernel following, vulnerability resolved, following vulnerability, resolved","Linux Kernel, Arm Mali Graphics Processing Unit (GPU), Arm Mali GPU Kernel Driver"
+50,3,855,0.0045,1132,"tensorflow, contract, integer, smart contract, function, ethereum, integer overflow, contract implementation","Exim Mail Transfer Agent (MTA), Linux Kernel, FreeType FreeType"
+55,1,511,0.0037,145,"pdf, malicious, code, foxit, execute, target visit, file specific, page open",Mozilla Firefox
+18,6,1982,0.0035,1174,"site scripting, scripting, cross site, cross, site, scripting xss, xss, xss vulnerability","Synacor Zimbra Collaboration Suite (ZCS), QNAP Network Attached Storage (NAS), Roundcube Webmail"
+52,1,585,0.0033,569,"tenda, overflow, stack, stack overflow, function, contain stack, discovered contain, goform",Tenda AC11 Router
+49,1,605,0.0032,191,"xss, plugin, xss vulnerability, scripting xss, plugin versions, site scripting, wordpress, scripting",WordPress Social Warfare Plugin
+41,2,1019,0.0029,1211,"function, denial service, denial, service, cause, cause denial, file, pointer","Mozilla Firefox and Thunderbird, GIGABYTE Multiple Products"
+20,0,426,0.0023,229,"mysql, mysql server, cvss, server, oracle, oracle mysql, virtualbox, vm virtualbox",
+15,1,1344,0.0015,556,"site request, request forgery, forgery, csrf, request, forgery csrf, site, csrf vulnerability",PaperCut NG/MF
+4,0,1321,0.0008,880,"neutralization input, page generation, web page, input web, generation, improper neutralization, neutralization, generation cross",
+39,0,1278,0.0008,2801,"plugin, wordpress, plugin wordpress, including, wordpress vulnerable, versions including, makes possible, makes",
+42,0,1593,0.0007,1421,"manipulation, manipulation argument, unknown, argument, remotely, remotely exploit, leads, public used",
+9,0,1494,0.0007,1464,"plugin, wordpress, site scripting, scripting, stored cross, site, cross site, cross",

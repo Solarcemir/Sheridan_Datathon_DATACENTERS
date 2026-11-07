@@ -1,0 +1,6 @@
+feature,group,risk,description
+gr_kev_lr,granite,safe,Granite embedding + logistic regression trained on past KEV vs non-KEV descriptions
+gr_kev_sim,granite,safe,Max cosine similarity (Granite) to any past KEV description
+gr_kev_knn5,granite,safe,Mean of the 5 highest Granite similarities to past KEV descriptions
+gr_cluster_rate,granite,safe,"Smoothed KEV rate of the Granite semantic cluster (60 k-means clusters, fit on past data)"
+gr_hybrid_lr,granite,safe,"Logistic regression on TF-IDF words + Granite embedding (64 PCA dims), trained on past KEV"

@@ -1,0 +1,60 @@
+feature,group,risk,description
+epss,signals,safe,EPSS at the end of snapshot_month (0 if blank)
+epss_pct,signals,safe,EPSS percentile within the snapshot month (comparable across the 2025 model change)
+epss_missing,signals,safe,1 if there was no EPSS score that month
+exploitdb,signals,safe,1 if exploitdb code existed at the snapshot
+metasploit,signals,safe,1 if metasploit code existed at the snapshot
+nuclei,signals,safe,1 if nuclei code existed at the snapshot
+poc_github,signals,safe,1 if poc_github code existed at the snapshot
+n_flags,signals,safe,Number of exploit flags
+any_flag,signals,safe,1 if any exploit flag
+age_days,time,safe,Days between publication and the end of snapshot_month
+desc_len,text,safe,Description length in characters
+txt_rce,text,safe,Description matches /remote code execution|\bRCE\b|execute arbitrary (?:code|commands)|arbitrary code execution/
+txt_unauth,text,safe,Description matches /unauthenticated|without authentication|authentication bypass|bypass authentication/
+txt_in_wild,text,safe,"Description matches /in the wild|actively exploited|may have been exploited|limited, targeted attack/"
+txt_remote,text,safe,"Description matches /remote attacker|remote, unauthenticated|over the network|via the network/"
+txt_wordpress,text,safe,Description matches /wordpress/
+txt_plugin,text,safe,Description matches /\bplugin\b/
+txt_sqli,text,safe,Description matches /sql injection/
+txt_xss,text,safe,Description matches /cross[- ]site scripting|\bXSS\b/
+txt_traversal,text,safe,Description matches /path traversal|directory traversal/
+txt_deser,text,safe,Description matches /deserializ/
+txt_cmdi,text,safe,Description matches /command injection|os command/
+txt_memory,text,safe,Description matches /use[- ]after[- ]free|out[- ]of[- ]bounds|buffer overflow|heap overflow|type confusion|memory corruption/
+txt_privesc,text,safe,Description matches /privilege escalation|elevation of privilege|escalate (?:their )?privileges/
+txt_edge,text,safe,Description matches /\b(?:vpn|firewall|gateway|router|appliance|load balancer)\b/
+txt_ssrf,text,safe,Description matches /server[- ]side request forgery|\bSSRF\b/
+txt_upload,text,safe,Description matches /file upload|upload arbitrary/
+txt_dos,text,safe,Description matches /denial of service/
+txt_kernel,text,safe,Description matches /\bkernel\b/
+text_kev_lr,text,safe,TF-IDF logistic model: how much the description reads like past KEV entries
+text_kev_sim,text,safe,Max cosine similarity to any past KEV description
+n_same_day,siblings,safe,CVEs in the cohort from the same assigner on the same day
+sib_flags,siblings,safe,Exploit flags among same-day siblings
+sib_max_epss_pct,siblings,safe,Highest EPSS percentile among same-day siblings
+n_adjacent_ids,siblings,safe,Same-day siblings within 3 ID numbers
+assigner_kev_ytd,kev_now,careful,Same-year CVEs by this assigner already on KEV by the snapshot (2026: inferred from CVEs missing from the scoreboard)
+sib_kev_known,kev_now,careful,Same-assigner CVEs published within 3 days that were already on KEV by the snapshot
+assigner_kev_3y,history,safe,KEV entries among this assigner's CVEs from the previous 3 years
+assigner_rate_3y,history,safe,Smoothed KEV rate of this assigner over the previous 3 years
+assigner_volume_3y,history,safe,log(1 + CVEs published by this assigner in the previous 3 years)
+assigner_kev_all,history,safe,All KEV entries before Jan 1 of the year whose CVE has this assigner
+assigner_kev_prev_year,history,safe,KEV entries added in the previous 12 months for this assigner
+kev_product_hist,history,safe,Max past KEV count of a KEV product name found in the description
+kev_product_hits,history,safe,Distinct past KEV product names found in the description
+kev_vendor_hist,history,safe,Max past KEV count of a KEV vendor name found in the description
+cv_attack_vector,cvss,careful,CVSS 3 attack_vector as an ordinal
+cv_attack_complexity,cvss,careful,CVSS 3 attack_complexity as an ordinal
+cv_privileges_required,cvss,careful,CVSS 3 privileges_required as an ordinal
+cv_user_interaction,cvss,careful,CVSS 3 user_interaction as an ordinal
+cv_scope,cvss,careful,CVSS 3 scope as an ordinal
+cv_confidentiality_impact,cvss,careful,CVSS 3 confidentiality_impact as an ordinal
+cv_integrity_impact,cvss,careful,CVSS 3 integrity_impact as an ordinal
+cv_availability_impact,cvss,careful,CVSS 3 availability_impact as an ordinal
+cvss3,cvss,careful,CVSS 3 base score
+has_cvss4,cvss,careful,1 if a CVSS 4 score exists
+cwe_kev_rate,cvss,careful,Highest smoothed KEV rate among the CVE's CWEs (previous 3 years)
+LEAK_nvd_analyzed,leak,leak,nvd_status is Analyzed or Modified. Leaks the answer
+LEAK_n_references,leak,leak,n_references. Leaks the answer
+LEAK_n_affected_cpes,leak,leak,n_affected_cpes. Leaks the answer

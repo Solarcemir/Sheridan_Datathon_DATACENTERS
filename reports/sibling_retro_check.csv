@@ -1,0 +1,7 @@
+split,K,outside top500 with a top500 sibling,of which KEV,KEV rate (sibling of top500),KEV rate (other non-top500),KEV rate inside top500
+A,3,429,1,0.0023,0.00079,0.04
+A,10,780,2,0.0026,0.00076,0.04
+A,50,1212,5,0.0041,0.00069,0.04
+B,3,464,3,0.0065,0.00054,0.018
+B,10,841,3,0.0036,0.00055,0.018
+B,50,1453,3,0.0021,0.00056,0.018
