@@ -71,7 +71,7 @@ The NIST files are **today's** versions. NIST analyzes exploited CVEs first, and
 
 **Evidence of leakage (2025 backtest):** 100% of the 52 positives have `nvd_status = Analyzed` vs 50.1% of negatives; 100% of positives have products vs 64.9% of negatives. `last_modified` is mid-2026 or later on every row.
 
-**How much leakage inflates our model:** LightGBM with the leak columns gets A 22–24 / B 10–11 vs 20–23 / 7–9 without. Only ~2–4 hits. Good news for the write-up: the clean model loses little.
+**How much leakage inflates our model:** LightGBM with the leak columns gets A 22–24 / B 10–11 vs 20–23 / 7–9 without. Only ~2–4 hits. Good news for the write-up: the clean model loses little. **A leak-only model is useless for ranking** (2–5 hits at density vs 19 for exploit+EPSS): the leak works as a filter (no non-analyzed CVE ever reached KEV), not as a ranker. On 2026 the filter would cut ~50% of the scoreboard vs 26% of our replicas, so our inflation numbers are a lower bound. Full table in §14.6.
 
 The main feature files (`derived/features_{year}.csv`) are **leak-free by construction**; leak columns live in `derived/leak_only_{year}.csv` and are only merged for the demo row.
 
@@ -387,6 +387,7 @@ python -E -P luis/analysis/export_top500_json.py   # site/top500.json for the hu
 | 2026 rankings (§9) | `submissions/*.csv`, `derived/scored_2026_v*.csv` |
 | Density-matched numbers, `txt_in_wild` ablation, vendor vs product matching (§14) | `analysis/density_check.py`, `reports/density_check.txt` |
 | Chen's insights on our setup: new features, LR, ensembles, bootstrap, missed positives (§14.5) | `analysis/chen_insights.py`, `reports/chen_insights_results.csv`, `reports/chen_insights_bootstrap.csv`, `reports/chen_features_lift.csv`, `reports/chen_missed_positives.csv`, `reports/chen_insights_log.txt` |
+| Clean vs leak-only vs clean+leak (§3, §14.6) | `python -E -P luis/analysis/chen_insights.py --leak-test` → `reports/leak_vs_clean.csv`, `reports/leak_vs_clean_log.txt` |
 | `top500_v3` (§9, §14.5) | `python -E -P luis/analysis/chen_insights.py --score-2026` → `derived/scored_2026_v3.csv`, `submissions/top500_v3.csv` |
 | Chen's GPU-box workstream (CV, LR + LoRA, Granite 30B/8B, embeddings r2) | `received/CHEN_context_gpu_box_2026-11-07.md` |
 
@@ -482,6 +483,25 @@ Note: in this dataset NIST's `NVD-CWE-noinfo` / `NVD-CWE-Other` placeholders app
 4. **Our Granite-30M PCA hurts the LR** (18–21). Chen's r2 PCA-64 helped his. Use his embeddings, not ours.
 5. **The cap helps the baseline too** (19 → 22 with cap 3), so part of "the cap helps" is just vendor diversification, whatever the model.
 6. **Chen's "invisible positives" replicate** (`reports/chen_missed_positives.csv`). With the 3-model average, 44 of 75 positives fall outside the top 882 (2 × K). The missed ones had exploit code 18% of the time (vs 74% for found ones), median EPSS percentile 0.62 (vs 0.96), median CVSS 7.8 (vs 9.0), and needed user interaction 14% of the time (vs 3%). Examples: XWiki CVE-2025-24893, Windows CVE-2024-26169 and CVE-2024-21338, SonicWall CVE-2024-53704, SharePoint CVE-2024-38094, Kentico CVE-2025-2746/2747, TeleMessage CVE-2025-48928.
+
+### 14.6 Clean model vs leak-only model (`chen_insights.py --leak-test`, `reports/leak_vs_clean.csv`)
+
+Same splits and bootstrap as §14.5. "Leak" = `nvd_status` analyzed, `n_references`, `n_affected_cpes`.
+
+| Model | A@243 + B@198 | Pooled hits@441 (95% CI) | vs exploit+EPSS | Avg precision |
+|---|---|---|---|---|
+| Exploit code, then EPSS | 19 | 19 (12–29) | – | 0.029 |
+| **Clean: LightGBM + LR(+Chen) rank avg** | **25** | **26 (16–37)** | **+1 to +14** | 0.058 |
+| Leak only: LightGBM on the 3 leak columns | 2 | 2 (0–5) | −27 to −10 | 0.002 |
+| Leak only: LR on the 3 leak columns | 4 | 4 (1–8) | −24 to −8 | 0.003 |
+| Leak only: sort by `n_references` | 5 | 4 (1–9) | −24 to −7 | 0.003 |
+| Leak + exploit signals: LightGBM | 8 | 7 (3–12) | −20 to −5 | 0.011 |
+| Clean + leak: LightGBM + LR rank avg | 29 | 28 (18–39) | +2 to +16 | 0.075 |
+
+- **The leak is a filter, not a ranker.** 100% of test positives are NVD-analyzed, but so are 73.9% of all test CVEs. Not-analyzed CVEs reach KEV at 0.000% and analyzed ones at 0.158%. It removes a quarter of the haystack and can't pick the top 500 by itself.
+- **Clean and leak models pick different CVEs:** their top 441 share 3 CVEs and 0 hits. Added to the clean model, the leak gives +2 to +4 hits. That's the "inflation" number for the write-up.
+- **For 2026 the leak would be stronger than this shows.** Our 2024–25 replicas are now 74% analyzed; the 2026 scoreboard is only ~50% (Analyzed 31,265 + Modified 5,118 of 72,670). The filter would cut half the 2026 haystack, so these numbers are a **lower bound** on what the leak is worth. This is exactly why the README warns about it, and why we excluded it.
+- **Write-up message:** "We beat the baselines without NIST's after-the-fact metadata. Those columns alone can't rank (2–5 hits), and adding them would add 2–4 hits on our replicas, more on 2026, for the wrong reason."
 
 ## 15. Research sources
 

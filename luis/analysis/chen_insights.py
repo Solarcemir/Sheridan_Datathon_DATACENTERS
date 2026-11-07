@@ -157,6 +157,63 @@ def hits(y, s, k):
 S_CHEN = SAFE + CHEN_SAFE
 S_CHEN_C = SAFE + CHEN_SAFE + CHEN_CAREFUL
 
+if "--leak-test" in sys.argv:
+    # Clean vs leak-only vs clean+leak, same splits, density K, pooled paired bootstrap, and top-K overlap.
+    LEAK = ["LEAK_nvd_analyzed", "LEAK_n_references", "LEAK_n_affected_cpes"]
+    for yr, frames in ((2024, (tr24, te24)), (2025, (tr25, te25))):
+        lk = pd.read_csv(os.path.join(DER, f"leak_only_{yr}.csv")).set_index("cve_id")
+        for df in frames:
+            df[LEAK] = lk.loc[df.cve_id, LEAK].to_numpy()
+    sc = {}
+    for name, (tr, te) in SPLITS.items():
+        sc[("Exploit code, then EPSS", name)] = (te.any_flag * 10 + te.epss).to_numpy()
+        clean_g, clean_l = gbm(tr, te, SAFE), lr(tr, te, S_CHEN_C)[0]
+        sc[("CLEAN: LightGBM + LR(+Chen) rank avg", name)] = rank01(clean_g) + rank01(clean_l)
+        sc[("LEAK ONLY: LightGBM on 3 leak columns", name)] = gbm(tr, te, LEAK)
+        sc[("LEAK ONLY: LR on 3 leak columns", name)] = lr(tr, te, LEAK)[0]
+        sc[("LEAK ONLY: sort by n_references", name)] = te.LEAK_n_references.to_numpy() + te.LEAK_nvd_analyzed.to_numpy() * 1e-3
+        sc[("LEAK + exploit signals: LightGBM", name)] = gbm(tr, te, LEAK + ["epss_pct", "epss_missing", "exploitdb", "metasploit",
+                                                                              "nuclei", "poc_github", "n_flags", "any_flag"])
+        sc[("CLEAN + LEAK: LightGBM + LR rank avg", name)] = rank01(gbm(tr, te, SAFE + LEAK)) + rank01(lr(tr, te, S_CHEN_C + LEAK)[0])
+    models = list(dict.fromkeys(m for m, _ in sc))
+    both = pd.concat([te25.assign(split="A"), te24.assign(split="B")], ignore_index=True)
+    K, yv = round(500 * len(both) / 72670), both.y_nov4.to_numpy()
+    pooled = {m: both.assign(_s=np.r_[sc[(m, "A")], sc[(m, "B")]]).groupby("snapshot_month")._s.rank(pct=True).to_numpy() for m in models}
+    reps = [RNG.integers(0, len(both), len(both)) for _ in range(1000)]
+
+    def tk(s, idx):
+        ss = s[idx]
+        return yv[idx][np.argpartition(-ss, K)[:K]].sum()
+
+    rows = []
+    for m in models:
+        r = {"model": m}
+        for name, (tr, te) in SPLITS.items():
+            k = round(500 * len(te) / 72670)
+            r[f"{name}@{k}"] = hits(te.y_nov4, sc[(m, name)], k)
+        r["A+B @density"] = r["A@243"] + r["B@198"]
+        s = pooled[m]
+        hs = np.array([tk(s, i) for i in reps])
+        d = np.array([tk(s, i) - tk(pooled["Exploit code, then EPSS"], i) for i in reps])
+        r[f"pooled hits@{K}"] = hits(yv, s, K)
+        r["pooled 95% CI"] = f"{np.percentile(hs, 2.5):.0f}-{np.percentile(hs, 97.5):.0f}"
+        r["vs exploit+EPSS"] = f"{np.percentile(d, 2.5):+.0f} to {np.percentile(d, 97.5):+.0f}"
+        r["AP"] = round(average_precision_score(yv, s), 4)
+        rows.append(r)
+    out = pd.DataFrame(rows)
+    out.to_csv(os.path.join(REP, "leak_vs_clean.csv"), index=False)
+    pd.set_option("display.width", 250)
+    print(out.to_string(index=False))
+    top = {m: set(np.argsort(-pooled[m], kind="stable")[:K]) for m in models}
+    c, lo = top["CLEAN: LightGBM + LR(+Chen) rank avg"], top["LEAK ONLY: LightGBM on 3 leak columns"]
+    hit = lambda S: {i for i in S if yv[i] == 1}  # noqa: E731
+    print(f"\ntop {K} overlap clean vs leak-only: {len(c & lo)} CVEs in common | hits: clean {len(hit(c))}, leak-only {len(hit(lo))}, "
+          f"both {len(hit(c) & hit(lo))}, only clean {len(hit(c) - hit(lo))}, only leak {len(hit(lo) - hit(c))}")
+    an = both.LEAK_nvd_analyzed.to_numpy() == 1
+    print(f"test rows NVD-analyzed: {an.mean():.1%} of all, {an[yv == 1].mean():.1%} of positives | "
+          f"KEV rate analyzed {yv[an].mean():.3%} vs not {yv[~an].mean():.3%}")
+    sys.exit(0)
+
 if "--score-2026" in sys.argv:
     SUB = os.path.join(ROOT, "submissions")
     train = pd.concat([tr24, tr25], ignore_index=True)

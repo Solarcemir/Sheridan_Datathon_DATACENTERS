@@ -1,0 +1,13 @@
+﻿{'A': (36441, 40, 35281, 48), 'B': (42563, 55, 28839, 27)}
+PCA-64 fit on 38,129 pre-2024 non-KEV descriptions; explained variance 0.57
+                                model  A@243  B@198  A+B @density  pooled hits@441 pooled 95% CI vs exploit+EPSS     AP
+              Exploit code, then EPSS     13      6            19               19         12-29        +0 to +0 0.0287
+ CLEAN: LightGBM + LR(+Chen) rank avg     18      7            25               26         16-37       +1 to +14 0.0579
+LEAK ONLY: LightGBM on 3 leak columns      1      1             2                2           0-5      -27 to -10 0.0019
+      LEAK ONLY: LR on 3 leak columns      4      0             4                4           1-8       -24 to -8 0.0034
+      LEAK ONLY: sort by n_references      3      2             5                4           1-9       -24 to -7 0.0028
+     LEAK + exploit signals: LightGBM      5      3             8                7          3-12       -20 to -5 0.0114
+ CLEAN + LEAK: LightGBM + LR rank avg     18     11            29               28         18-39       +2 to +16 0.0749
+
+top 441 overlap clean vs leak-only: 3 CVEs in common | hits: clean 26, leak-only 2, both 0, only clean 26, only leak 2
+test rows NVD-analyzed: 73.9% of all, 100.0% of positives | KEV rate analyzed 0.158% vs not 0.000%
