@@ -1,0 +1,8 @@
+hidden 2026 KEV by snapshot month: {'2026-01': 7, '2026-02': 13, '2026-03': 7, '2026-04': 9, '2026-05': 14, '2026-07': 34, '2026-08': 14, '2026-09': 26}
+scoreboard CVEs whose assigner had a hidden KEV in the same or previous 2 snapshot months: 32,362 of 72,670
+
+2024-25 mirror: 170 same-year in-month KEV CVEs
+  CVEs whose assigner had one in the same or previous 2 months: 13,866 (18.5%), positives 44 of 119
+  KEV rate 0.317% vs 0.122%  -> x2.6
+  sibling in the same release went straight to KEV: 2,314 CVEs, positives 6, KEV rate 0.26% (x2)
+  examples: [['CVE-2024-21338', 'secure@microsoft.com'], ['CVE-2024-21413', 'secure@microsoft.com'], ['CVE-2024-38094', 'secure@microsoft.com'], ['CVE-2025-24054', 'secure@microsoft.com'], ['CVE-2025-33073', 'secure@microsoft.com'], ['CVE-2025-48703', 'cve@mitre.org']]

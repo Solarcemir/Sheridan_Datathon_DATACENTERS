@@ -1,0 +1,32 @@
+{
+  "mode": "zero",
+  "target": "holdout",
+  "model": "ibm-granite/granite-4.2-8b",
+  "shots_file": null,
+  "seed": 0,
+  "shard": 0,
+  "nshards": 1,
+  "limit": 0,
+  "max_model_len": 4096,
+  "tp": 1,
+  "lora": "runs/meta_r20/epoch3",
+  "meta": true,
+  "ids": null,
+  "out": "results/holdout_lora_meta_r20_epoch3.parquet",
+  "rows": 35280,
+  "shots": 0,
+  "system_tokens": 127,
+  "seconds": 282.3,
+  "first_tokens": {
+    "No": 35137,
+    "Yes": 127,
+    "81": 2,
+    "58": 2,
+    "57": 2,
+    "85": 2,
+    "53": 1,
+    "yes": 1,
+    "LOW": 1,
+    "49": 1
+  }
+}

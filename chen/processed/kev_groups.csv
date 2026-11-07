@@ -1,0 +1,61 @@
+cve_id,group,reason
+CVE-2024-8068,citrix-session-recording,same product; published same day; added to KEV same day
+CVE-2024-8069,citrix-session-recording,same product; published same day; added to KEV same day
+CVE-2024-51378,cyberpanel,same product; published same day (exploited together in Oct 2024 mass attack)
+CVE-2024-51567,cyberpanel,same product; published same day (exploited together in Oct 2024 mass attack)
+CVE-2024-6047,geovision,same EOL device family; added to KEV same day (same botnet campaign)
+CVE-2024-11120,geovision,same EOL device family; added to KEV same day (same botnet campaign)
+CVE-2024-50302,linux-usb-chain,Linux USB driver bugs used together in one Android exploit chain
+CVE-2024-53104,linux-usb-chain,Linux USB driver bugs used together in one Android exploit chain
+CVE-2024-53150,linux-usb-chain,Linux USB driver bugs used together in one Android exploit chain; added to KEV same day as 53197
+CVE-2024-53197,linux-usb-chain,Linux USB driver bugs used together in one Android exploit chain; added to KEV same day as 53150
+CVE-2022-2586,linux-nftables,same component (netfilter nf_tables use-after-free); near-identical descriptions
+CVE-2024-1086,linux-nftables,same component (netfilter nf_tables use-after-free); near-identical descriptions
+CVE-2024-41713,mitel-micollab,same product; chained together; added to KEV same day
+CVE-2024-55550,mitel-micollab,same product; chained together; added to KEV same day
+CVE-2024-8956,ptzoptics,same product; published same day; added to KEV same day
+CVE-2024-8957,ptzoptics,same product; published same day; added to KEV same day
+CVE-2024-5910,paloalto-expedition,same product; three bugs in one product added to KEV within a week
+CVE-2024-9463,paloalto-expedition,same product; published same day as 9465; added to KEV same day
+CVE-2024-9465,paloalto-expedition,same product; published same day as 9463; added to KEV same day
+CVE-2024-4885,whatsup-gold,same product (Progress WhatsUp Gold)
+CVE-2024-6670,whatsup-gold,same product (Progress WhatsUp Gold)
+CVE-2024-37383,roundcube,same product (Roundcube Webmail XSS)
+CVE-2024-42009,roundcube,same product (Roundcube Webmail XSS)
+CVE-2024-38812,vmware-vcenter,same product; published same day; added to KEV same day
+CVE-2024-38813,vmware-vcenter,same product; published same day; added to KEV same day
+CVE-2024-32113,apache-ofbiz,same product (Apache OFBiz)
+CVE-2024-45195,apache-ofbiz,same product (Apache OFBiz)
+CVE-2024-21338,windows-kernel-eop,Windows kernel elevation of privilege; one-line descriptions are word-for-word identical
+CVE-2024-30088,windows-kernel-eop,Windows kernel elevation of privilege; one-line descriptions are word-for-word identical
+CVE-2024-35250,windows-kernel-eop,Windows kernel-mode driver elevation of privilege; near-identical one-line description
+CVE-2024-13159,ivanti-epm,same product (Ivanti EPM); three published same day with identical descriptions; added to KEV same day
+CVE-2024-13160,ivanti-epm,same product (Ivanti EPM); three published same day with identical descriptions; added to KEV same day
+CVE-2024-13161,ivanti-epm,same product (Ivanti EPM); three published same day with identical descriptions; added to KEV same day
+CVE-2024-29824,ivanti-epm,same product (Ivanti EPM) exploited again in 2025
+CVE-2025-5086,delmia-apriso,same product (DELMIA Apriso)
+CVE-2025-6204,delmia-apriso,same product; published same day as 6205; added to KEV same day
+CVE-2025-6205,delmia-apriso,same product; published same day as 6204; added to KEV same day
+CVE-2024-56145,craft-cms,same product (Craft CMS) exploited again in 2025
+CVE-2025-23209,craft-cms,same product (Craft CMS)
+CVE-2025-35939,craft-cms,same product (Craft CMS)
+CVE-2025-2746,kentico-xperience,same product; published same day; added to KEV same day
+CVE-2025-2747,kentico-xperience,same product; published same day; added to KEV same day
+CVE-2025-21042,samsung-quram,same library (libimagecodec.quram); published same day
+CVE-2025-21043,samsung-quram,same library (libimagecodec.quram); published same day
+CVE-2025-2775,sysaid,same product; published same day; added to KEV same day
+CVE-2025-2776,sysaid,same product; published same day; added to KEV same day
+CVE-2025-48927,telemessage,same product; published same day; added to KEV same day
+CVE-2025-48928,telemessage,same product; published same day; added to KEV same day
+CVE-2024-57968,veracore,same product; published same day; added to KEV same day
+CVE-2025-25181,veracore,same product; published same day; added to KEV same day
+CVE-2024-23113,fortios,same product (FortiOS) exploited again in 2025
+CVE-2025-24472,fortios,same product (FortiOS)
+CVE-2024-40766,sonicos,same product (SonicOS) exploited again in 2025
+CVE-2024-53704,sonicos,same product (SonicOS)
+CVE-2024-27443,zimbra,same product (Zimbra Collaboration Suite XSS)
+CVE-2025-27915,zimbra,same product (Zimbra Collaboration Suite XSS)
+CVE-2024-34102,adobe-commerce,same product (Adobe Commerce/Magento)
+CVE-2025-54236,adobe-commerce,same product (Adobe Commerce/Magento)
+CVE-2023-50224,tplink-wr841n,same router line (TP-Link TL-WR841N)
+CVE-2025-9377,tplink-wr841n,same router line (TP-Link TL-WR841N)

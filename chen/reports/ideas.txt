@@ -1,0 +1,34 @@
+A. 2026-01..09 published: 72,794; on scoreboard 72,670; NOT on scoreboard 124
+   by month: {'01': 7, '02': 13, '03': 7, '04': 9, '05': 14, '06': 21, '07': 13, '08': 14, '09': 26}
+   in KEV file (<=2025): 0 | nvd_status: {'Analyzed': 124}
+   top assigners: {'secure@microsoft.com': 21, 'psirt@cisco.com': 13, 'security-advisories@github.com': 8, 'chrome-cve-admin@google.com': 7, 'cve@mitre.org': 6, 'security@joomla.org': 5, 'disclosure@vulncheck.com': 4, 'PSIRT@sonicwall.com': 4, 'cve@checkpoint.com': 4, '3c1d8aa1-5a33-4ea4-8992-aadd6440af75': 3, '50a63c94-1ea7-4568-8c11-eb79e7c5a2b5': 3, 'psirt@arista.com': 3}
+     CVE-2026-3055 2026-03-23 50a63c94-1ea7-4568-8c11- Insufficient input validation in NetScaler ADC and NetScaler Gateway when configured as a SAML IDP l
+     CVE-2026-25108 2026-02-13 vultures@jpcert.or.jp    FileZen contains an OS command injection vulnerability. When FileZen Antivirus Check Option is enabl
+     CVE-2026-21525 2026-02-10 secure@microsoft.com     Null pointer dereference in Windows Remote Access Connection Manager allows an unauthorized attacker
+     CVE-2026-18577 2026-08-02 a5532a13-c4dd-4202-bef1- An incomplete patch for CVE-2026-18556 allows for authentication bypass and account takeover in N-ce
+     CVE-2026-41091 2026-05-20 secure@microsoft.com     Improper link resolution before file access ('link following') in Microsoft Defender allows an autho
+     CVE-2026-73570 2026-08-13 cve@mitre.org            A remote code execution vulnerability exists in Zimbra Collaboration (ZCS) before 10.1.20 when the o
+     CVE-2026-33017 2026-03-20 security-advisories@gith Langflow is a tool for building and deploying AI-powered agents and workflows. In versions prior to 
+     CVE-2026-65400 2026-08-06 product-security@apple.c An authentication issue was addressed with improved state management. This issue is fixed in macOS G
+     CVE-2026-2441 2026-02-13 chrome-cve-admin@google. Use after free in CSS in Google Chrome prior to 145.0.7632.75 allowed a remote attacker to execute a
+     CVE-2026-85706 2026-09-12 cve@gitlab.com           GitLab has remediated an issue in GitLab CE/EE affecting all versions from 18.7 before 18.11.12, 19.
+     CVE-2026-3910 2026-03-13 chrome-cve-admin@google. Inappropriate implementation in V8 in Google Chrome prior to 146.0.7680.75 allowed a remote attacker
+     CVE-2026-48282 2026-06-30 psirt@adobe.com          ColdFusion versions 2025.9, 2023.20 and earlier are affected by an Improper Limitation of a Pathname
+
+B. by publish day-of-month:
+        cves  pos  kev_rate  has_code  epss_med
+day                                            
+1-10   24913   36     0.145      2.49   0.00043
+11-20  27015   43     0.159      2.07   0.00043
+21-31  23220   40     0.172      1.93   0.00043
+   KEV CVEs published 2024-01..2025-09 added within their publish month (so excluded from data): 170 of 289
+   share excluded by publish day bucket: {Interval(0, 10, closed='right'): 0.63, Interval(10, 20, closed='right'): 0.65, Interval(20, 31, closed='right'): 0.43}
+
+E. ref_any: 564 CVEs, 3 positives, KEV rate 0.53% vs 0.156%
+
+E. ref_kev: 9 CVEs, 0 positives, KEV rate 0.00% vs 0.158%
+   examples: [['CVE-2022-49264', 0], ['CVE-2022-50014', 0], ['CVE-2022-50213', 0], ['CVE-2023-6596', 0], ['CVE-2024-4438', 0], ['CVE-2024-11957', 0], ['CVE-2024-12698', 0], ['CVE-2024-37385', 0]]
+
+H. CVEs with X-Force links: 36,643; by publish year (last 6): {2021: 611, 2022: 423, 2023: 408, 2024: 378, 2025: 26, 2026: 52}
+   top assigners: {'cve@mitre.org': 26813, 'psirt@us.ibm.com': 4810, 'secalert@redhat.com': 1765, 'secalert_us@oracle.com': 621, 'psirt@cisco.com': 475}
+   2024-25 table: 378 with X-Force link, 0 positives

@@ -1,0 +1,24 @@
+{
+  "mode": "zero",
+  "target": "ids",
+  "model": "ibm-granite/granite-4.2-8b",
+  "shots_file": null,
+  "seed": 0,
+  "shard": 0,
+  "nshards": 1,
+  "limit": 0,
+  "max_model_len": 4096,
+  "tp": 1,
+  "lora": "runs/cv_control_f3/epoch3",
+  "meta": false,
+  "ids": "processed/cv_fold3_test.txt",
+  "out": "results/cv_control_f3.parquet",
+  "rows": 15030,
+  "shots": 0,
+  "system_tokens": 127,
+  "seconds": 86.8,
+  "first_tokens": {
+    "No": 14974,
+    "Yes": 56
+  }
+}

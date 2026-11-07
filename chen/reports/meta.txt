@@ -1,0 +1,32 @@
+  pt=(h.published.dt.weekday==1)&(h.published.dt.day.between(8,14))
+2024-01..2025-09: 75,148 CVEs, 119 positives, base KEV rate 0.16%
+
+                                                signal  CVEs  positives  KEV rate %  x vs rest
+                         CVSS4 E:A (CNA says attacked)     9          0       0.000        0.0
+                                CVSS4 E:P (PoC exists)  2669          0       0.000        0.0
+                              CVSS4 AU:Y (automatable)   218          1       0.459        2.9
+                  CVSS4 U:Red/Amber (provider urgency)   246          3       1.220        7.9
+                        CVSS3 temporal E:H/F/P present     0          0         NaN        NaN
+   desc: "in the wild"/"actively exploited"/"aware of"    43          7      16.279      109.2
+desc: VulDB "exploit has been disclosed to the public"  6403          2       0.031        0.2
+                 desc: EOL / unsupported / end-of-life   370          7       1.892       12.6
+                                 desc: unauthenticated  5212         35       0.672        5.6
+              ID year < publish year (old reserved ID) 15287         12       0.078        0.4
+                           ID year <= publish year - 2  4765          2       0.042        0.3
+       single CVE from assigner that day (out-of-band)  3144         23       0.732        5.5
+    assigner published >=20 CVEs that day (patch drop) 43059         31       0.072        0.3
+      identical description, same assigner+day (twins)  3629          9       0.248        1.6
+                            published on Patch Tuesday  7035         20       0.284        2.0
+                                        CVSS 4 present 12359         16       0.129        0.8
+
+by assigner type:
+                    size  sum   mean
+t                                   
+VulnCheck            440   10  2.273
+vendor PSIRT-like  16513   52  0.315
+MITRE               9699   20  0.206
+ZDI                 1662    3  0.181
+other/UUID         17735   26  0.147
+GitHub              4150    6  0.145
+VulDB               7658    2  0.026
+WordPress CNAs     17291    0  0.000

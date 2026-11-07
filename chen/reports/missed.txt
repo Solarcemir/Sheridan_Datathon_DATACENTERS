@@ -1,0 +1,133 @@
+2025 positives: 52; missed by every method (best rank > 1000): 22
+
+CVE-2025-27915 | best 11594 (base 19017 zero 18456 many 14031 stack 11594) | pub 2025-03-12 -> KEV +209d | ransomware Unknown
+   Synacor / Zimbra Collaboration Suite (ZCS) | assigner cve@mitre.org | CVSS 5.4 NETWORK PR:LOW UI:REQUIRED | CVSS4 nan | CWE CWE-79 | EPSS pct 44.0 | code 0
+   An issue was discovered in Zimbra Collaboration (ZCS) 9.0 and 10.0 and 10.1. A stored cross-site scripting (XSS) vulnerability exists in the Classic Web Client due to insufficient sanitization of HTML content in ICS files. When a user views an e-mail message containing a malicious ICS entry, its emb
+
+CVE-2025-38352 | best 11466 (base 19808 zero 16536 many 21156 stack 11466) | pub 2025-07-22 -> KEV +44d | ransomware Unknown
+   Linux / Kernel | assigner 416baaa9-dc9f-4396-8d5f-8c081fb06d67 | CVSS 7.8 LOCAL PR:LOW UI:NONE | CVSS4 nan | CWE CWE-367 | EPSS pct 42.0 | code 0
+   In the Linux kernel, the following vulnerability has been resolved: posix-cpu-timers: fix race between handle_posix_cpu_timers() and posix_cpu_timer_del() If an exiting non-autoreaping task has already passed exit_notify() and calls handle_posix_cpu_timers() from IRQ, it can be reaped by its parent 
+
+CVE-2024-13161 | best 11212 (base 11212 zero 27825 many 15805 stack 12369) | pub 2025-01-14 -> KEV +55d | ransomware Unknown
+   Ivanti / Endpoint Manager (EPM) | assigner 3c1d8aa1-5a33-4ea4-8992-aadd6440af75 | CVSS 7.5 NETWORK PR:NONE UI:NONE | CVSS4 nan | CWE CWE-36 | EPSS pct 30.0 | code 0
+   Absolute path traversal in Ivanti EPM before the 2024 January-2025 Security Update and 2022 SU6 January-2025 Security Update allows a remote unauthenticated attacker to leak sensitive information.
+
+CVE-2024-13160 | best 11212 (base 11212 zero 27825 many 15805 stack 12369) | pub 2025-01-14 -> KEV +55d | ransomware Unknown
+   Ivanti / Endpoint Manager (EPM) | assigner 3c1d8aa1-5a33-4ea4-8992-aadd6440af75 | CVSS 7.5 NETWORK PR:NONE UI:NONE | CVSS4 nan | CWE CWE-36 | EPSS pct 30.0 | code 0
+   Absolute path traversal in Ivanti EPM before the 2024 January-2025 Security Update and 2022 SU6 January-2025 Security Update allows a remote unauthenticated attacker to leak sensitive information.
+
+CVE-2024-13159 | best 11212 (base 11212 zero 27825 many 15805 stack 12369) | pub 2025-01-14 -> KEV +55d | ransomware Unknown
+   Ivanti / Endpoint Manager (EPM) | assigner 3c1d8aa1-5a33-4ea4-8992-aadd6440af75 | CVSS 7.5 NETWORK PR:NONE UI:NONE | CVSS4 nan | CWE CWE-36 | EPSS pct 30.0 | code 0
+   Absolute path traversal in Ivanti EPM before the 2024 January-2025 Security Update and 2022 SU6 January-2025 Security Update allows a remote unauthenticated attacker to leak sensitive information.
+
+CVE-2024-57968 | best 9811 (base 9811 zero 11660 many 9992 stack 11541) | pub 2025-02-03 -> KEV +35d | ransomware Unknown
+   Advantive / VeraCore | assigner cve@mitre.org | CVSS 8.8 NETWORK PR:LOW UI:NONE | CVSS4 nan | CWE CWE-434 | EPSS pct 68.0 | code 0
+   Advantive VeraCore before 2024.4.2.1 allows remote authenticated users to upload files to unintended folders (e.g., ones that are accessible during web browsing by other users). upload.aspx can be used for this.
+
+CVE-2025-25181 | best 9811 (base 9811 zero 12416 many 10591 stack 14132) | pub 2025-02-03 -> KEV +35d | ransomware Unknown
+   Advantive / VeraCore | assigner cve@mitre.org | CVSS 7.5 NETWORK PR:NONE UI:NONE | CVSS4 nan | CWE CWE-89 | EPSS pct 68.0 | code 0
+
+CVE-2025-0411 | best 9493 (base 31821 zero 9493 many 9766 stack 22741) | pub 2025-01-25 -> KEV +12d | ransomware Unknown
+   7-Zip / 7-Zip | assigner zdi-disclosures@trendmicro.com | CVSS 7.0 LOCAL PR:NONE UI:REQUIRED | CVSS4 nan | CWE CWE-693 | EPSS pct nan | code 0
+   7-Zip Mark-of-the-Web Bypass Vulnerability. This vulnerability allows remote attackers to bypass the Mark-of-the-Web protection mechanism on affected installations of 7-Zip. User interaction is required to exploit this vulnerability in that the target must visit a malicious page or open a malicious 
+
+CVE-2025-24472 | best 9342 (base 11212 zero 25145 many 9342 stack 21734) | pub 2025-02-11 -> KEV +35d | ransomware Known
+   Fortinet / FortiOS and FortiProxy | assigner psirt@fortinet.com | CVSS 8.1 NETWORK PR:NONE UI:NONE | CVSS4 nan | CWE CWE-288 | EPSS pct 28.0 | code 0
+   An Authentication Bypass Using an Alternate Path or Channel vulnerability [CWE-288] affecting FortiOS 7.0.0 through 7.0.16 and FortiProxy 7.2.0 through 7.2.12, 7.0.0 through 7.0.19 may allow a remote unauthenticated attacker with prior knowledge of upstream and downstream devices serial numbers to g
+
+CVE-2025-6205 | best 7064 (base 15720 zero 17101 many 7064 stack 8163) | pub 2025-08-04 -> KEV +85d | ransomware Unknown
+   Dassault Systèmes / DELMIA Apriso | assigner 3DS.Information-Security@3ds.com | CVSS 9.1 NETWORK PR:NONE UI:NONE | CVSS4 nan | CWE CWE-862 | EPSS pct 54.0 | code 0
+   A missing authorization vulnerability affecting DELMIA Apriso from Release 2020 through Release 2025 could allow an attacker to gain privileged access to the application.
+
+CVE-2025-23209 | best 5178 (base 31821 zero 13026 many 5178 stack 15457) | pub 2025-01-18 -> KEV +33d | ransomware Unknown
+   Craft CMS / Craft CMS | assigner security-advisories@github.com | CVSS 8.1 NETWORK PR:NONE UI:NONE | CVSS4 nan | CWE CWE-94 | EPSS pct nan | code 0
+   Craft is a flexible, user-friendly CMS for creating custom digital experiences on the web and beyond. This is an remote code execution (RCE) vulnerability that affects Craft 4 and 5 installs where your security key has already been compromised. Anyone running an unpatched version of Craft with a com
+
+CVE-2023-52163 | best 5140 (base 31821 zero 17921 many 8487 stack 5140) | pub 2025-02-03 -> KEV +322d | ransomware Unknown
+   Digiever / DS-2105 Pro | assigner cve@mitre.org | CVSS 8.8 NETWORK PR:LOW UI:NONE | CVSS4 nan | CWE CWE-862 | EPSS pct nan | code 0
+   Digiever DS-2105 Pro 3.1.0.71-11 devices allow time_tzsetup.cgi Command Injection. NOTE: This vulnerability only affects products that are no longer supported by the maintainer.
+
+CVE-2024-53704 | best 4494 (base 11212 zero 17701 many 10020 stack 4494) | pub 2025-01-09 -> KEV +40d | ransomware Known
+   SonicWall / SonicOS | assigner PSIRT@sonicwall.com | CVSS 9.8 NETWORK PR:NONE UI:NONE | CVSS4 nan | CWE CWE-287 | EPSS pct 30.0 | code 0
+   An Improper Authentication vulnerability in the SSLVPN authentication mechanism allows a remote attacker to bypass authentication.
+
+CVE-2025-6204 | best 3916 (base 3916 zero 5417 many 4678 stack 13948) | pub 2025-08-04 -> KEV +85d | ransomware Unknown
+   Dassault Systèmes / DELMIA Apriso | assigner 3DS.Information-Security@3ds.com | CVSS 8.0 NETWORK PR:HIGH UI:NONE | CVSS4 nan | CWE CWE-94 | EPSS pct 82.0 | code 0
+   An Improper Control of Generation of Code (Code Injection) vulnerability affecting DELMIA Apriso from Release 2020 through Release 2025 could allow an attacker to execute arbitrary code.
+
+CVE-2025-24054 | best 3131 (base 3131 zero 10550 many 7624 stack 24306) | pub 2025-03-11 -> KEV +37d | ransomware Unknown
+   Microsoft / Windows | assigner secure@microsoft.com | CVSS 5.4 NETWORK PR:NONE UI:REQUIRED | CVSS4 nan | CWE CWE-73 | EPSS pct 92.0 | code 0
+   External control of file name or path in Windows NTLM allows an unauthorized attacker to perform spoofing over a network.
+
+CVE-2025-6554 | best 2825 (base 31821 zero 2825 many 7463 stack 3452) | pub 2025-06-30 -> KEV +2d | ransomware Unknown
+   Google / Chromium V8 | assigner chrome-cve-admin@google.com | CVSS 8.1 NETWORK PR:NONE UI:REQUIRED | CVSS4 nan | CWE CWE-843 | EPSS pct nan | code 0
+   Type confusion in V8 in Google Chrome prior to 138.0.7204.96 allowed a remote attacker to perform arbitrary read/write via a crafted HTML page. (Chromium security severity: High)
+
+CVE-2025-35939 | best 2739 (base 2739 zero 6644 many 5567 stack 15572) | pub 2025-05-07 -> KEV +26d | ransomware Unknown
+   Craft CMS / Craft CMS | assigner 9119a7d8-5eab-497f-8521-727c672e3725 | CVSS 5.3 NETWORK PR:NONE UI:NONE | CVSS4 6.9 | CWE CWE-472 | EPSS pct 93.0 | code 0
+   Craft CMS stores arbitrary content provided by unauthenticated users in session files. This content could be accessed and executed, possibly using an independent vulnerability. Craft CMS redirects requests that require authentication to the login page and generates a session file on the server at '/
+
+CVE-2025-3935 | best 2251 (base 2251 zero 6242 many 8255 stack 17472) | pub 2025-04-25 -> KEV +38d | ransomware Unknown
+   ConnectWise / ScreenConnect | assigner 7d616e1a-3288-43b1-a0dd-0a65d3e70a49 | CVSS 7.2 NETWORK PR:HIGH UI:NONE | CVSS4 nan | CWE CWE-502 | EPSS pct 95.0 | code 0
+   ScreenConnect versions 25.2.3 and earlier versions may be susceptible to a ViewState code injection attack. ASP.NET Web Forms use ViewState to preserve page and control state, with data encoded using Base64 protected by machine keys. It is important to note that to obtain these machine keys, privile
+
+CVE-2025-21043 | best 1636 (base 2897 zero 3378 many 1636 stack 5694) | pub 2025-09-12 -> KEV +20d | ransomware Unknown
+   Samsung / Mobile Devices | assigner mobile.security@samsung.com | CVSS 9.8 NETWORK PR:NONE UI:NONE | CVSS4 nan | CWE CWE-787 | EPSS pct 92.0 | code 0
+   Out-of-bounds write in libimagecodec.quram.so prior to SMR Sep-2025 Release 1 allows remote attackers to execute arbitrary code.
+
+CVE-2025-9377 | best 1376 (base 1376 zero 4557 many 4938 stack 11633) | pub 2025-08-29 -> KEV +5d | ransomware Unknown
+   TP-Link / Multiple Routers | assigner f23511db-6c3e-4e32-a477-6aa17d310630 | CVSS 7.2 NETWORK PR:HIGH UI:NONE | CVSS4 8.6 | CWE CWE-78 | EPSS pct 96.0 | code 0
+   The authenticated remote command execution (RCE) vulnerability exists in the Parental Control page on TP-Link Archer C7(EU) V2 and TL-WR841N/ND(MS) V9. This issue affects Archer C7(EU) V2: before 241108 and TL-WR841N/ND(MS) V9: before 241108. Both products have reached the status of EOL (end-of-life
+
+CVE-2025-21042 | best 1212 (base 2211 zero 2010 many 1212 stack 4420) | pub 2025-09-12 -> KEV +59d | ransomware Unknown
+   Samsung / Mobile Devices | assigner mobile.security@samsung.com | CVSS 9.8 NETWORK PR:NONE UI:NONE | CVSS4 nan | CWE CWE-787 | EPSS pct 94.0 | code 0
+   Out-of-bounds write in libimagecodec.quram.so prior to SMR Apr-2025 Release 1 allows remote attackers to execute arbitrary code.
+
+CVE-2025-55177 | best 1206 (base 21684 zero 6187 many 8487 stack 1206) | pub 2025-08-29 -> KEV +4d | ransomware Unknown
+   Meta Platforms / WhatsApp | assigner cve-assign@fb.com | CVSS 5.4 NETWORK PR:LOW UI:NONE | CVSS4 nan | CWE CWE-863 | EPSS pct 33.0 | code 0
+   Incomplete authorization of linked device synchronization messages in WhatsApp for iOS prior to v2.25.21.73, WhatsApp Business for iOS v2.25.21.78, and WhatsApp for Mac v2.25.21.78 could have allowed an unrelated user to trigger processing of content from an arbitrary URL on a target’s device. We as
+
+                      missed  found
+n                       22.0   30.0
+days to KEV (median)    37.5   56.0
+CVSS3 missing %          0.0    0.0
+CVSS3 median             7.6    9.0
+network %               90.9   80.0
+UI required %           18.2    6.7
+PR none %               63.6   83.3
+any code %               0.0   73.3
+EPSS pct median         61.0   96.0
+ransomware %             9.1   10.0
+desc length median     196.0  315.5
+Microsoft %              4.5    3.3
+
+vendors missed: {'Ivanti': 3, 'Advantive': 2, 'Dassault Systèmes': 2, 'Craft CMS': 2, 'Samsung': 2, 'Synacor': 1, 'Linux': 1, '7-Zip': 1, 'Fortinet': 1, 'Digiever': 1, 'SonicWall': 1, 'Microsoft': 1, 'Google': 1, 'ConnectWise': 1, 'TP-Link': 1, 'Meta Platforms': 1}
+vendors found: {'Kentico': 2, 'SysAid': 2, 'TeleMessage': 2, 'Adobe': 2, 'AMI': 1, 'SimpleHelp ': 1, 'Yiiframework': 1, 'Langflow': 1, 'Smartbedded': 1, 'Dassault Systèmes': 1, 'Citrix': 1, 'RARLAB': 1, 'WatchGuard': 1, 'Cisco': 1, 'Wazuh': 1, 'Apache': 1, 'XWiki': 1, 'FreeType': 1, 'Erlang': 1, 'Sudo': 1, 'Microsoft': 1, 'Commvault': 1, 'Broadcom': 1, 'IGEL': 1, 'Git': 1, 'CWP': 1}
+missed positives           vendor in description has prior KEV entries:   36%   median count 0
+found positives            vendor in description has prior KEV entries:   50%   median count 0
+random negatives (3000)    vendor in description has prior KEV entries:   32%   median count 0
+
+missed positives, prior KEV count of named vendor:
+        cve_id            vendor  pk
+CVE-2025-27915           Synacor   0
+CVE-2025-38352             Linux  21
+CVE-2024-13161            Ivanti  24
+CVE-2024-13160            Ivanti  24
+CVE-2024-13159            Ivanti  24
+CVE-2024-57968         Advantive   0
+CVE-2025-25181         Advantive   0
+ CVE-2025-0411             7-Zip   0
+CVE-2025-24472          Fortinet   0
+ CVE-2025-6205 Dassault Systèmes   0
+CVE-2025-23209         Craft CMS   0
+CVE-2023-52163          Digiever   0
+CVE-2024-53704         SonicWall   0
+ CVE-2025-6204 Dassault Systèmes   0
+CVE-2025-24054         Microsoft   0
+ CVE-2025-6554            Google  62
+CVE-2025-35939         Craft CMS   1
+ CVE-2025-3935       ConnectWise   0
+CVE-2025-21043           Samsung   0
+ CVE-2025-9377           TP-Link   3
+CVE-2025-21042           Samsung   0
+CVE-2025-55177    Meta Platforms  84

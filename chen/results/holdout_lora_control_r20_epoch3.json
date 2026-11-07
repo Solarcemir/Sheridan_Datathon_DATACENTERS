@@ -1,0 +1,24 @@
+{
+  "mode": "zero",
+  "target": "holdout",
+  "model": "ibm-granite/granite-4.2-8b",
+  "shots_file": null,
+  "seed": 0,
+  "shard": 0,
+  "nshards": 1,
+  "limit": 0,
+  "max_model_len": 4096,
+  "tp": 1,
+  "lora": "runs/control_r20/epoch3",
+  "out": "results/holdout_lora_control_r20_epoch3.parquet",
+  "rows": 35280,
+  "shots": 0,
+  "system_tokens": 127,
+  "seconds": 204.2,
+  "first_tokens": {
+    " No": 27576,
+    " NO": 7696,
+    " Yes": 5,
+    " YES": 3
+  }
+}

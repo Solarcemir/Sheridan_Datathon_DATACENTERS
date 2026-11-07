@@ -1,0 +1,15 @@
+{
+  "model": "ibm-granite/granite-4.2-30b",
+  "shots_file": "/ssd1/userdata/zhaoc/datathon/processed/shots_2024.parquet",
+  "tp": 2,
+  "max_model_len": 49152,
+  "dry_run": false,
+  "out": "../results/all2024_logo.parquet",
+  "rows": 39868,
+  "distinct_prompts": 185,
+  "seconds": 984.3,
+  "first_tokens": {
+    "No": 33982,
+    "Yes": 5886
+  }
+}

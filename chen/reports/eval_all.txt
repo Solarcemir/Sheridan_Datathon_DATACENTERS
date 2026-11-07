@@ -1,0 +1,35 @@
+
+5-fold purged CV (all blocks): 75,148 CVEs, 119 / 75 positives (Dec31 / Nov4), K=517
+                 model  hits Dec31  hits Nov4  Nov4 cap3 Nov4 vs baseline 95% CI  AP Dec31  AP Nov4
+    baseline_code_epss          27         20         23                  +0..+0    0.0457   0.0322
+    lr_full_llmx_noemb          40         26         28                 -1..+12    0.0825   0.0704
+      lr_best_luis_sib          40         26         29                 -1..+14    0.0832   0.0706
+      lr_best_luis_all          42         28         30                 +1..+16    0.0734   0.0518
+          lr_luis_only          35         24         25                 -3..+12    0.0523   0.0366
+        lgbm_luis_only          39         24         25                 -3..+11    0.0550   0.0393
+             lgbm_best          31         17         21                 -10..+3    0.0433   0.0242
+          lora_control          36         25         26                 -2..+13    0.0454   0.0293
+         avg_best_lora          44         30         29                 +4..+17    0.0932   0.0552
+         avg_best_lgbm          41         26         29                 -1..+14    0.0666   0.0445
+    avg_best_lora_lgbm          41         27         28                 +2..+14    0.0923   0.0529
+avg_best_lora_lgbmluis          47         32         33                 +5..+19    0.0826   0.0558
+
+FORWARD-ONLY (blocks 1-4, each trained only on earlier blocks): 60,118 CVEs, 103 / 66 positives (Dec31 / Nov4), K=414
+                             model  hits Dec31  hits Nov4  Nov4 cap3 Nov4 vs baseline 95% CI  AP Dec31  AP Nov4
+                baseline_code_epss          23         18         19                  +0..+0    0.0482   0.0345
+                       lr_features          28         21         22                  -3..+8    0.0537   0.0522
+lr_features_meta_embknn_pca64_team          32         23         23                 +0..+11    0.0676   0.0731
+                lr_full_llmx_noemb          34         23         23                 +0..+11    0.0693   0.0620
+                  lr_best_luis_all          33         23         23                 +0..+11    0.0808   0.0745
+                    lgbm_luis_only          31         22         23                 -4..+12    0.0593   0.0426
+                         lgbm_best          25         15         17                  -8..+2    0.0483   0.0287
+                     avg_best_lgbm          30         21         23                  -3..+9    0.0717   0.0634
+             avg_bestluis_lgbmluis          38         24         24                 +1..+12    0.0750   0.0675
+
+5-fold CV restricted to blocks 1-4 (same rows as forward-only): 60,118 CVEs, 103 / 66 positives (Dec31 / Nov4), K=414
+             model  hits Dec31  hits Nov4  Nov4 cap3 Nov4 vs baseline 95% CI  AP Dec31  AP Nov4
+baseline_code_epss          23         18         19                  +0..+0    0.0482   0.0345
+lr_full_llmx_noemb          34         24         24                 +0..+12    0.0835   0.0804
+         lgbm_best          24         14         18                 -10..+2    0.0443   0.0279
+     avg_best_lgbm          35         24         25                 +0..+12    0.0667   0.0521
+     avg_best_lora          34         27         27                 +4..+15    0.0803   0.0615

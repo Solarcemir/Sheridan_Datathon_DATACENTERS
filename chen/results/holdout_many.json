@@ -1,0 +1,16 @@
+{
+  "model": "ibm-granite/granite-4.2-30b",
+  "shots_file": "/ssd1/userdata/zhaoc/datathon/processed/shots_2024.parquet",
+  "tp": 2,
+  "max_model_len": 49152,
+  "dry_run": false,
+  "out": "../results/holdout_many.parquet",
+  "target": "holdout",
+  "rows": 35280,
+  "distinct_prompts": 1,
+  "seconds": 671.3,
+  "first_tokens": {
+    "No": 28979,
+    "Yes": 6301
+  }
+}
