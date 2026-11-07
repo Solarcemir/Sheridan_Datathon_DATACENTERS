@@ -33,6 +33,9 @@ python -E -P luis/analysis/chen_insights.py        # Chen's features/models on o
 python -E -P luis/analysis/chen_insights.py --score-2026   # submissions/top500_v3.csv (LightGBM + LR)
 python -E -P luis/analysis/model_zoo.py            # XGBoost / CatBoost / LambdaRank / big linear + ensembles (~11 min, GPU)
 python -E -P luis/analysis/model_zoo.py --score-2026       # current pick: submissions/top500_v4.csv (XGBoost big + LR)
+python -E -P luis/analysis/team_merge.py           # Luis + Chen (Granite 30B features, LoRA) on the forward A/B test
+python -E -P luis/analysis/team_merge.py --score-2026      # v4 explained by Granite 30B; v5 = v4 + Chen LoRA if his file exists
+python -E -P luis/analysis/export_top500_json.py "<label>" reports/top500_v4_explained.csv "<note>"   # hub table data
 ```
 
 Environment notes and known install issues: `context_Luis.md` §12.

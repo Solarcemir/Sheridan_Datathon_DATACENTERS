@@ -3,7 +3,7 @@
 Luis's handoff document (folder `luis/`; paths below are relative to it unless they start with `luis/`). Last updated Nov 7, 2026, ~5:15 pm. Written so a teammate with a stronger machine can pick up the work without re-deriving anything. Every number below comes from a script in `luis/analysis/` and is backed by a file listed in **§13 Evidence index**.
 
 - **Team hub (web):** https://claude.ai/artifact/Np2SfMguMKySJnBfvNfnjR (ranked Top 500 table with Granite reasons, rules, CSV/column explorer, data map, shared notes; code in `site/breach-hub.html`)
-- **Best ranking right now:** `submissions/top500_v4.csv` (XGBoost big + LR with Chen's features, rank average, cap 3; §14.7). `submissions/top500_v3.csv` (LightGBM instead of XGBoost; §14.5) is statistically tied and shares 406 of 500 CVEs. `submissions/top500_v2.csv` has Granite-written explanations in `reports/top500_v2_explained.csv` (§9).
+- **Best ranking right now:** `submissions/top500_v4.csv` (XGBoost big + LR with Chen's features, rank average, cap 3; §14.7), explained in `reports/top500_v4_explained.csv`. **Planned final:** v4 + Chen's LoRA 8B scores = `top500_v5.csv`, built automatically once Chen pushes them (§14.8). `submissions/top500_v3.csv` (LightGBM instead of XGBoost; §14.5) is statistically tied and shares 406 of 500 CVEs. `submissions/top500_v2.csv` has Granite-written explanations in `reports/top500_v2_explained.csv` (§9).
 
 ---
 
@@ -391,6 +391,8 @@ python -E -P luis/analysis/export_top500_json.py   # site/top500.json for the hu
 | Chen's insights on our setup: new features, LR, ensembles, bootstrap, missed positives (§14.5) | `analysis/chen_insights.py`, `reports/chen_insights_results.csv`, `reports/chen_insights_bootstrap.csv`, `reports/chen_features_lift.csv`, `reports/chen_missed_positives.csv`, `reports/chen_insights_log.txt` |
 | Clean vs leak-only vs clean+leak (§3, §14.6) | `python -E -P luis/analysis/chen_insights.py --leak-test` → `reports/leak_vs_clean.csv`, `reports/leak_vs_clean_log.txt` |
 | Model zoo: XGBoost, CatBoost, LambdaRank, big linear, ensembles, diversity (§14.7) | `analysis/model_zoo.py`, `reports/model_zoo_results.csv`, `reports/model_zoo_bootstrap.csv`, `reports/model_zoo_correlation.csv`, `reports/model_zoo_catboost_importance.csv`, `reports/model_zoo_log.txt` |
+| Luis + Chen combined on the forward test, LoRA estimate (§14.8) | `analysis/team_merge.py`, `analysis/common.py`, `reports/team_merge_results.csv`, `reports/team_merge_bootstrap.csv`, `reports/team_merge_log.txt` |
+| v4 explained with Granite 30B + nearest KEV (hub table) | `python -E -P luis/analysis/team_merge.py --score-2026` → `reports/top500_v4_explained.csv`; `analysis/export_top500_json.py` → `site/top500.json` |
 | `top500_v4` (§9, §14.7) | `python -E -P luis/analysis/model_zoo.py --score-2026` → `derived/scored_2026_v4.csv`, `submissions/top500_v4.csv` |
 | `top500_v3` (§9, §14.5) | `python -E -P luis/analysis/chen_insights.py --score-2026` → `derived/scored_2026_v3.csv`, `submissions/top500_v3.csv` |
 | Chen's GPU-box workstream (CV, LR + LoRA, Granite 30B/8B, embeddings r2) | `received/CHEN_context_gpu_box_2026-11-07.md` |
@@ -544,6 +546,34 @@ Same setup as §14.5 (A/B, `y_nov4`, scoreboard density, pooled paired bootstrap
 6. **Ceiling of the current features:** across all single models, only **35 of 75** positives ever make a top 441. The other 40 are Chen's "invisible" positives. More model capacity won't find them; new information might (Granite 30B extraction, product-level history).
 
 **`submissions/top500_v4.csv`** = XGBoost big (all features, 5 GPU seeds) + LR(Luis safe + Chen, C tuned inside training), rank average, cap 3, trained on all 2024+2025 months (`python -E -P luis/analysis/model_zoo.py --score-2026`). 237 with exploit flag, 10 Oracle, 0 WordPress CNAs, 4 blank-CWE, 147 assigners; shares 406 CVEs with v3. Month mix: Jan 41 · Feb 37 · Mar 61 · Apr 53 · May 67 · Jul 110 · Aug 69 · Sep 62.
+
+### 14.8 Combining Luis + Chen on the forward test (`analysis/team_merge.py`)
+
+Chen pushed his features (`chen/processed/*.parquet`): 29 metadata features, 55 features from his **Granite 4.2 30B** world-knowledge extraction, Granite Embedding r2 nearest-KEV similarity, the raw extraction (`llm_extract.parquet`), and his out-of-fold **LoRA 8B** scores. We rebuilt his ~100-feature "best LR" (his 15 base features from our columns + his metadata + our TF-IDF as a logit + his Granite 30B features) and tested everything on **our A/B replicas**, the strictly forward test he doesn't have. LoRA scores come from his 5-fold CV (a different, partly non-forward regime), so rows marked "+LoRA" are an estimate. Shared modules: `analysis/common.py`.
+
+| Model | A@243 + B@198 (no cap / cap 3) | Pooled hits@441 (95% CI) | vs exploit+EPSS | vs v4 | AP |
+|---|---|---|---|---|---|
+| Exploit code, then EPSS | 19 / 22 | 19 (12–29) | – | −16 to −1 | 0.029 |
+| XGBoost big (Luis) | 23 / 26 | 23–26 | −1 to +15 | −6 to +3 | 0.053 |
+| **LR Chen-style (base + meta + TF-IDF + Granite 30B)** | 25 / **28** | 25–27 | +0 to +15 (cap 3) | −8 to +7 | 0.043 |
+| LR Chen-style + Luis safe features | 24 / 24 | 23–26 | | | 0.043 |
+| XGBoost big with Chen's features | 25 / 26 | 26–28 | −1 to +16 | | 0.048 |
+| LoRA 8B alone (Chen OOF) | 23 / 25 | 23–26 | | | 0.040 |
+| **v4: XGBoost + LR(Luis + Chen-lite), cap 3** | 26 / **29** | **28 (18–38)** | **+1 to +16** | – | **0.063** |
+| XGBoost + LR(Chen-style) | 25 / 26 | 26 | −1 to +14 | −7 to +2 | 0.052 |
+| LightGBM + LR(Chen-style) | 25 / 24 | 26 | | | 0.052 |
+| XGBoost + LightGBM + LR(Chen-style) | 24 / 25 | 25–26 | | | 0.057 |
+| **+LoRA: v4 + LoRA** | **29** / 27 | **30 (20–41)** | **+4 to +18** | −3 to +9 | **0.069** |
+| +LoRA: XGBoost + LR(Chen-style + Luis) + LoRA | 28 / 27 | 31 (20–43) | +5 to +20 | −2 to +10 | 0.062 |
+| +LoRA: LR(Chen-style) + LoRA | 28 / 28 | 31 (21–42) | +5 to +20 | −3 to +12 | 0.054 |
+| +LoRA: LightGBM + LR(Chen-style) + LoRA (Chen's recipe) | 28 / 27 | 30 | +4 to +19 | | 0.065 |
+| Chen's own OOF 3-model average (his 5-fold) | 26 / 27 | 28–29 | +2 to +18 | | 0.052 |
+
+**What this says:**
+1. **Without LoRA, v4 is still the best combination on the forward test.** Chen's Granite 30B features make his LR the **best single model at density** (28 with cap 3), but adding it to XGBoost doesn't beat v4's lighter LR (26 vs 28 pooled).
+2. **Chen's LoRA 8B is the piece that adds: +2 to +4 hits on top of every ensemble.** All "+LoRA" combinations have bootstrap CIs vs the baseline starting at **+3 to +5**, the strongest evidence in the project. Same direction as Chen's own CV (+4 to +6).
+3. **Proposed final pipeline: v4 components (XGBoost big + LR) + Chen's LoRA 8B, rank average, cap 3.** Expected ≈ 30 of 75 on the practice exam (an estimate, see the LoRA caveat). It only needs one thing from Chen: LoRA 8B scores for the 72,670 scoreboard CVEs, trained on 2024-01..2025-09, as `chen/submissions/lora8b_scoreboard_2026.parquet` with columns `cve_id, lora_score`. Then `python -E -P luis/analysis/team_merge.py --score-2026` writes `submissions/top500_v5.csv` automatically.
+4. **Explanations now come from Granite 30B.** `reports/top500_v4_explained.csv` (also the hub's Top 500 table) gives each CVE a product name and type from Chen's extraction plus a reason built from the actual signals: public exploit code, EPSS percentile, impact and login need, attacker appeal and typical attacker, end-of-life, the most similar past KEV entry (Granite Embedding r2), and the assigner's KEV history. Example, #4: *Progress ShareFile Storage Zones Controller: public exploit code (Nuclei, GitHub PoC); EPSS in the top 1% of its month; remote code execution with no login needed; high attacker appeal (ransomware or extortion groups); resembles KEV entry CVE-2023-24489 (similarity 0.93); 5 past KEV entries from this assigner.*
 
 ## 15. Research sources
 
