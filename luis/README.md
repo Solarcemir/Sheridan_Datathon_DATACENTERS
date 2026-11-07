@@ -29,6 +29,8 @@ python -E -P luis/analysis/sibling_boost.py        # sibling boost + per-assigne
 python -E -P luis/analysis/granite_instruct.py     # IBM Granite Instruct re-ranking + per-CVE reasons, top500_v2
 python -E -P luis/analysis/export_top500_json.py   # site/top500.json for the hub's Top 500 table
 python -E -P luis/analysis/density_check.py        # numbers at scoreboard density, comparable with Chen's CV
+python -E -P luis/analysis/chen_insights.py        # Chen's features/models on our A/B, bootstrap, missed positives
+python -E -P luis/analysis/chen_insights.py --score-2026   # current pick: submissions/top500_v3.csv
 ```
 
 Environment notes and known install issues: `context_Luis.md` §12.

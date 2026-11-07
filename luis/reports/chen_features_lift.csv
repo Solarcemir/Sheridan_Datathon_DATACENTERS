@@ -1,0 +1,15 @@
+feature,rows,kev,kev_rate,lift_vs_base
+id_year_lag,14346,10,0.0007,0.6
+old_id,14346,10,0.0007,0.6
+wp_cna,14136,0,0.0,0.0
+txt_eol,401,3,0.00748,6.4
+txt_vuldb_disclosed,5826,0,0.0,0.0
+txt_auth_bypass,588,8,0.01361,11.63
+assigner_ransom_kev,18718,47,0.00251,2.15
+is_patch_tuesday,6203,15,0.00242,2.07
+twins,2947,7,0.00238,2.03
+cwe_unknown,3020,0,0.0,0.0
+cv4_urgent,188,0,0.0,0.0
+cv4_auto,180,0,0.0,0.0
+cv4_e_poc,2645,0,0.0,0.0
+cv4_e_attacked,9,0,0.0,0.0

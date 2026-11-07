@@ -1,0 +1,23 @@
+model,cap,hits@441,95% CI,vs exploit+EPSS (95% CI),AP
+"Exploit code, then EPSS",none,19,12-29,+0 to +0,0.0287
+"Exploit code, then EPSS",3,22,14-31,-2 to +8,0.0338
+LightGBM: Luis safe,none,23,14-33,-4 to +11,0.0351
+LightGBM: Luis safe,3,22,13-32,-5 to +10,0.0353
+LightGBM: + Chen safe,none,20,12-30,-6 to +8,0.0349
+LightGBM: + Chen safe,3,23,14-32,-5 to +11,0.0359
+LightGBM: + Chen safe + careful,none,20,12-30,-7 to +8,0.0364
+LightGBM: + Chen safe + careful,3,20,12-30,-7 to +8,0.0376
+LR: Luis safe,none,20,12-30,-8 to +9,0.0311
+LR: Luis safe,3,21,12-31,-7 to +10,0.0348
+LR: + Chen safe + careful,none,22,13-30,-5 to +10,0.0365
+LR: + Chen safe + careful,3,24,15-33,-4 to +12,0.0391
+LR: + Chen + PCA-64,none,18,10-26,-9 to +6,0.0282
+LR: + Chen + PCA-64,3,20,13-29,-7 to +9,0.0313
+Rank avg: LightGBM(+Chen) + LR(+Chen+PCA),none,20,12-29,-7 to +8,0.0472
+Rank avg: LightGBM(+Chen) + LR(+Chen+PCA),3,23,15-33,-3 to +12,0.0478
+Rank avg: LightGBM(Luis) + LR(+Chen+PCA),none,20,12-30,-7 to +10,0.0472
+Rank avg: LightGBM(Luis) + LR(+Chen+PCA),3,25,16-33,-2 to +13,0.0453
+Rank avg: LightGBM(Luis) + LR(+Chen),none,26,16-37,+1 to +14,0.0579
+Rank avg: LightGBM(Luis) + LR(+Chen),3,26,16-37,+0 to +14,0.0605
+Rank avg of 3: LightGBM(Luis) + LR(+Chen) + LR(+Chen+PCA),none,26,17-36,+0 to +14,0.0496
+Rank avg of 3: LightGBM(Luis) + LR(+Chen) + LR(+Chen+PCA),3,25,16-35,-1 to +13,0.0504

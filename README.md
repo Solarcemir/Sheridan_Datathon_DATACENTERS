@@ -11,7 +11,7 @@ Team repo. Goal: rank the 72,670 CVEs in `scoreboard_2026.csv` so the top 500 co
 | `<name>/` | other teammates | `<name>/context_<Name>.md` |
 
 - **Team hub** (Top 500 table, rules, data map, shared notes): https://claude.ai/artifact/Np2SfMguMKySJnBfvNfnjR
-- **Current fallback submission:** `luis/submissions/top500_v2.csv`, until the merged pipeline in `luis/context_Luis.md` §14 produces the final `top500.csv`.
+- **Current fallback submission:** `luis/submissions/top500_v3.csv` (LightGBM + LR with Chen's features, rank average, cap 3; see `luis/context_Luis.md` §14.5), until the merged pipeline produces the final `top500.csv`.
 
 ## Data
 
