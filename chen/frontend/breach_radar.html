@@ -546,7 +546,7 @@ table.t tr.hl td { background: var(--ibm-soft) }
   var DW = 1280;
   function demoRect() {   // same aspect as the screen, so the locked demo fills it exactly
     var a = vh() / vw();
-    if (!portrait) { var w = 760, h = w * a; return { x: 1920 - w, y: 820, w: w, h: h }; }   // under slide 7, right-aligned with it
+    if (!portrait) { var w = 1880, h = w * a; return { x: 40, y: 880, w: w, h: h }; }   // big, centred under the machine; the overview frames only the machine (WB.oh)
     var w2 = WB.w - 36; return { x: 18, y: WB.h - 40, w: w2, h: w2 * a };
   }
   function placeDemo() {
@@ -569,7 +569,7 @@ table.t tr.hl td { background: var(--ibm-soft) }
     if (!portrait) {
       var L = { problem: [40, 280, 360], data: [40, 520, 360], features: [440, 330, 600], voters: [1080, 280, 400], cleanup: [1080, 520, 400], proof: [1520, 280, 400], top500: [1520, 520, 400] };
       Object.keys(L).forEach(function (k) { R[k] = { x: L[k][0], y: L[k][1], w: L[k][2], h: L[k][2] * 9 / 16 }; });
-      WB = { w: 1960, h: 820 + 760 * vh() / vw() + 50, title: { x: 40, y: 34, w: 860 }, heros: { x: 1010, y: 52, w: 880 } };
+      WB = { w: 1960, oh: 790, h: 880 + 1880 * vh() / vw() + 40, title: { x: 40, y: 34, w: 860 }, heros: { x: 1010, y: 52, w: 880 } };
     } else {
       var pw = 200, ph = pw * 16 / 9, Wv = 460, y0 = 430;
       PATH.forEach(function (id, i) { var c = i % 2; R[id] = { x: c ? Wv - 18 - pw : 18, y: y0 + Math.floor(i / 2) * (ph + 30) + (c ? 56 : 0), w: pw, h: ph }; });
@@ -1051,7 +1051,7 @@ table.t tr.hl td { background: var(--ibm-soft) }
   /* ---------- navigation */
   var idx = -1, goSeq = 0;
   var DEMO = PATH.length, locked = false;
-  function targetFor(step) { return step === DEMO ? fitRect(R.demo, 1, 0) : step < 0 ? fitRect({ x: 0, y: 0, w: WB.w, h: WB.h }, 1.02, 64) : fitRect(R[PATH[step]], 1.03, 64); }
+  function targetFor(step) { return step === DEMO ? fitRect(R.demo, 1, 0) : step < 0 ? fitRect({ x: 0, y: 0, w: WB.w, h: WB.oh || WB.h }, 1.02, 64) : fitRect(R[PATH[step]], 1.03, 64); }
   function setLocked(on) { locked = on; document.body.classList.toggle("locked", on); if (!on) document.body.classList.remove("landed"); }
   function go(step) {
     step = Math.max(-1, Math.min(DEMO, step)); idx = step;
