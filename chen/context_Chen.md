@@ -248,6 +248,29 @@ Same 5-fold purged CV, Nov-4 labels, K = 517.
 
 The two agree only moderately (Spearman 0.58; 203 shared CVEs in their top 500s), which is why averaging them helps.
 
+### 8.5 Review of Luis's final recipe (`scripts/luis_recipe_check.py`, `reports/luis_recipe_check.txt`)
+
+Luis's `final_build.py` (his §14.14): equal-weight rank average of tree (XGBoost, 40 seeds) + linear (his LR averaged with ours) + LLM (our 8B LoRA), then 4 Granite 30B demotion filters (impact = DoS only, typical attacker = unlikely target, attacker appeal = low, WordPress plugin/theme), then cap 3. Checked on our 5-fold purged CV with proxies: `xgb_fixed_luis` for his XGBoost, `lr_luis_only` for his LR. K = 517, Nov-4 labels, cap 3.
+
+| Ensemble | No filters | With his 4 filters | vs ours, no filters (95% CI) |
+|---|---|---|---|
+| Ours: LR + LoRA + LightGBM | 33 | 33 | – |
+| Our LR + LoRA + XGBoost | 31 | **33** | −3..+3 (with filters) |
+| His final: avg(our LR, his LR) + LoRA + XGBoost | 31 | 32 | −5..+4 (with filters) |
+| His LR only + LoRA + XGBoost | 30 | 32 | −6..+4 |
+| LR + XGBoost, no LoRA | 30 | 32 | −7..+5 |
+
+**Agree:**
+- **Granite filters are safe and slightly useful.** They push down 56% of CVEs but catch only 1 of 75 Nov-4 positives (CVE-2024-23692, Rejetto HFS; 5 of 119 Dec-31 positives). +1..+2 on XGBoost ensembles, neutral on ours. Share filtered is similar in 2026 (49% vs 56%), so no drift problem.
+- **Averaging his LR into the linear voter** (halving ours) costs at most 1 hit, within noise.
+- **XGBoost vs LightGBM** as the tree voter: tie (§8.3). **Stopping tuning:** agree, our nested search found the same (§8.3).
+
+**Pushbacks (minor, none change the build):**
+1. **"2026 rewards CVSS" is not evidence of a shift.** It rests on the README's 2026 baselines, CVSS-first 7 vs EPSS-first 6 hits: one hit apart, inside Poisson noise. Including our LR as a hedge is fine because it costs nothing, but the write-up shouldn't present a CVSS shift as a finding.
+2. **His "+LoRA" forward-test numbers are slightly optimistic.** They use our 5-fold out-of-fold LoRA scores, which are not strictly forward on his A/B split (a 2024 test CVE's LoRA saw 2025 folds). Our forward-only LR check (§5.3) showed no inflation, so the bias is probably small, but "v4f + LoRA = 30, Holm p = 0.03" is an estimate, as his §14.8 says.
+3. **The LLM voter is a single training run** while the tree voter averages 40 seeds. A LoRA run's top 500 also moves with the seed. Averaging 3–4 LoRA seeds (rank-averaged, no selection, `train_lora.py --seed`) would stabilize it the same way; ~25 min on 3 free H100s. Optional.
+4. **After the build:** compare `luis/submissions/top500_final.csv` against our ensemble's top 500 and check Oracle / WordPress counts, month mix and assigner spread before submitting.
+
 ## 9. IBM technology
 
 | Component | Model / version | Served with | Role | Measured |
@@ -324,6 +347,11 @@ The two agree only moderately (Spearman 0.58; 203 shared CVEs in their top 500s)
 | KEV vendor name in text | doesn't help (0.11% vs 0.17%) | product-level match 3.8×; Granite-normalized vendor/product history in the best model | different matching; ours keeps it |
 | 1-row difference | keeps CVE-2025-4664 | drops it (signals `in_kev = 1`) | data inconsistency, noted |
 | Granite Instruct (2B, top 5%) | +2 without cap, 0 with | 30B on all CVEs: +50% AP on base LR, tie in the best average | consistent |
+| Granite 30B demotion filters (v4f) | +1..+3 on A/B, adopted | 1 of 75 positives caught; +0..+2 on our CV | agree (§8.5) |
+| Nested tuning | made things worse | inner AP doubles, held-out tie | agree (§8.3) |
+| 2026 "CVSS shift" (README baselines 7 vs 6) | a shift, hedge with Chen's LR | one hit apart = noise; the hedge is harmless | agree on the build, not on calling it a shift (§8.5) |
+| "+LoRA" forward-test estimates | v4f + LoRA = 30, only Holm-significant combo | our OOF LoRA isn't strictly forward on A/B; probably small bias | caveat (§8.5) |
+| Seed averaging | 40 XGBoost seeds | LLM voter is one LoRA run; 3–4 seeds would match | suggestion (§8.5) |
 
 ## 12. Environment and run order
 

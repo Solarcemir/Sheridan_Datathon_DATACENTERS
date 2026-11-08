@@ -1,0 +1,14 @@
+filters catch 42,121 of 75,148 CVEs (56%); positives caught: Dec31 5/119, Nov4 1/75
+['CVE-2024-23692']
+K=517, 75 Nov4 positives
+                                 ensemble (cap 3) filters  Nov4  Dec31 vs ours no-filter
+                       ours: LR + LoRA + LightGBM      no    33     50            +0..+0
+                       ours: LR + LoRA + LightGBM     yes    33     50            +0..+0
+                      Luis-style: LR + LoRA + XGB      no    31     48            -6..+2
+                      Luis-style: LR + LoRA + XGB     yes    33     50            -3..+3
+Luis-style, linear = avg(our LR, LR on his feats)      no    31     48            -6..+2
+Luis-style, linear = avg(our LR, LR on his feats)     yes    32     49            -5..+4
+                       same, linear = his LR only      no    30     47            -8..+1
+                       same, linear = his LR only     yes    32     50            -6..+4
+                               LR + XGB (no LoRA)      no    30     48            -9..+3
+                               LR + XGB (no LoRA)     yes    32     50            -7..+5
