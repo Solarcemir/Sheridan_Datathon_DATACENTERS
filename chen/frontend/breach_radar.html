@@ -257,7 +257,7 @@ table.t tr.hl td { background: var(--ibm-soft) }
 .port .pt { font-size: 12.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis }
 .port.inp .pt::before { content: "→ "; color: var(--acc) } .port.out .pt::after { content: " →"; color: var(--acc) }
 .port .pk { display: none }
-.hero.band { left: 56px; top: 232px; width: 1168px; height: 80px; padding: 0; background: none; border: 0; box-shadow: none }
+.hero.band { left: 56px; top: 218px; width: 1168px; height: 94px; padding: 0; background: none; border: 0; box-shadow: none }
 .co.card.stack { grid-template-columns: 1fr; grid-template-areas: "cn" "cv" "ct" "cs" }
 .co.card.sum { border-top-width: 4px; margin-top: 10px }
 .co.card.sum::before { content: "▼ ▼ ▼  averaged into one ranking"; position: absolute; top: -26px; left: 0; font-family: var(--f-mono); font-size: 10.5px; letter-spacing: .08em; text-transform: uppercase; color: var(--alert) }
@@ -403,7 +403,7 @@ table.t tr.hl td { background: var(--ibm-soft) }
   };
   var BIC = { vulns: "db", sig: "pulse", kev: "shield", scoreboard: "target", leak: "eyeoff", probe: "search", snap: "camera", hist: "rewind",
     signals: "code", text: "doc", history: "building", granite30: "spark", embed: "link", xgb: "tree", lr: "trend", lora: "chip", avg: "scale",
-    demote: "down", cap: "filter", out: "list", reasons: "chat", cv: "flask", fwd: "forward", ab: "award" };
+    demote: "down", cap: "filter", out: "list", reasons: "chat", cv: "flask", fwd: "forward", ab: "pulse" };
   var SIC = { problem: "target", data: "rewind", features: "search", voters: "scale", cleanup: "filter", top500: "list", proof: "award" };
   function icon(k, cls) { return '<svg class="' + (cls || "ic") + '" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + IC[k] + "</svg>"; }
   function viz(v) {   // small picture next to a card's big number
@@ -508,12 +508,12 @@ table.t tr.hl td { background: var(--ibm-soft) }
       more: [["The four rules, checked first", function () { return table(["Rule", "2024", "2025"], [["Impact: denial of service only", "0 / 5,935", "0 / 5,639"], ["Typical attacker: unlikely target", "0 / 6,505", "0 / 8,032"], ["Attacker appeal: low", "1 / 12,797", "1 / 13,495"], ["Product: WordPress plugin or theme", "0 / 9,120", "0 / 9,922"], ["Install base small or niche (rejected: 0.36× the average)", "4 / 10,101", "6 / 12,875"]]) + '<p class="note">Exploited / CVEs per training year. A rule was kept only if its rate was below a quarter of the average. Effect: +0 to +2 hits. The one exploited CVE caught was Rejetto HFS (CVE-2024-23692).</p>'; }],
         ["The vendor cap", function () { return ul(["At most 3 CVEs per assigner per snapshot month; " + (D.cap_pushed_out || 212) + " CVEs were pushed out of our top 500 by it.", "On 2024–25: +3 hits for the exploit-then-EPSS baseline, +0 to +3 for single models, flat (±1) for the best ensembles. Caps from 3 to 8 perform the same.", "Kept as insurance for the 2026 Oracle batch, which 2024–25 never had."]); }]] },
     { id: "proof", t: "Proof", stage: "Does it work?", cardLayout: "row",
-      bubbles: [["cv", "5-fold test", "33 vs 20", .2, .55, .29, .24, "main"], ["fwd", "Forward-only", "27 vs 18", .5, .55, .29, .24], ["ab", "Year-swap exam", "32 vs 20", .8, .55, .29, .24]],
+      bubbles: [["cv", "5-fold test", "33 vs 20", .2, .55, .29, .24, "main"], ["fwd", "Forward-only", "27 vs 18", .5, .55, .29, .24], ["ab", "watsonx", "governance · drift", .8, .55, .29, .24, "ibm"]],
       h: "It finds 65% more exploited bugs",
-      lede: "We never tuned anything on 2026. We trained on older 2024–25 bugs and tested on newer ones, three different ways. All three show the same gain.",
+      lede: "We never tuned anything on 2026: we trained on older bugs and tested on newer ones, two different ways. And IBM watsonx.governance checks the model still holds on 2026 bugs.",
       co: [["cv", "l", "+65%", "more exploited bugs than the standard ranking: 33 vs 20 of 75.", "", "green", null, "Our edge"],
            ["fwd", "l", "+5 to +20", "hits: the 95% range of our lead over the standard ranking.", "Paired bootstrap, 1,000 resamples.", "", null, "Not luck"],
-           ["ab", "r", "≈2 pts", "estimated accuracy drop on 2026 bugs, from IBM watsonx.governance's drift monitor. Inputs do drift as CISA's list grows (feature drift 0.17), which is why we rank within each year.", "1,000 training vs 1,000 2026 CVEs · drift v2 · details below.", "blue", null, "watsonx.governance"]],
+           ["ab", "r", "≈2 pts", "estimated accuracy drop on 2026 bugs, from IBM watsonx.governance's drift monitor. Inputs do drift as CISA's list grows (feature drift 0.17), which is why we rank within each year.", "1,000 training vs 1,000 2026 CVEs · drift v2 · details below.", "blue", null, "Holds on 2026"]],
       more: [["How each idea added up", function () { return bars("Practice, out of 75", [["Standard ranking: exploit code, then EPSS", 20, null, "grey"], ["Our linear model", 26], ["+ fine-tuned Granite judge", 30], ["+ decision trees", 31], ["+ Granite rules, one combined linear model", 33, null, "red"]], { max: 36, note: "About 40 of the 75 exploited bugs look ordinary at publish time; no model we built found them." }); }],
         ["The three tests", function () { return ul(["<b>5-fold purged CV:</b> 5 publish-date blocks of 75,148 CVEs; 26 hand-made groups of related CVEs never split across train and test. K = 517.", "<b>Forward-only:</b> blocks 1–4 each scored by models trained only on earlier blocks, LoRA included (K = 414, 66 positives).", "<b>Year-swap exam:</b> the benchmark rebuilt on 2024 and 2025, each scored by a model trained on the other year (top 441, 75 positives)."]); }],
         ["Statistics", function () { return ul(["Ensemble vs baseline: paired bootstrap 95% CI +5 to +20 hits.", "On the year-swap exam the only Holm-significant combination includes the Granite LoRA (p = 0.03).", "Between our ensembles the differences are noise (±3 hits; Romano–Wolf: all tied with the best).", "2026 projection: about 12 hits (80% range 7–22) vs 8."]); }],
@@ -530,7 +530,7 @@ table.t tr.hl td { background: var(--ibm-soft) }
       more: [["Browse all 500", function () { return '<div class="tools"><input class="q" type="search" placeholder="Search a CVE, product or reason…" aria-label="Search our 500"><select class="mf" aria-label="Month"><option value="">All months</option>' + Object.keys((D.months || {}).top || {}).map(function (k) { return "<option>" + k + "</option>"; }).join("") + '</select></div><div class="cves"></div><button class="btn more" type="button">Show more</button><p class="note">Red tags: public exploit code (E Exploit-DB, M Metasploit, N Nuclei, G GitHub PoC).</p>'; }, "list"],
         ["What they are", function () { return pairs("Product type, according to Granite", (D.product_type || []).slice(0, 6)) + pairs("What an attacker gets", (D.impact || []).slice(0, 5)); }]] }
   ];
-  var GRANITE = { granite30: 1, embed: 1, lora: 1 };   // the three IBM Granite models get the IBM tag
+  var GRANITE = { granite30: 1, embed: 1, lora: 1, ab: 1 };   // IBM tag: the three Granite models and the watsonx.governance monitor
   function ibmMark(uid) {   // the IBM wordmark as 8 horizontal stripes, same drawing as the scanner's (scan.html)
     var r = ""; for (var k = 0; k < 8; k++) r += '<rect x="0" y="' + (k * 15 + 2.85).toFixed(2) + '" width="300" height="9.3"/>';
     return '<svg class="ibm-mark" viewBox="0 0 300 120" aria-label="IBM"><defs><clipPath id="ibmc-' + uid + '"><text x="150" y="111" text-anchor="middle" font-family="IBM Plex Sans, Arial Black, sans-serif" font-weight="700" font-size="150" letter-spacing="2" textLength="296" lengthAdjust="spacingAndGlyphs">IBM</text></clipPath></defs><g clip-path="url(#ibmc-' + uid + ')">' + r + "</g></svg>";
@@ -815,12 +815,19 @@ table.t tr.hl td { background: var(--ibm-soft) }
   function bandHTML(s) {
     if (s.id !== "proof") return "";
     var o = "";
-    [[184, 33, 20, "green"], [584, 27, 18, "teal"], [984, 32, 20, "violet"]].forEach(function (g) {
+    [[184, 33, 20, "green"], [584, 27, 18, "teal"]].forEach(function (g) {
       var x0 = g[0] - 150, u = 6.4, w1 = g[1] * u, w2 = g[2] * u;
       o += '<rect x="' + x0 + '" y="6" width="' + w1 + '" height="30" rx="6" fill="var(--' + g[3] + ')"/>' + T(x0 + 10, 27, "ours", "hwl") + T(x0 + w1 + 10, 32, g[1], "hb " + g[3]) +
         '<rect x="' + x0 + '" y="46" width="' + w2 + '" height="24" rx="6" fill="var(--muted)" opacity=".35"/>' + T(x0 + 10, 63, "standard", "hs") + T(x0 + w2 + 10, 66, g[2], "hb2 mut");
     });
-    return '<svg class="hero band" viewBox="0 0 1168 76">' + o + "</svg>";
+    /* third column: IBM watsonx.governance drift v2 on 2026 vs training, against IBM's 0.05 alert line */
+    var gx0 = 834, bx = gx0 + 122, sc = 150 / .2, al = bx + .05 * sc;
+    [["accuracy drop", .021, 6, 30, "ibm", "0.02 ✓"], ["feature drift", .168, 46, 24, "amber", "0.17 ⚠"]].forEach(function (r) {
+      o += T(gx0, r[2] + r[3] / 2 + 5, r[0], "hs") + '<rect x="' + bx + '" y="' + r[2] + '" width="' + Math.max(6, r[1] * sc) + '" height="' + r[3] + '" rx="6" fill="var(--' + r[4] + ')"/>' +
+        T(Math.max(bx + r[1] * sc, al) + 12, r[2] + r[3] / 2 + 7, r[5], "hb2 " + r[4]);
+    });
+    o += '<line x1="' + al + '" y1="2" x2="' + al + '" y2="74" stroke="var(--alert)" stroke-width="1.5" stroke-dasharray="3 3"/>' + T(al, -4, "IBM alert 0.05", "hs", "middle");
+    return '<svg class="hero band" viewBox="0 -14 1168 90">' + o + "</svg>";
   }
   function heroHTML(s) { return HERO[s.id] ? '<svg class="hero" viewBox="0 -4 420 192" role="img" aria-label="' + esc(s.h) + '">' + HERO[s.id]() + "</svg>" : ""; }
 
