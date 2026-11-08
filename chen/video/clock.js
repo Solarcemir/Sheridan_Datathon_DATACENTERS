@@ -3,7 +3,7 @@
    and every CSS animation/transition are stepped by hand, so a slow screenshot never makes the animation skip.
    Network requests (OSV, GitHub) still run in real time; they just resolve between frames. */
 (function () {
-  var now = 0, T0 = Date.now(), seq = 1, timers = new Map(), raf = new Map(), anims = new Map();
+  var now = 0, T0 = Date.now(), seq = 1, timers = new Map(), raf = new Map(), anims = new Map(), done = new WeakSet();
   performance.now = function () { return now; };
   var RealDate = Date; Date.now = function () { return T0 + now; };
   window.setTimeout = function (fn, ms) { var a = [].slice.call(arguments, 2), id = seq++; timers.set(id, { at: now + Math.max(0, +ms || 0), fn: fn, a: a }); return id; };
@@ -24,10 +24,11 @@
   function stepAnimations(dt) {
     var list = document.getAnimations ? document.getAnimations() : [];
     list.forEach(function (a) {
+      if (done.has(a)) return;   // finished but still listed (fill: forwards): leave it at its end, never restart it
       if (!anims.has(a)) { a.pause(); a.currentTime = 0; anims.set(a, 0); return; }   // new this frame: starts now
       var v = anims.get(a) + dt; anims.set(a, v);
       var eff = a.effect && a.effect.getComputedTiming ? a.effect.getComputedTiming() : null;
-      if (eff && isFinite(eff.endTime) && v >= eff.endTime) { anims.delete(a); try { a.finish(); } catch (e) {} }
+      if (eff && isFinite(eff.endTime) && v >= eff.endTime) { anims.delete(a); done.add(a); try { a.finish(); } catch (e) {} }
       else a.currentTime = v;
     });
   }
