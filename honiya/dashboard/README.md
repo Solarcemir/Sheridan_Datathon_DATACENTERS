@@ -16,6 +16,8 @@ Run it from inside `honiya/dashboard` so Streamlit picks up `.streamlit/config.t
 
 Open http://localhost:8501.
 
+Or open here: https://oasis-measured-properties-fountain.trycloudflare.com/
+
 ## Tabs
 
 - **Where the model was blind.** The 22 of 52 exploited 2025 CVEs that every method missed: no public exploit code, low EPSS, yet exploited faster than the ones we caught. Grouped into consumer-platform zero-days, chained edge/enterprise bugs, and end-of-life botnet targets. Source: `chen/reports/missed.txt`.
