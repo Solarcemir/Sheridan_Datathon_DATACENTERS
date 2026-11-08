@@ -1,0 +1,15 @@
+5-fold purged CV: 75,148 CVEs, 119 / 75 positives (Dec31 / Nov4), K=517
+                 model  Dec31  Nov4  Nov4 cap3 vs baseline vs current ens.  AP Dec31  AP Nov4
+    baseline_code_epss     27    20         23      +0..+0         -19..-5    0.0457   0.0322
+    lr_full_llmx_noemb     40    26         28     -1..+13         -13..-1    0.0825   0.0704
+                  lora     36    25         26     -3..+13         -14..-1    0.0454   0.0293
+        lgbm_luis_only     39    24         25     -4..+11         -17..+0    0.0550   0.0393
+        xgb_tuned_luis     41    24         25     -3..+11         -17..-1    0.0621   0.0429
+        xgb_fixed_luis     40    24         26     -4..+11         -17..+0    0.0610   0.0411
+         xgb_tuned_all     39    24         26     -2..+10         -16..-1    0.0598   0.0371
+         xgb_fixed_all     40    24         26     -4..+11         -17..+1    0.0603   0.0376
+lr+lora+lgbm_luis_only     47    32         33     +5..+19          +0..+0    0.0826   0.0558
+lr+lora+xgb_tuned_luis     44    29         29     +2..+15          -7..+0    0.0862   0.0577
+lr+lora+xgb_fixed_luis     46    30         31     +3..+17          -6..+0    0.0890   0.0578
+ lr+lora+xgb_tuned_all     45    30         29     +3..+17          -7..+1    0.0846   0.0548
+ lr+lora+xgb_fixed_all     47    31         30     +3..+17          -6..+2    0.0850   0.0548

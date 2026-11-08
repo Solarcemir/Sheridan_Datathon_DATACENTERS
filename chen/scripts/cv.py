@@ -26,6 +26,12 @@ PROC, RES = ROOT / "processed", ROOT / "results"
 K_FOLDS = 5
 SCOREBOARD_ROWS = 72_670
 import os as _os
+
+def _both(proc, name: str) -> pd.DataFrame:
+    """Historical + scoreboard versions of a per-CVE table (CVE ids don't overlap)."""
+    parts = [proc / f"{name}_historical.parquet", proc / f"{name}_scoreboard.parquet"]
+    return pd.concat([pd.read_parquet(x) for x in parts if x.exists()], ignore_index=True).drop_duplicates("cve_id")
+
 FORWARD = _os.environ.get("CV_FORWARD") == "1"
 OUT_FILE = "cv_fwd_lr.parquet" if FORWARD else "cv_oof_lr.parquet"
 C_GRID = [0.0001, 0.0003, 0.001, 0.003, 0.01]
@@ -81,13 +87,13 @@ def fit_lr(X, y, groups):
 
 
 def emb_features(h: pd.DataFrame) -> pd.DataFrame:
-    f = pd.read_parquet(PROC / "emb_feat_historical.parquet").set_index("cve_id").reindex(h.cve_id)
+    f = _both(PROC, "emb_feat").set_index("cve_id").reindex(h.cve_id)
     return pd.DataFrame({c: f[c].to_numpy() for c in ["kev_sim_max", "kev_sim_top5", "typ_sim_top5", "kev_contrast"]},
                         index=h.index)
 
 
 def team_feats(h: pd.DataFrame) -> pd.DataFrame:
-    f = pd.read_parquet(PROC / "team_feat_historical.parquet").set_index("cve_id").reindex(h.cve_id)
+    f = _both(PROC, "team_feat").set_index("cve_id").reindex(h.cve_id)
     return pd.DataFrame({"text_kev_lr_logit": np.log(f.text_kev_lr / (1 - f.text_kev_lr)).to_numpy(),
                          "text_kev_sim": f.text_kev_sim.to_numpy(),
                          "log1p_adjacent_ids": np.log1p(f.n_adjacent_ids).to_numpy()}, index=h.index)
@@ -116,7 +122,7 @@ def age_feats(h: pd.DataFrame) -> pd.DataFrame:
 
 
 def prior_feats(h: pd.DataFrame) -> pd.DataFrame:
-    f = pd.read_parquet(PROC / "prior_sig_historical.parquet").set_index("cve_id").reindex(h.cve_id).fillna(0)
+    f = _both(PROC, "prior_sig").set_index("cve_id").reindex(h.cve_id).fillna(0)
     out = {}
     for pre in ("asg_", "ven_"):
         if f"{pre}n" not in f:
@@ -132,7 +138,7 @@ def prior_feats(h: pd.DataFrame) -> pd.DataFrame:
 
 
 def llm_feats(h: pd.DataFrame) -> pd.DataFrame:
-    f = pd.read_parquet(PROC / "llm_feat_historical.parquet").set_index("cve_id").reindex(h.cve_id)
+    f = _both(PROC, "llm_feat").set_index("cve_id").reindex(h.cve_id)
     return pd.DataFrame(f.fillna(0).to_numpy(), index=h.index, columns=f.columns)
 
 
@@ -145,7 +151,7 @@ LLM_COMPACT = ["llm_attacker_appeal", "llm_install_base", "llm_product_kev", "ll
 
 
 def fresh_feats(h: pd.DataFrame) -> pd.DataFrame:
-    f = pd.read_parquet(PROC / "fresh_historical.parquet").set_index("cve_id").reindex(h.cve_id).fillna(0)
+    f = _both(PROC, "fresh").set_index("cve_id").reindex(h.cve_id).fillna(0)
     return pd.DataFrame({f"log1p_{c}": np.log1p(f[c]).to_numpy() for c in f.columns}, index=h.index)
 
 
@@ -159,7 +165,9 @@ LUIS_SIB = ["n_same_day", "sib_flags", "sib_max_epss_pct", "n_adjacent_ids"]
 
 def luis_feats(h: pd.DataFrame, cols=None) -> pd.DataFrame:
     """Luis's safe features from his shared Parquet (txt_in_wild and the hidden-KEV columns dropped)."""
-    f = pd.read_parquet(LUIS_DIR / "luis_features_hist_2024_2025.parquet").set_index("cve_id").reindex(h.cve_id)
+    f = pd.concat([pd.read_parquet(LUIS_DIR / "luis_features_hist_2024_2025.parquet"),
+                   pd.read_parquet(LUIS_DIR / "luis_features_scoreboard_2026.parquet")]).drop_duplicates("cve_id")
+    f = f.set_index("cve_id").reindex(h.cve_id)
     cols = cols or [c for c in f.columns if c not in LUIS_DROP]
     X = f[cols].astype(float)
     for c in cols:  # counts on a log scale
