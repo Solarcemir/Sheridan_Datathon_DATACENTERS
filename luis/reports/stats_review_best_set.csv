@@ -1,0 +1,12 @@
+model,mean boot hits,t vs best,in set (not significantly worse than best)
+v4f + Chen LoRA [estimate],30.7,0.0,True
+v4f bagged: + Granite filters,29.6,0.35,True
+Chen's own OOF 3-model avg (cap 3),28.9,0.52,True
+"v4f + LightGBM (3 models, filters)",28.6,0.76,True
+v4 bagged: XGBoost + LR (cap 3),27.5,1.04,True
+v3: LightGBM + LR (cap 3),26.0,1.42,True
+XGBoost bagged (cap 3),25.6,1.54,True
+LR Luis + Chen-lite (cap 3),23.6,2.13,True
+"Exploit code, then EPSS + cap 3",21.9,2.2,True
+LightGBM (cap 3),21.9,2.44,True
+"Exploit code, then EPSS",19.2,2.96,False

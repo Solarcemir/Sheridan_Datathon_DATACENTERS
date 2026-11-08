@@ -1,0 +1,21 @@
+model,vs,hits,ref hits,positives only model,positives only ref,McNemar p,bootstrap diff 95% CI,bootstrap p,McNemar p (Holm),bootstrap p (Holm)
+"Exploit code, then EPSS + cap 3","Exploit code, then EPSS",22,19,5,2,0.4531,-2 to +8,0.402,0.9969,0.987
+LightGBM (cap 3),"Exploit code, then EPSS",22,19,9,6,0.6072,-5 to +10,0.578,0.9969,0.987
+XGBoost bagged (cap 3),"Exploit code, then EPSS",26,19,12,5,0.1435,-2 to +15,0.155,0.5739,0.62
+LR Luis + Chen-lite (cap 3),"Exploit code, then EPSS",24,19,11,6,0.3323,-3 to +12,0.329,0.9969,0.987
+v3: LightGBM + LR (cap 3),"Exploit code, then EPSS",26,19,10,3,0.0923,+0 to +14,0.067,0.4614,0.335
+v4 bagged: XGBoost + LR (cap 3),"Exploit code, then EPSS",28,19,12,3,0.0352,+1 to +16,0.03,0.2109,0.18
+v4f bagged: + Granite filters,"Exploit code, then EPSS",29,19,13,3,0.0213,+3 to +19,0.011,0.1914,0.099
+"v4f + LightGBM (3 models, filters)","Exploit code, then EPSS",29,19,13,3,0.0213,+2 to +17,0.017,0.1914,0.119
+v4f + Chen LoRA [estimate],"Exploit code, then EPSS",30,19,13,2,0.0074,+4 to +19,0.003,0.0739,0.03
+Chen's own OOF 3-model avg (cap 3),"Exploit code, then EPSS",29,19,13,3,0.0213,+2 to +18,0.014,0.1914,0.112
+"Exploit code, then EPSS",v4f bagged: + Granite filters,19,29,3,13,0.0213,-19 to -3,0.011,0.2127,0.11
+"Exploit code, then EPSS + cap 3",v4f bagged: + Granite filters,22,29,4,11,0.1185,-16 to +0,0.07,0.9478,0.56
+LightGBM (cap 3),v4f bagged: + Granite filters,22,29,2,9,0.0654,-15 to -1,0.023,0.5889,0.207
+XGBoost bagged (cap 3),v4f bagged: + Granite filters,26,29,1,4,0.375,-10 to +1,0.167,1.0,1.0
+LR Luis + Chen-lite (cap 3),v4f bagged: + Granite filters,24,29,2,7,0.1797,-13 to +0,0.084,1.0,0.588
+v3: LightGBM + LR (cap 3),v4f bagged: + Granite filters,26,29,1,4,0.375,-9 to +1,0.226,1.0,1.0
+v4 bagged: XGBoost + LR (cap 3),v4f bagged: + Granite filters,28,29,0,1,1.0,-6 to +0,0.396,1.0,1.0
+"v4f + LightGBM (3 models, filters)",v4f bagged: + Granite filters,29,29,2,2,1.0,-6 to +3,0.874,1.0,1.0
+v4f + Chen LoRA [estimate],v4f bagged: + Granite filters,30,29,5,4,1.0,-5 to +7,0.856,1.0,1.0
+Chen's own OOF 3-model avg (cap 3),v4f bagged: + Granite filters,29,29,7,7,1.0,-8 to +7,0.974,1.0,1.0
