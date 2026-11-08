@@ -51,6 +51,7 @@ write-up/demo rather than hiding.
 | `server.py` | stdlib-only HTTP server: `POST /api/scan` + serves `luis/frontend/` statically. No new runtime dependency to install. |
 | `model/` | Exported artifacts from `train_export.py`. Git-ignored (regenerate, don't commit — same convention as `luis/derived/features_*.csv`). |
 | `test_requirements.txt` | A real, old `requirements.txt` with known CVEs, used to test end to end. |
+| `demo_repo/` | A small, fake two-service app (Python backend + Node frontend) built for demos: real, old, known-vulnerable dependency versions, with source code that plausibly uses each one. See `demo_repo/README.md` for what to expect. |
 
 ## Known limitations (say these out loud in the demo)
 
