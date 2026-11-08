@@ -1,0 +1,36 @@
+# Publishes the KEVexploit site (chen/frontend: zoom deck, repo scanner, score files, blind-spot dashboard)
+# to GitHub Pages on every push to main that touches it. The deck is served as the home page.
+name: Pages (kevexploit site)
+on:
+  push:
+    branches: [main]
+    paths: ["chen/frontend/**", ".github/workflows/pages.yml"]
+  workflow_dispatch:
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+concurrency:
+  group: pages
+  cancel-in-progress: true
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Assemble site
+        run: |
+          mkdir _site
+          cp -r chen/frontend/. _site/
+          cp _site/breach_radar.html _site/index.html
+          rm -f _site/build_radar.py
+          touch _site/.nojekyll
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+      - id: deploy
+        uses: actions/deploy-pages@v4
