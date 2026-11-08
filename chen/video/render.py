@@ -38,11 +38,11 @@ DECK = [
 ]
 DECK_S = 90.0
 
-END_CARD = """(() => { const d = document.createElement('div'); d.id = 'endcard';
-  d.innerHTML = '<div style="font:800 140px/1 Archivo,sans-serif;font-stretch:80%;letter-spacing:-.01em">KEV<span style="color:var(--alert)">exploit</span></div>' +
-    '<div style="margin-top:22px;font:500 34px IBM Plex Sans,sans-serif;color:var(--muted)">Patch <b style="color:var(--alert)">these 500</b> first.</div>' +
-    '<div style="margin-top:46px;font:500 20px IBM Plex Mono,monospace;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)">Team DATACENTERS · Sheridan Datathon 2026 · IBM track</div>';
-  d.style.cssText = 'position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;background:var(--bg);color:var(--ink);z-index:50;opacity:0;transition:opacity 1.2s';
+END_CARD = """(() => { const d = document.createElement('div'); d.id = 'endcard';   // team logo (luis/KevExploit Cyber Shield Logo.png), on its own near-black
+  d.innerHTML = '<img src="/video/logo.png" style="width:1440px;height:auto;margin-top:-90px">' +
+    '<div style="margin-top:-150px;font:500 36px IBM Plex Sans,sans-serif;color:#c6cbe0">Patch <b style="color:#ff4a4a">these 500</b> first.</div>' +
+    '<div style="margin-top:34px;font:500 19px IBM Plex Mono,monospace;letter-spacing:.14em;text-transform:uppercase;color:#7d86a3">Team DATACENTERS · Sheridan Datathon 2026 · IBM track</div>';
+  d.style.cssText = 'position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;background:#02050d;z-index:50;opacity:0;transition:opacity 1.2s';
   document.body.appendChild(d); requestAnimationFrame(() => requestAnimationFrame(() => { d.style.opacity = 1; })); })()"""
 
 
