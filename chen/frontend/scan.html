@@ -443,6 +443,39 @@ footer { border-top-color: var(--line); color: var(--muted); }
  .lg { display: inline-block; vertical-align: middle } .lg-d { display: none }
 :root[data-theme="dark"] .lg-l { display: none } :root[data-theme="dark"] .lg-d { display: inline-block }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .lg-l { display: none } :root:not([data-theme="light"]) .lg-d { display: inline-block } }
+
+/* replay (would it have warned you?) and the one-line why on result rows */
+.cve .why { margin-top: 5px; font-size: .78rem; color: var(--text-2); }
+.rp { padding: 22px 24px; }
+.rp-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 18px; }
+.rp-stats div { border-top: 3px solid var(--alert); padding-top: 8px; }
+.rp-stats b { display: block; font-family: var(--display); font-stretch: 80%; font-weight: 800; font-size: 2.1rem; line-height: 1.05; color: var(--alert); }
+.rp-stats span { font-size: .8rem; color: var(--text-2); }
+.rp-cases { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; }
+.rp-cases button { font: inherit; font-size: .84rem; padding: 7px 13px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface-2); color: var(--text); cursor: pointer; }
+.rp-cases button small { display: block; font-size: .7rem; color: var(--text-2); }
+.rp-cases button[aria-selected="true"] { background: var(--ink); color: var(--panel); border-color: var(--ink); }
+.rp-cases button[aria-selected="true"] small { color: color-mix(in srgb, var(--panel) 75%, transparent); }
+.rp-time { position: relative; height: 128px; margin: 6px 6px 8px; }
+.rp-line { position: absolute; left: 0; right: 0; top: 58px; height: 4px; border-radius: 2px; background: var(--soft); }
+.rp-warn { position: absolute; top: 56px; height: 8px; border-radius: 4px; background: linear-gradient(90deg, var(--ibm), var(--alert)); width: 0; transition: width 1.4s cubic-bezier(.3,.7,.2,1); }
+.rp-pt { position: absolute; top: 50px; width: 20px; height: 20px; margin-left: -10px; border-radius: 50%; border: 3px solid var(--panel); box-shadow: 0 0 0 2px currentColor; background: currentColor; opacity: 0; transition: opacity .4s; }
+.rp-pt.on { opacity: 1; }
+.rp-cap { position: absolute; width: 190px; font-size: .78rem; color: var(--text-2); opacity: 0; transition: opacity .4s; }
+.rp-cap.on { opacity: 1; }
+.rp-cap b { display: block; color: var(--text); font-size: .9rem; }
+.rp-cap.up { top: 0; } .rp-cap.down { top: 78px; }
+.rp-cap.l { transform: none; } .rp-cap.r { transform: translateX(-100%); text-align: right; } .rp-cap.c { transform: translateX(-50%); text-align: center; }
+.rp-days { position: absolute; top: 20px; transform: translateX(-50%); font-family: var(--display); font-stretch: 80%; font-weight: 800; font-size: 1.6rem; color: var(--alert); white-space: nowrap; opacity: 0; transition: opacity .4s; }
+.rp-days.on { opacity: 1; }
+.rp-days small { font-family: inherit; font-size: .8rem; font-weight: 600; color: var(--text-2); }
+.rp-dist { margin-top: 6px; }
+.rp-axis { position: relative; height: 26px; border-bottom: 1px solid var(--line); }
+.rp-axis i { position: absolute; bottom: 4px; width: 9px; height: 9px; margin-left: -4.5px; border-radius: 50%; background: var(--alert); opacity: .45; }
+.rp-axis i.sel { opacity: 1; box-shadow: 0 0 0 3px var(--alert-soft); width: 13px; height: 13px; margin-left: -6.5px; bottom: 2px; }
+.rp-lab { display: flex; justify-content: space-between; font-size: .72rem; color: var(--text-3); margin-top: 4px; }
+.rp-note { font-size: .75rem; color: var(--text-3); margin: 12px 0 0; }
+@media (max-width: 760px) { .rp-stats { grid-template-columns: repeat(2, 1fr); } .rp-cap { width: 120px; } }
 </style>
 
 <div id="splash" aria-hidden="true"><div class="sp-in">
@@ -458,7 +491,7 @@ footer { border-top-color: var(--line); color: var(--muted); }
 
 <header class="bar"><div class="wrap bar-in">
   <div class="brand"><img class="lg lg-l" src="logo_light.png" alt="KevExploit" style="height:30px"><img class="lg lg-d" src="logo_dark.png" alt="KevExploit" style="height:30px"><span class="x-sep">×</span><svg class="ibm-mark" id="hdr-mark" width="52" height="21" viewBox="0 0 300 120" role="img" aria-label="IBM"></svg></div>
-  <nav class="nav"><a href="#" data-tour>The model</a><a href="#scan">Scan a repo</a><a href="blind-spots.html" target="_blank" rel="noopener" title="Where the model misses">Blind spots ↗</a><button type="button" id="theme-btn" aria-label="Toggle light or dark theme">◐</button></nav>
+  <nav class="nav"><a href="#" data-tour>The model</a><a href="#replay">Replay</a><a href="#scan">Scan a repo</a><a href="blind-spots.html" target="_blank" rel="noopener" title="Where the model misses">Blind spots ↗</a><button type="button" id="theme-btn" aria-label="Toggle light or dark theme">◐</button></nav>
 </div></header>
 
 <main class="wrap">
@@ -485,6 +518,20 @@ footer { border-top-color: var(--line); color: var(--muted); }
 
   <div class="section-title"><h2>How a scan works</h2><p>Five steps, each one a stage of the Top 500 pipeline. Click any step for the details.</p></div>
   <div class="steps" id="steps"></div>
+
+  <div class="section-title" id="replay"><h2>Would it have warned you?</h2><p>Replay 2024–25: what our model said at the end of each bug's publish month, against the day CISA confirmed attacks.</p></div>
+  <div class="panel rp">
+    <div class="rp-stats">
+      <div><b>36 days</b><span>median warning before CISA listed the bug</span></div>
+      <div><b>60%</b><span>got a month or more of warning</span></div>
+      <div><b>343 days</b><span>longest warning (Microsoft Outlook)</span></div>
+      <div><b>47 of 47</b><span>flagged before CISA added them</span></div>
+    </div>
+    <div class="rp-cases" id="rpCases" role="tablist" aria-label="Replay a case"></div>
+    <div class="rp-time" id="rpTime" aria-live="polite"></div>
+    <div class="rp-dist"><div class="rp-axis" id="rpDist"></div><div class="rp-lab"><span>0</span><span>Days of warning for all 47 · each dot one exploited bug in our top 517</span><span>360</span></div></div>
+    <p class="rp-note">Practice runs: the team ensemble scored 75,148 CVEs from 2024–25 in 5-fold cross-validation, each bug by a model that never saw it, using only what was public at the end of its publish month. Warning = days from that month-end to CISA's KEV listing. The 47 are the bugs in our top 517 that CISA added by Dec 31, 2025.</p>
+  </div>
 
   <div class="section-title" id="scan"><h2>Scan</h2><p>Pick how you want to give us the dependencies.</p></div>
   <div class="panel">
@@ -891,13 +938,14 @@ footer { border-top-color: var(--line); color: var(--muted); }
     denial_of_service: "denial of service", ransomware_or_extortion_groups: "ransomware gangs", state_sponsored_espionage: "state-sponsored spies",
     botnets: "botnets", opportunistic_criminals: "opportunistic criminals", unlikely_target: "unlikely target" };
   var hum = function (s) { return HUMAN[s] || String(s || "").replace(/_/g, " "); };
+  /* record: [score10, bits, epss_milli, tree, linear, llm, product_type, impact, typical_attacker, attacker_appeal] (all_cves.py export) */
   function cat(r, k, i) { var v = r[i]; return v >= 0 ? META.cats[k][v] : null; }
   function toProb(score) {   /* percentile vs 2026 bugs -> 0..1 bands: 0.7+ = Top-500 level, 0.4 = top 10%, 0.1 = median */
     var T = META.top500_min_score, s = Math.max(0, Math.min(100, score)), lin = function (a, b, c, d) { return c + (s - a) / (b - a) * (d - c); };
     return s >= T ? lin(T, 100, 0.7, 1) : s >= 90 ? lin(90, T, 0.4, 0.7) : s >= 50 ? lin(50, 90, 0.1, 0.4) : lin(0, 50, 0, 0.1);
   }
   function reasonFor(r) {
-    var s = r[0] / 10, parts = [], code = [], imp = cat(r, "impact", 6), att = cat(r, "typical_attacker", 8), app = cat(r, "attacker_appeal", 9);
+    var s = r[0] / 10, parts = [], code = [], imp = cat(r, "impact", 7), att = cat(r, "typical_attacker", 8), app = cat(r, "attacker_appeal", 9);
     parts.push((r[1] & 1 ? "Would make our 2026 Top 500: " : "") + "riskier than " + Math.floor(s) + "% of 2026's new bugs");
     parts.push("judges: trees " + r[3] + " · linear " + r[4] + " · Granite 8B " + r[5]);
     if (imp && imp !== "other") parts.push("Granite reads it as " + hum(imp) + (att && att !== "unlikely_target" ? ", typically hit by " + hum(att) : ""));
@@ -906,12 +954,21 @@ footer { border-top-color: var(--line); color: var(--muted); }
     if (code.length) parts.push("public exploit code in its first month (" + code.join(", ") + ")");
     return parts.join("; ") + ".";
   }
+  function whyLine(r) {   /* short, visible reason: what it is, what an attacker gets, who goes after it, exploit code */
+    var w = [], pt = cat(r, "product_type", 6), imp = cat(r, "impact", 7), att = cat(r, "typical_attacker", 8);
+    if (pt && pt !== "other") w.push(hum(pt));
+    if (imp && imp !== "other") w.push(hum(imp));
+    if (att && att !== "unlikely_target") w.push("targeted by " + hum(att));
+    if (cat(r, "attacker_appeal", 9) === "high") w.push("high attacker appeal");
+    if (r[1] & (8 | 16 | 32 | 64)) w.push("public exploit code");
+    return w.join(" · ");
+  }
   function demotedWhy(r) {
     var w = [];
-    if (cat(r, "impact", 6) === "denial_of_service") w.push("only crashes the service");
+    if (cat(r, "impact", 7) === "denial_of_service") w.push("only crashes the service");
     if (cat(r, "typical_attacker", 8) === "unlikely_target") w.push("unlikely target");
     if (cat(r, "attacker_appeal", 9) === "low") w.push("low attacker appeal");
-    if (cat(r, "product_type", 7) === "wordpress_plugin_or_theme") w.push("WordPress add-on");
+    if (cat(r, "product_type", 6) === "wordpress_plugin_or_theme") w.push("WordPress add-on");
     return "Granite: " + (w.join(", ") || "demoted");
   }
   function scanLockfile(filename, text) {
@@ -933,7 +990,7 @@ footer { border-top-color: var(--line); color: var(--muted); }
           var p = toProb(r[0] / 10), dem = !!(r[1] & 2);
           rows.push(Object.assign(base, { score: r[0] / 10 - (dem ? 50 : 0), probability: dem ? Math.min(p, 0.05) : p, epss: r[2] >= 0 ? r[2] / 1000 : null,
             flags: { exploitdb: !!(r[1] & 8), metasploit: !!(r[1] & 16), nuclei: !!(r[1] & 32), poc_github: !!(r[1] & 64) },
-            demoted: dem, demoted_reason: dem ? demotedWhy(r) : "", reason: reasonFor(r), top500: !!(r[1] & 1) }));
+            demoted: dem, demoted_reason: dem ? demotedWhy(r) : "", reason: reasonFor(r), why: whyLine(r), top500: !!(r[1] & 1) }));
         });
         rows.sort(function (a, b) { return b.score - a.score; });
         rows.forEach(function (r, i) { r.rank = i + 1; });
@@ -1111,11 +1168,57 @@ footer { border-top-color: var(--line); color: var(--muted); }
         r.packages.map(function (p) { return '<span class="chip">' + pk(p) + "</span>"; }).join("") +
         (r.demoted ? '<span class="chip dim">' + esc(r.demoted_reason) + "</span>" : "") + (r.source_lockfile ? '<span class="chip src">' + esc(r.source_lockfile) + "</span>" : "") +
         '</div><div class="flags">' + FLAG_NAMES.filter(function (f) { return f[0] !== "metasploit" || r.flags.metasploit; }).map(function (f) { return '<span class="flag' + (r.flags[f[0]] ? " on" : "") + '">' + f[1] + "</span>"; }).join("") +
-        '<span class="flag">EPSS ' + epssT(r) + "</span></div></div>" +
+        '<span class="flag">EPSS ' + epssT(r) + "</span></div>" + (r.why ? '<div class="why">' + esc(r.why) + "</div>" : "") + "</div>" +
         '<div class="prob"><b style="color:' + c + '">' + r.probability.toFixed(2) + '</b><div class="meter"><i style="width:' + (100 * r.probability) + "%;background:" + c + '"></i></div><span>' + (r.unscored ? "not in dataset" : r.top500 ? "Top-500 level" : "model score") + '</span></div></summary>' +
         '<div class="body"><p>' + esc(r.reason) + "</p>" + fixLine(r.packages) + '<p class="desc">' + esc(r.description) + "</p></div></details>";
     }).join("");
   }
   function kpi(icon, val, label, cls) { return '<div class="kpi' + (cls ? " " + cls : "") + '">' + svg(icon, 18) + "<b>" + val + "</b><span>" + label + "</span></div>"; }
+})();
+</script>
+
+<script>
+/* Replay: practice-run ranks (Amy/feature/output/historical_rankings.csv, team ensemble, 5-fold out-of-fold) against CISA KEV dates.
+   case: [cve, product, what, published, flagged (end of publish month), CISA added, rank that month, bugs that month] */
+(function () {
+  var CASES = [
+    ["CVE-2024-21413", "Microsoft Outlook", "input validation (MonikerLink)", "2024-02-13", "2024-02-29", "2025-02-06", 4, 2773],
+    ["CVE-2024-23897", "Jenkins", "CLI path traversal · ransomware", "2024-01-24", "2024-01-31", "2024-08-19", 9, 2585],
+    ["CVE-2025-24893", "XWiki", "eval injection", "2025-02-20", "2025-02-28", "2025-10-30", 5, 3664],
+    ["CVE-2023-7028", "GitLab", "account takeover", "2024-01-12", "2024-01-31", "2024-05-01", 5, 2585],
+    ["CVE-2024-38812", "VMware vCenter", "heap overflow", "2024-09-17", "2024-09-30", "2024-11-20", 3, 2508]];
+  var LEADS = [1, 2, 3, 5, 7, 10, 13, 13, 14, 14, 16, 17, 17, 17, 18, 18, 24, 24, 28, 30, 30, 34, 35, 36, 40, 43, 45, 51, 51, 52, 52, 73, 86, 91, 102, 107, 112, 124, 158, 201, 244, 246, 260, 263, 268, 310, 343];
+  var cs = document.getElementById("rpCases"), tl = document.getElementById("rpTime"), dist = document.getElementById("rpDist");
+  if (!cs) return;
+  var day = function (s) { return Date.parse(s + "T00:00:00Z") / 864e5; };
+  var fmt = function (s) { return new Date(s + "T00:00:00Z").toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric", timeZone: "UTC" }); };
+  var X = function (d) { return Math.min(100, Math.max(0, d / 360 * 100)); };
+  dist.innerHTML = LEADS.map(function (d) { return '<i data-d="' + d + '" style="left:' + X(d) + '%"></i>'; }).join("");
+  cs.innerHTML = CASES.map(function (c, i) { return '<button type="button" role="tab" data-i="' + i + '">' + c[1] + "<small>" + c[0] + "</small></button>"; }).join("");
+  var timer = [], seen = false;
+  function show(i) {
+    timer.forEach(clearTimeout); timer = [];
+    var c = CASES[i], p = day(c[3]), f = day(c[4]), k = day(c[5]), lead = Math.round(k - f), span = k - p, pos = function (d) { return 3 + 94 * (d - p) / span; };
+    cs.querySelectorAll("button").forEach(function (b) { b.setAttribute("aria-selected", +b.dataset.i === i ? "true" : "false"); });
+    dist.querySelectorAll("i").forEach(function (e) { e.classList.toggle("sel", +e.dataset.d === lead); });
+    tl.innerHTML = '<div class="rp-line"></div><div class="rp-warn" style="left:' + pos(f) + '%"></div>' +
+      '<div class="rp-pt" style="left:' + pos(p) + '%;color:var(--no)"></div><div class="rp-pt" style="left:' + pos(f) + '%;color:var(--ibm)"></div><div class="rp-pt" style="left:' + pos(k) + '%;color:var(--alert)"></div>' +
+      '<div class="rp-cap down l" style="left:' + pos(p) + '%"><b>Published</b>' + fmt(c[3]) + " · " + c[2] + "</div>" +
+      '<div class="rp-cap up l" style="left:' + pos(f) + '%"><b>We flag it: #' + c[6] + " of " + c[7].toLocaleString("en-US") + "</b>that month's new bugs, " + fmt(c[4]) + "</div>" +
+      '<div class="rp-cap down r" style="left:' + pos(k) + '%"><b>CISA confirms attacks</b>added to KEV ' + fmt(c[5]) + "</div>" +
+      '<div class="rp-days" style="left:' + (pos(f) + pos(k)) / 2 + '%"><span class="n">0</span> days <small>of warning</small></div>';
+    var pts = tl.querySelectorAll(".rp-pt"), caps = tl.querySelectorAll(".rp-cap"), w = tl.querySelector(".rp-warn"), dd = tl.querySelector(".rp-days"), n = dd.querySelector(".n");
+    var at = function (ms, fn) { timer.push(setTimeout(fn, ms)); };
+    at(30, function () { pts[0].classList.add("on"); caps[0].classList.add("on"); });
+    at(450, function () { pts[1].classList.add("on"); caps[1].classList.add("on"); });
+    at(900, function () {
+      w.style.width = (pos(k) - pos(f)) + "%"; dd.classList.add("on");
+      var t0 = performance.now(); (function tick() { var u = Math.min(1, (performance.now() - t0) / 1400); n.textContent = Math.round(lead * (1 - Math.pow(1 - u, 3))); if (u < 1) timer.push(setTimeout(tick, 30)); })();
+    });
+    at(2300, function () { pts[2].classList.add("on"); caps[2].classList.add("on"); });
+  }
+  cs.addEventListener("click", function (e) { var b = e.target.closest("button"); if (b) { seen = true; show(+b.dataset.i); } });
+  var io = "IntersectionObserver" in window ? new IntersectionObserver(function (es) { if (!seen && es[0].isIntersecting) { seen = true; show(0); } }, { threshold: .4 }) : null;
+  if (io) io.observe(tl); else show(0);
 })();
 </script>
