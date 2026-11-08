@@ -296,6 +296,9 @@ table.t tr.hl td { background: var(--ibm-soft) }
 .locked #demoBox { border-radius: 0; box-shadow: none }
 .locked .hud, .locked .prog, .locked .hint { opacity: 0; pointer-events: none }
 .hint { transition: opacity .35s }
+.video .hud, .video .hint, .video .prog { display: none } .video, .video * { cursor: none !important }
+.flow circle { fill: var(--ibm); filter: drop-shadow(0 0 2px var(--ibm)) }
+.flow { transition: opacity .25s } .moving .flow { opacity: 0 }
 .landed #world { opacity: 0 }
 #world { transition: opacity .35s }
 .hud, .prog { transition: opacity .35s }
@@ -510,10 +513,11 @@ table.t tr.hl td { background: var(--ibm-soft) }
       lede: "We never tuned anything on 2026. We trained on older 2024–25 bugs and tested on newer ones, three different ways. All three show the same gain.",
       co: [["cv", "l", "+65%", "more exploited bugs than the standard ranking: 33 vs 20 of 75.", "", "green", null, "Our edge"],
            ["fwd", "l", "+5 to +20", "hits: the 95% range of our lead over the standard ranking.", "Paired bootstrap, 1,000 resamples.", "", null, "Not luck"],
-           ["ab", "r", "32 vs 20", "on the year-swap exam: trained on 2024 and tested on 2025, then the reverse.", "The only significant combination includes the fine-tuned Granite judge (p = 0.03).", "violet", null, "Holds up"]],
+           ["ab", "r", "≈2 pts", "estimated accuracy drop on 2026 bugs, from IBM watsonx.governance's drift monitor. Inputs do drift as CISA's list grows (feature drift 0.17), which is why we rank within each year.", "1,000 training vs 1,000 2026 CVEs · drift v2 · details below.", "blue", null, "watsonx.governance"]],
       more: [["How each idea added up", function () { return bars("Practice, out of 75", [["Standard ranking: exploit code, then EPSS", 20, null, "grey"], ["Our linear model", 26], ["+ fine-tuned Granite judge", 30], ["+ decision trees", 31], ["+ Granite rules, one combined linear model", 33, null, "red"]], { max: 36, note: "About 40 of the 75 exploited bugs look ordinary at publish time; no model we built found them." }); }],
         ["The three tests", function () { return ul(["<b>5-fold purged CV:</b> 5 publish-date blocks of 75,148 CVEs; 26 hand-made groups of related CVEs never split across train and test. K = 517.", "<b>Forward-only:</b> blocks 1–4 each scored by models trained only on earlier blocks, LoRA included (K = 414, 66 positives).", "<b>Year-swap exam:</b> the benchmark rebuilt on 2024 and 2025, each scored by a model trained on the other year (top 441, 75 positives)."]); }],
         ["Statistics", function () { return ul(["Ensemble vs baseline: paired bootstrap 95% CI +5 to +20 hits.", "On the year-swap exam the only Holm-significant combination includes the Granite LoRA (p = 0.03).", "Between our ensembles the differences are noise (±3 hits; Romano–Wolf: all tied with the best).", "2026 projection: about 12 hits (80% range 7–22) vs 8."]); }],
+        ["watsonx.governance", function () { return table(["Drift v2 metric, 2026 vs training", "Value", "Alert at"], [["Feature drift (weighted by importance)", "0.168 ⚠", "0.05"], ["Output (confidence) drift", "0.161 ⚠", "0.05"], ["Prediction drift: share flagged, 14.6% vs 16.7%", "0.025 ✓", "0.05"], ["Estimated accuracy drop", "0.021 ✓", "0.05"]]) + '<p class="note">Our model registered in IBM watsonx.governance (Toronto) as an external model, with a factsheet. Baseline: 1,000 training CVEs from 2024–25 with out-of-fold scores; payload: 1,000 scoreboard CVEs (trial limit). The drift sits in the CISA-history features, which grow every year; our own per-feature check (PSI) finds the same 6 of 100. Ranking within the year makes the list immune to that whole-year shift.</p>'; }],
         ["Judges' questions", function () { return ul(["<b>Did the LLM memorize KEV?</b> Granite 30B identified 0 of 122 exploited CVEs from their IDs.", "<b>Is anything from the future?</b> Signals are from the snapshot month; KEV history stops at the previous year-end; after-the-fact NIST fields and “in the wild” wording are excluded.", "<b>Why not a bigger model?</b> The 30B LoRA scored 19 alone vs 25 for the 8B."]); }],
         ["What didn't work", function () { return table(["Idea", "Result"], [["Granite 30B as a direct judge", "worse than baseline"], ["Granite 30B LoRA", "19 alone"], ["Granite answers in the LoRA prompt", "29 vs 32"], ["Embeddings as inputs", "no gain"], ["Nested hyperparameter tuning", "tie"], ["Same-year hidden-KEV inputs", "neutral"], ["Time-left adjustment, days public", "neutral"], ["Borrowed EPSS from older CVEs", "−2 to −4"], ["Training on 2022–24 without signals", "−1 to −4"], ["Elastic-net LR", "23 alone"]]); }]] },
     { id: "top500", t: "Our 500", stage: "The answer",
@@ -1071,7 +1075,8 @@ table.t tr.hl td { background: var(--ibm-soft) }
     setLocked(step === DEMO);
     world.querySelectorAll(".slide, .slidebg").forEach(function (n) { if (n.closeDetails) n.closeDetails(); n.classList.remove("on"); });
     var from = focusId, seq = ++goSeq; world.classList.remove("between");
-    function land() { if (seq !== goSeq) return; if (leaving) { leaving = null; place(); } if (step === DEMO && idx === DEMO) document.body.classList.add("landed"); if (id) { world.querySelectorAll('[data-s="' + id + '"]').forEach(function (n) { n.classList.add("on"); }); if (!portrait) ports.forEach(function (pt) { if (pt.s.id === id) pt.el.classList.add("on"); }); world.querySelectorAll(".edge.wait").forEach(function (e) { e.classList.remove("wait"); e.classList.add("ext-shown"); }); var n = world.querySelector('.slide[data-s="' + id + '"]'); if (n) { n.tabIndex = -1; n.focus({ preventScroll: true }); } } }
+    document.body.classList.add("moving");
+    function land() { if (seq !== goSeq) return; document.body.classList.remove("moving"); if (leaving) { leaving = null; place(); } if (step === DEMO && idx === DEMO) document.body.classList.add("landed"); if (id) { world.querySelectorAll('[data-s="' + id + '"]').forEach(function (n) { n.classList.add("on"); }); if (!portrait) ports.forEach(function (pt) { if (pt.s.id === id) pt.el.classList.add("on"); }); world.querySelectorAll(".edge.wait").forEach(function (e) { e.classList.remove("wait"); e.classList.add("ext-shown"); }); var n = world.querySelector('.slide[data-s="' + id + '"]'); if (n) { n.tabIndex = -1; n.focus({ preventScroll: true }); } } }
     function focusOn() { world.querySelectorAll(".region").forEach(function (n) { n.classList.toggle("focus", n.getAttribute("data-r") === id); }); }
     world.querySelectorAll(".edge.ext-shown").forEach(function (e) { e.classList.remove("ext-shown"); });
     if (from && id && from !== id && !reduce && !portrait) {
@@ -1149,11 +1154,34 @@ table.t tr.hl td { background: var(--ibm-soft) }
     render();
   }
 
+  /* ---------- video mode (?video=1): no controls, a scripted tour (chen/video/render.py), data dots riding the wires */
+  var VIDEO = /[?&]video=1/.test(location.search);
+  function flowSetup() {
+    var svg = world.querySelector("svg.edges"); if (!svg) return;
+    var g = document.createElementNS(NS, "g"); g.setAttribute("class", "flow"); svg.appendChild(g);
+    var dots = [];
+    svg.querySelectorAll("path.edge:not(.dash):not(.pulse):not(.sat)").forEach(function (el, i) {
+      for (var k = 0; k < 2; k++) { var c = document.createElementNS(NS, "circle"); g.appendChild(c); dots.push({ el: el, c: c, off: (k / 2 + (i * .37) % 1) % 1 }); }
+    });
+    (function tick(now) {
+      var k = vw() / (cam ? cam.w : WB.w), r = 3.2 / k, sp = 150 / k;
+      dots.forEach(function (d) {
+        var el = d.el, ok = !el.classList.contains("gone") && (!focusId || el.classList.contains("in") || el.classList.contains("demo-wire"));
+        if (!ok) { d.c.setAttribute("r", 0); return; }
+        var L = el.getTotalLength(); if (!(L > 20)) { d.c.setAttribute("r", 0); return; }
+        var u = ((now / 1000) * sp / L + d.off) % 1, p = el.getPointAtLength(u * L), fade = Math.min(1, u / .08, (1 - u) / .08);
+        d.c.setAttribute("cx", p.x); d.c.setAttribute("cy", p.y); d.c.setAttribute("r", r); d.c.setAttribute("opacity", fade);
+      });
+      requestAnimationFrame(tick);
+    })(0);
+  }
+
   /* ---------- boot */
   build();
   var start = PATH.indexOf((location.hash || "").replace("#", ""));
   if (start >= 0) { go(-1); go(start); }
   else { idx = DEMO; setLocked(true); document.body.classList.add("landed"); cam = targetFor(DEMO); apply(cam); $("#where").textContent = "Demo"; }
+  if (VIDEO) { document.body.classList.add("video"); flowSetup(); window.__deck = { go: go, DEMO: DEMO, PATH: PATH }; }
   var rt, wasPortrait = portrait;
   window.addEventListener("resize", function () { clearTimeout(rt); rt = setTimeout(function () {
     var p = stage.clientWidth < stage.clientHeight * 0.9;

@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<title>KEVexploit galaxy</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@75..100,500..800&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+/* Opening scene of the demo video: every 2026 scoreboard CVE as one point (real final-model scores).
+   Deterministic: render.py calls renderAt(t) for each frame; nothing here reads the wall clock. */
+html, body { margin: 0; height: 100%; background: #05070d; overflow: hidden }
+canvas { display: block }
+.cap { position: absolute; left: 0; right: 0; text-align: center; color: #eef1f8; font-family: Archivo, sans-serif; font-stretch: 80%; font-weight: 800; opacity: 0; letter-spacing: -.01em; text-shadow: 0 2px 30px rgba(0,0,0,.8) }
+.big { top: 37%; font-size: 150px; line-height: 1 }
+.sub { top: calc(37% + 165px); font-family: "IBM Plex Sans", sans-serif; font-weight: 500; font-stretch: 100%; font-size: 34px; color: #b9c2d8 }
+.mid { top: 12%; font-size: 64px }
+.low { bottom: 9%; font-family: "IBM Plex Mono", monospace; font-weight: 500; font-stretch: 100%; font-size: 22px; letter-spacing: .12em; text-transform: uppercase; color: #8fa0c4 }
+em { font-style: normal; color: #ff5466 }
+.brand { position: absolute; left: 56px; top: 44px; font-family: "IBM Plex Mono", monospace; font-size: 20px; letter-spacing: .14em; color: #8fa0c4; opacity: 0 }
+.brand b { color: #eef1f8 } .brand i { font-style: normal; color: #ff5466 }
+</style>
+<body>
+<div class="brand" id="brand"><b>KEV</b><i>EXPLOIT</i> · Sheridan Datathon 2026 · IBM track</div>
+<div class="cap big" id="c1">72,670</div>
+<div class="cap sub" id="c1s">new vulnerabilities published in 2026</div>
+<div class="cap mid" id="c2">Attackers will use a few dozen. <em>Which ones?</em></div>
+<div class="cap low" id="c3">each bug scored with only what was public the month it came out</div>
+<div class="cap mid" id="c4">Patch <em>these 500</em> first.</div>
+<div class="cap low" id="c4s">500 of 72,670 · picked by our model</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+var W = innerWidth, H = innerHeight;
+var renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
+renderer.setPixelRatio(1); renderer.setSize(W, H); renderer.setClearColor(0x05070d);
+document.body.appendChild(renderer.domElement);
+var scene = new THREE.Scene(), camera = new THREE.PerspectiveCamera(42, W / H, 1, 5000);
+
+function rnd(i, k) { var x = Math.sin(i * 12.9898 + k * 78.233) * 43758.5453; return x - Math.floor(x); }   // fixed per point
+function gauss(i, k) { return Math.sqrt(-2 * Math.log(rnd(i, k) + 1e-6)) * Math.cos(6.2831 * rnd(i, k + 1)); }
+
+window.ready = fetch("galaxy_data.json").then(function (r) { return r.json(); }).then(function (D) {
+  var n = D.n, disc = new Float32Array(n * 3), pct = new Float32Array(n), top = new Float32Array(n), seed = new Float32Array(n), code = new Float32Array(n), dir = new Float32Array(n * 3);
+  D.t.forEach(function (i) { top[i] = 1; }); (D.c || []).forEach(function (i) { code[i] = 1; });
+  for (var i = 0; i < n; i++) {
+    var arm = D.m[i] * 6.2831 / 8, r = 14 + 210 * Math.pow(rnd(i, 1), .75), a = arm + r * .016 + gauss(i, 2) * (.1 + .25 * rnd(i, 9));
+    disc[i * 3] = Math.cos(a) * r; disc[i * 3 + 1] = gauss(i, 4) * 5 * (1 - r / 260); disc[i * 3 + 2] = Math.sin(a) * r;
+    pct[i] = D.p[i] / 1000; seed[i] = rnd(i, 7);
+    var dx = gauss(i, 11), dy = gauss(i, 13), dz = gauss(i, 15), dl = Math.hypot(dx, dy, dz) || 1; dir[i * 3] = dx / dl; dir[i * 3 + 1] = dy / dl * .75; dir[i * 3 + 2] = dz / dl;
+  }
+  var g = new THREE.BufferGeometry();
+  g.setAttribute("position", new THREE.BufferAttribute(disc, 3));
+  g.setAttribute("pct", new THREE.BufferAttribute(pct, 1)); g.setAttribute("top", new THREE.BufferAttribute(top, 1));
+  g.setAttribute("seed", new THREE.BufferAttribute(seed, 1)); g.setAttribute("code", new THREE.BufferAttribute(code, 1)); g.setAttribute("dir", new THREE.BufferAttribute(dir, 3));
+  window.U = { burst: { value: 0 }, rise: { value: 0 }, cut: { value: 0 }, gather: { value: 0 }, time: { value: 0 } };
+  var mat = new THREE.ShaderMaterial({
+    uniforms: U, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
+    vertexShader: [
+      "attribute float pct; attribute float top; attribute float seed; attribute float code; attribute vec3 dir;",
+      "uniform float burst, rise, cut, gather, time; varying vec3 vC; varying float vA;",
+      "float eo(float x){ x = clamp(x,0.,1.); return 1. - pow(1. - x, 3.); }",
+      "void main(){",
+      "  float b = eo((burst * 1.6) - seed * .6);",
+      "  vec3 p = position * b;",
+      "  float h = pow(pct, 5.) * 150. * rise;",          // riskier bugs float up as the signals arrive
+      "  p.y += h;",
+      "  float sink = cut * (1. - top);",
+      "  p.y -= sink * (40. + seed * 60.);",
+            "  vec3 C = vec3(0., 175., 0.) + dir * (8. + 26. * pow(fract(seed*13.), .5));",
+      "  p = mix(p, C, top * eo(gather * 1.3 - seed * .3));",
+      "  vec3 cold = vec3(.33,.45,.75), warm = vec3(.35,.85,.95), hot = vec3(1.,.72,.3);",
+      "  vec3 heat = mix(mix(cold, warm, smoothstep(.5,.9,pct)), hot, smoothstep(.93,1.,pct));",
+      "  vC = mix(vec3(.42,.5,.72), heat, rise);",
+      "  vC = mix(vC, vec3(1.,.27,.36), top * cut);",
+      "  vA = (.9 + .6 * rise * pct) * (1. - .93 * sink);",
+      "  vA *= 1. + top * cut * 1.5;",
+      "  vec4 mv = modelViewMatrix * vec4(p, 1.);",
+      "  float s = 3.6 + 4. * rise * pow(pct, 8.) + top * cut * 5.;",
+      "  gl_PointSize = s * (520. / -mv.z);",
+      "  gl_Position = projectionMatrix * mv;",
+      "}"].join("\n"),
+    fragmentShader: [
+      "varying vec3 vC; varying float vA;",
+      "void main(){ vec2 d = gl_PointCoord - .5; float r = length(d); if (r > .5) discard;",
+      "  float a = smoothstep(.5, .0, r); gl_FragColor = vec4(vC * a, a * vA * .55); }"].join("\n")
+  });
+  scene.add(new THREE.Points(g, mat));
+});
+
+function cl(x) { return Math.max(0, Math.min(1, x)); }
+function ease(x) { x = cl(x); return x < .5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2; }
+function win(t, a, b, f) { return cl((t - a) / f) * cl((b - t) / f); }   // fade in at a, out at b
+function lerp(a, b, k) { return a + (b - a) * k; }
+var KEYS = [   // camera path: [t, x, y, z, lookY]
+  [0, 0, 560, 600, 0], [4, 120, 380, 480, 0], [9, 330, 170, 420, 30], [13.5, 360, 120, 360, 70], [16, 170, 250, 390, 150], [22, 40, 205, 175, 175]];
+function camAt(t) {
+  for (var k = 0; k < KEYS.length - 1 && t > KEYS[k + 1][0]; k++);
+  var A = KEYS[k], B = KEYS[Math.min(k + 1, KEYS.length - 1)], e = B === A ? 0 : ease((t - A[0]) / (B[0] - A[0]));
+  var x = lerp(A[1], B[1], e), y = lerp(A[2], B[2], e), z = lerp(A[3], B[3], e), ly = lerp(A[4], B[4], e);
+  var rot = t * .05, c = Math.cos(rot), s = Math.sin(rot);   // slow orbit on top of the path
+  camera.position.set(x * c - z * s, y, x * s + z * c); camera.lookAt(0, ly, 0);
+}
+window.renderAt = function (t) {
+  U.burst.value = cl(t / 3.2); U.rise.value = ease((t - 9.5) / 3.5); U.cut.value = ease((t - 14.2) / 2.2); U.gather.value = ease((t - 15) / 3.5); U.time.value = t;
+  camAt(t);
+  var n = Math.round(72670 * ease(t / 2.6)); document.getElementById("c1").textContent = n.toLocaleString("en-US");
+  [["c1", .3, 4.6], ["c1s", .8, 4.6], ["c2", 5.2, 9.2], ["c3", 9.8, 14], ["c4", 17.4, 23], ["c4s", 18, 23], ["brand", .5, 23]].forEach(function (q) {
+    document.getElementById(q[0]).style.opacity = win(t, q[1], q[2], .6);
+  });
+  renderer.render(scene, camera);
+};
+</script>
+</body>
+</html>
