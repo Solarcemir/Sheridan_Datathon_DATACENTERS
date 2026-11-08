@@ -80,7 +80,7 @@ if os.path.exists(lora_path):
     s26 = s26.merge(lo, on="cve_id", how="left")
     s26["llm"] = rank01(s26.lora_score.fillna(s26.lora_score.min()))
     voters.append("llm")
-    used.append(f"LLM: Chen's Granite 4.2 8B LoRA ({lo.lora_score.notna().sum():,} scores)")
+    used.append(f"LLM: Chen's Granite 4.2 8B LoRA, average of 4 training seeds ({lo.lora_score.notna().sum():,} scores)")
 else:
     used.append("LLM: Chen's LoRA file not found, so not included yet")
 

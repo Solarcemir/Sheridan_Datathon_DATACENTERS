@@ -1,9 +1,9 @@
-top500_final built 2026-11-07 20:15
+top500_final built 2026-11-07 20:41
 voters (equal-weight rank average): tree, linear, llm
   - tree: XGBoost big, 40 seeds averaged
   - linear: average of Luis's LR and Chen's best LR (72,670 scores)
-  - LLM: Chen's Granite 4.2 8B LoRA (72,670 scores)
+  - LLM: Chen's Granite 4.2 8B LoRA, average of 4 training seeds (72,670 scores)
 then: 4 Granite-30B demotion filters (DoS only, unlikely target, low appeal, WordPress), cap 3 per assigner-month
-rows 500 | unique 500 | with exploit code 276 | Oracle 17 | Granite-demoted inside top 500 0 | assigners 120 | max per assigner-month 3
-month mix {'2026-01': 38, '2026-02': 35, '2026-03': 43, '2026-04': 52, '2026-05': 63, '2026-07': 118, '2026-08': 83, '2026-09': 68}
-overlap with top500_v4f.csv: 318
+rows 500 | unique 500 | with exploit code 259 | Oracle 19 | Granite-demoted inside top 500 0 | assigners 116 | max per assigner-month 3
+month mix {'2026-01': 36, '2026-02': 31, '2026-03': 46, '2026-04': 51, '2026-05': 61, '2026-07': 113, '2026-08': 91, '2026-09': 71}
+overlap with top500_v4f.csv: 290

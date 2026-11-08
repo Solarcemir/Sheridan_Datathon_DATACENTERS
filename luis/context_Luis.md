@@ -67,7 +67,7 @@ Luis's handoff document (folder `luis/`; paths below are relative to it unless t
 | Idea | Status / plan | Owner |
 |---|---|---|
 | **One unified LR instead of two** (Luis + Chen features and heuristics in one model; replaces the avg-of-2-LR linear voter) | plan, evidence, every column and a fixed decision rule in §14.16; Chen's AI designs and trains it on the H100 box. `final_build.py` picks up `chen/submissions/lr_unified_scoreboard_2026.parquet` automatically if Chen adopts it | Chen → Luis |
-| LoRA seed averaging (Chen's pushback 3: the tree voter averages 40 seeds, the LLM voter is one run) | optional; 3–4 LoRA seeds rank-averaged, no selection, ~25 min on 3 free H100s. Expected hit gain ≈ 0, but a steadier top-500 boundary. Push as the same `lora8b_scoreboard_2026.parquet` (averaged ranks in `lora_score`) and Luis re-runs `final_build.py` | Chen (optional) |
+| ~~LoRA seed averaging~~ | **done** (Chen `759c4cc`): 4 seeds averaged; single seeds share only 135–264 of their top 500. Final rebuilt: shares 388 with the seed-0 build (§14.14) | done |
 | Aggregate time series with Granite TimeSeries TTM (monthly KEV additions per vendor, forecast into 2026) | optional IBM demo for the write-up only; history is 50 months and very sparse per vendor; expected ranking gain ≈ 0 (§14.11) | optional |
 | Weighted ensembles | deliberately not done (selection bias) | – |
 | Forward-only LoRA folds (makes the "+LoRA" A/B numbers strictly forward) | Chen to-do; his forward LR check showed no inflation, so the bias is probably small | Chen |
@@ -780,9 +780,19 @@ To avoid tuning on the exam, the search runs **inside the training year only**: 
 
 Then the 4 Granite-30B demotion filters and a cap of 3 per assigner-month. Outputs: `submissions/top500_final.csv`, `derived/scored_2026_final.csv`, `reports/final_build_info.txt`, `reports/top500_final_explained.csv`, and the hub's `site/top500.json` (republish the hub after running).
 
-**Final build with Chen's files (Nov 7, evening; `reports/final_build_info.txt`):** 500 unique CVEs, all in `scoreboard_2026.csv`, one column `cve_id`; **276 with public exploit code** (was 222 before the LoRA: the LoRA leans on exploit code, mean score −2.5 with code vs −6.5 without); 17 Oracle; 0 Granite-demoted; 120 assigners; max 3 per assigner-month; month mix Jan 38 · Feb 35 · Mar 43 · Apr 52 · May 63 · Jul 118 · Aug 83 · Sep 68 (June CVEs are scored in July's snapshot); median EPSS 0.004. Top assigners: VulnCheck 24, MITRE 24, Microsoft 23, Apache 21, GitHub 21, Oracle 17, Chrome 16, Fortinet 16.
-- **It moved a lot:** shares 317 of 500 with the build before Chen's files and 318 with `top500_v4f.csv`. That's expected: the LoRA is the least correlated voter (Spearman 0.56 with the tree, 0.48 with the linear voter; tree vs linear 0.75).
-- Vs a Chen-style ranking (his LR + LoRA + our tree, no filters, no cap): 278 shared; the gap is mostly the filters and the cap.
+**Current final build (Nov 7, ~8:40 pm; LLM voter = Chen's 4-seed LoRA average, pushed in `759c4cc`; `reports/final_build_info.txt`):**
+- 500 unique CVEs, all in `scoreboard_2026.csv`, one column `cve_id`.
+- **259 with public exploit code** (222 before any LoRA): the LoRA leans on exploit code.
+- 19 Oracle; 0 Granite-demoted; 116 assigners; max 3 per assigner-month; median EPSS 0.004.
+- Month mix: Jan 36 · Feb 31 · Mar 46 · Apr 51 · May 61 · Jul 113 · Aug 91 · Sep 71 (June CVEs are scored in July's snapshot).
+- Top assigners: Apache 24, Microsoft 24, VulnCheck 23, MITRE 21, GitHub 21, Chrome 20, Oracle 19, Fortinet 16.
+
+**Seed averaging mattered:**
+- The earlier build with the single seed-0 LoRA shares **388 of 500** with this one.
+- Chen's report (`chen/reports/lora_seed_stability.txt`): two single LoRA seeds share only 135–264 of their top 500, so the 4-seed average is the stable choice.
+- Shares 290 with `top500_v4f.csv` and 271 with a Chen-style ranking (his LR + LoRA + our tree, no filters, no cap).
+
+**Voter correlations:** the LoRA is the least correlated voter (Spearman 0.56 with the tree, 0.48 with the linear voter; tree vs linear 0.75).
 - No NaN in any voter; Chen's files have 72,670 unique rows each.
 - Expected on 2026: ~12 hits (80% 7–22) vs 8 for the best README baseline (§14.12). The previous build (no Chen voters) is reproduced by moving the two Chen files away and re-running.
 
@@ -879,7 +889,7 @@ Chen delivered both files on Nov 7 (`7d78aa0`); no 30B file, because his 30B LoR
 **Chen's pushbacks (his §8.5), and our answers:**
 1. *"2026 rewards CVSS" isn't evidence of a shift* (7 vs 6 hits is noise). **Agreed.** The write-up must not call it a finding. His LR is in the final because it costs nothing and pairs well with the LoRA (above), not because of a shift.
 2. *The "+LoRA" A/B numbers are slightly optimistic* (OOF, not strictly forward). **Agreed;** they're marked "est." everywhere. His forward-only LR check found no inflation.
-3. *The LLM voter is a single run.* Valid. Optional LoRA seed averaging is in the pending table; it doesn't block submission.
+3. *The LLM voter is a single run.* Valid, and now fixed: Chen pushed a 4-seed average and the final was rebuilt with it (§14.14).
 4. *Check the final's composition before submitting.* Done above: Oracle 17 (cap holds, at most 3 per month), WordPress and other Granite-demoted 0, month mix spans Jan–Sep, 120 assigners.
 
 **Decision:** submit `top500_final.csv` as built. Nothing in Chen's 3rd push beats it, and it's the recipe both of us signed off on before seeing these numbers.
