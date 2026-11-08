@@ -1,0 +1,15 @@
+variant,A@243,B@198,A+B
+"Exploit code, then EPSS",13,6,19
+"v4, no cap",18,8,26
+v4 + cap 3 per assigner-month  [reference],18,11,29
+v4 + cap 3 per Granite vendor-month,18,9,27
+v4 + cap 5 per Granite vendor-month,18,9,27
+v4 + cap 3 per assigner-day,18,9,27
+"v4 + both caps (assigner-month 3, vendor-month 3)",19,11,30
+v4 + Granite filters (train-checked),18,10,28
+v4 + Granite filters + cap 3 assigner-month,20,11,31
+v4 + cap 3 + only filter: impact = denial of service,20,11,31
+v4 + cap 3 + only filter: typical attacker = unlikely target,19,11,30
+v4 + cap 3 + only filter: attacker appeal = low,19,11,30
+v4 + cap 3 + only filter: product = WordPress plugin/theme,19,11,30
+v4 + cap 3 + only filter: install base = small/niche,17,11,28

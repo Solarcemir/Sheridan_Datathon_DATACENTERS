@@ -101,6 +101,13 @@ if "--score-2026" in sys.argv:
         VER = "v4"
     log(f"2026 ranking {VER}: rank average of {parts}, cap 3" + ("" if VER == "v5" else f" (no Chen LoRA file at {LORA_2026})"))
     s26["score"] = capped(s26, s26[parts].sum(axis=1), 3)
+    if "--ranking" in sys.argv:    # explain another ranking instead, e.g. --ranking derived/scored_2026_v4f.csv rank_v4f v4f
+        i = sys.argv.index("--ranking")
+        rpath, rcol, VER = sys.argv[i + 1], sys.argv[i + 2], sys.argv[i + 3]
+        order = pd.read_csv(os.path.join(os.path.dirname(DER), rpath), usecols=["cve_id", rcol])
+        s26 = s26.merge(order, on="cve_id", how="left")
+        s26["score"] = -s26[rcol]
+        log(f"explaining {rpath} ({VER}) instead")
     s26 = s26.sort_values("score", ascending=False, kind="stable").reset_index(drop=True)
     s26["rank"] = np.arange(1, len(s26) + 1)
     C = "from v4"

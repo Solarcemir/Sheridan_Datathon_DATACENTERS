@@ -37,7 +37,9 @@ python -E -P luis/analysis/team_merge.py           # Luis + Chen (Granite 30B fe
 python -E -P luis/analysis/team_merge.py --score-2026      # v4 explained by Granite 30B; v5 = v4 + Chen LoRA if his file exists
 python -E -P luis/analysis/export_top500_json.py "<label>" reports/top500_v4_explained.csv "<note>"   # hub table data
 python -E -P luis/analysis/static_prior.py         # more training years (2022-24) without signals: rejected, see context §14.9
-python -E -P luis/analysis/postprocess.py          # Granite-30B demotion filters + vendor caps on v4 (pending, not run yet)
+python -E -P luis/analysis/postprocess.py          # Granite-30B demotion filters + vendor caps on v4 (A/B test)
+python -E -P luis/analysis/postprocess.py --score-2026     # current pick: submissions/top500_v4f.csv
+python -E -P luis/analysis/team_merge.py --score-2026 --ranking derived/scored_2026_v4f.csv rank_v4f v4f   # explain v4f
 ```
 
 Environment notes and known install issues: `context_Luis.md` §12.

@@ -34,6 +34,31 @@ CACHE = os.path.join(DER, "ab_scores_v4.parquet")
 ex = pd.read_parquet(os.path.join(CHEN, "processed", "llm_extract.parquet"))
 GCOLS = ["vendor", "product", "product_type", "impact", "attacker_appeal", "typical_attacker", "install_base"]
 
+if "--score-2026" in sys.argv:
+    # v4f = v4's 2026 components + the 4 Granite-30B demotion filters that passed the training-year check, then cap 3.
+    from common import SUB, capped
+    s = pd.read_csv(os.path.join(DER, "scored_2026_v4.csv")).merge(ex[["cve_id"] + GCOLS], on="cve_id", how="left")
+    demote = ((s.impact == "denial_of_service") | (s.typical_attacker == "unlikely_target") | (s.attacker_appeal == "low")
+              | (s.product_type == "wordpress_plugin_or_theme")).fillna(False).to_numpy()
+    raw = (s.xgb_pct + s.lr_pct).to_numpy() - 50 * demote
+    s["score_v4f"] = capped(s, raw, 3)
+    s = s.sort_values("score_v4f", ascending=False, kind="stable").reset_index(drop=True)
+    s["rank_v4f"] = np.arange(1, len(s) + 1)
+    s["granite_demoted"] = demote[s.index] if False else ((s.impact == "denial_of_service") | (s.typical_attacker == "unlikely_target")
+                                                         | (s.attacker_appeal == "low") | (s.product_type == "wordpress_plugin_or_theme")).fillna(False)
+    s[["rank_v4f", "cve_id", "score_v4f", "xgb_pct", "lr_pct", "granite_demoted", "snapshot_month", "assigner", "epss", "any_flag",
+       "product_type", "impact", "attacker_appeal", "typical_attacker"]].to_csv(os.path.join(DER, "scored_2026_v4f.csv"), index=False)
+    s.head(500)[["cve_id"]].to_csv(os.path.join(SUB, "top500_v4f.csv"), index=False)
+    v4 = pd.read_csv(os.path.join(SUB, "top500_v4.csv")).cve_id
+    gone = s[s.cve_id.isin(v4) & (s.rank_v4f > 500)]
+    log(f"top500_v4f: overlap with v4 = {len(set(v4) & set(s.head(500).cve_id))}; v4 picks demoted by Granite filters: "
+        f"{int(s[s.cve_id.isin(v4)].granite_demoted.sum())}; v4 picks pushed out: {len(gone)}")
+    print("why they were demoted:", gone[["impact", "attacker_appeal", "typical_attacker", "product_type"]]
+          .apply(lambda r: "DoS" if r.impact == "denial_of_service" else "unlikely target" if r.typical_attacker == "unlikely_target"
+                 else "low appeal" if r.attacker_appeal == "low" else "WordPress", axis=1).value_counts().to_dict())
+    print(gone[["cve_id", "assigner", "product_type", "impact", "attacker_appeal", "typical_attacker"]].head(12).to_string(index=False))
+    raise SystemExit(0)
+
 tr24, tr25 = load(2024, "2024-12-31"), load(2025, "2025-12-31")
 te25, te24 = jan_sep(load(2025, "2025-11-04"), 2025), jan_sep(load(2024, "2024-11-04"), 2024)
 if os.path.exists(CACHE):
