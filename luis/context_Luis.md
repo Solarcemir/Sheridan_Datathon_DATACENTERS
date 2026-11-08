@@ -1058,3 +1058,19 @@ Do not commit IBM data, model weights or files over 50 MB. Then tell Luis.
 - Jacobs et al., "Enhancing Vulnerability Prioritization: Data-Driven Exploit Predictions with Community-Driven Insights" (EPSS): [arXiv 2302.14172](https://arxiv.org/pdf/2302.14172). EPSS is an XGBoost model on ~1,400 features: exploit code, description keywords, CWE, vendor, references.
 - Evaluation of EPSS on severe KEV CVEs: [arXiv 2411.02618](https://arxiv.org/html/2411.02618v1). CVEs later added to KEV often didn't have a high EPSS beforehand, consistent with our finding 3.
 - EPSS feature overviews: [INCIBE](https://www.incibe.es/en/incibe-cert/blog/epss-advancing-vulnerability-prediction-and-management), [Phoenix Security](https://phoenix.security/what-is-epss).
+
+### 14.18 Repo scanner UI + demo repos (Nov 8)
+- `luis/frontend/repo-scan.html` redesigned: 5-step "how it works" cards with pop-ups, full-screen scan overlay
+  (big step text + which pipeline file runs it + live radar), results = verdict banner, KPIs, **threat radar**
+  (center = repo, distance = urgency, KEV in the middle, one direction per package), funnel, top-10 bars, upgrade-plan
+  cards, ranked list. IBM striped wordmark drawn in code (splash animation on load + header + fixed corner badge).
+- Look = Chen's `chen/frontend/breach_radar.html` tokens (light default, dark via system or toggle, Archivo condensed
+  800 + IBM Plex, IBM blue / alert red), all in one `SKIN` CSS block at the end of the `<style>`; layout unchanged.
+- "The model" links go to Chen's presentation, served read-only by `server.py` at `/chen/breach_radar.html`
+  (new `CHEN_FRONTEND_DIR` route, path traversal checked → 404). Nothing in `chen/` is modified.
+- Demo examples (all scanned, results in `repo_scanner/IBM_SCAN_REPORT.md`): `seanyzlee/sheridan-datathon` (vite 6.0.3,
+  CVE-2025-31125 on KEV), GraniteWall (clean), our repo (demo_repo), IBM/MAX-Object-Detector (Pillow 8.3.2 on KEV),
+  IBM/MAX-Image-Resolution-Enhancer (Pillow 6.2.2, CVE-2023-4863 KEV), IBM/ipfs-social-proof (270 CVEs),
+  IBM/watson-speech-translator, IBM/watson-banking-chatbot, IBM/data-prep-kit (active).
+- Scanner still scores with LR A only. Chen's unified LR is Spearman 0.991 with it (his §8.6), and would need his extra
+  features ported live, so not swapped.

@@ -54,7 +54,7 @@ fact alone, less likely to get there than the model's prior suggests.
 | `lockfile_parse.py` | npm / PyPI lockfile parsing. |
 | `train_export.py` | Run once (or after a `git pull` that touches the IBM data) to produce `model/`. |
 | `scan.py` | Orchestrates one scan; also runnable as a CLI (`python scan.py path/to/lockfile`) for testing without the server. |
-| `server.py` | stdlib-only HTTP server: `POST /api/scan` + serves `luis/frontend/` statically. No new runtime dependency to install. |
+| `server.py` | stdlib-only HTTP server: `POST /api/scan`, `POST /api/scan-github`, serves `luis/frontend/` and (read-only) Chen's `chen/frontend/` at `/chen/`. No new runtime dependency to install. |
 | `model/` | Exported artifacts from `train_export.py`. Git-ignored (regenerate, don't commit — same convention as `luis/derived/features_*.csv`). |
 | `test_requirements.txt` | A real, old `requirements.txt` with known CVEs, used to test end to end. |
 | `demo_repo/` | A small, fake two-service app (Python backend + Node frontend) built for demos: real, old, known-vulnerable dependency versions, with source code that plausibly uses each one. See `demo_repo/README.md` for what to expect. |

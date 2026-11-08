@@ -20,6 +20,7 @@ import github_scan  # noqa: E402
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 FRONTEND_DIR = os.path.abspath(os.path.join(HERE, "..", "frontend"))
+CHEN_FRONTEND_DIR = os.path.abspath(os.path.join(HERE, "..", "..", "chen", "frontend"))
 PORT = int(os.environ.get("PORT", 8900))
 MAX_BODY = 8 * 1024 * 1024   # 8 MB: generous for any real lockfile, small enough to not be an open door
 
@@ -83,8 +84,11 @@ class Handler(BaseHTTPRequestHandler):
         path = urlparse(self.path).path
         if path == "/":
             path = "/repo-scan.html"
-        local = os.path.normpath(os.path.join(FRONTEND_DIR, path.lstrip("/")))
-        if not local.startswith(FRONTEND_DIR) or not os.path.isfile(local):
+        root = FRONTEND_DIR
+        if path.startswith("/chen/"):   # Chen's model presentation, served read-only from his folder (never modified)
+            root, path = CHEN_FRONTEND_DIR, path[len("/chen"):]
+        local = os.path.normpath(os.path.join(root, path.lstrip("/")))
+        if not local.startswith(root) or not os.path.isfile(local):
             return self._json(404, {"error": "not found"})
         ctype = mimetypes.guess_type(local)[0] or "application/octet-stream"
         data = open(local, "rb").read()

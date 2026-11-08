@@ -58,3 +58,31 @@ Testing on real repos surfaced four bugs, all fixed before the numbers above:
   not a calibrated probability.
 - One voter only (LR A). Two of four Granite demotion rules are regex stand-ins. Metasploit flag is always off.
 - Only lockfiles on the default branch are seen, up to 8 per repo, npm and PyPI only.
+
+## Second sweep (Nov 8): 18 archived IBM repos, picked by stars, for demo candidates
+
+The 5 most impressive are now one-click examples in `repo-scan.html`. 9 of the 18 had no `package-lock.json`/`requirements.txt` on the default branch (yarn, no lockfile, etc.) and are skipped.
+
+| Repo | Deps | CVEs | On KEV | p ≥ 0.7 | Top action |
+|---|---|---|---|---|---|
+| `IBM/MAX-Object-Detector` | 3 | 266 | **1** (Pillow 8.3.2) | 18 | Pillow → 13.0.0 (52 CVEs), tensorflow → 2.12.1 |
+| `IBM/ipfs-social-proof` | 1,506 | 270 | 0 | 116 | tar-fs 1.16.3 → 1.16.6 (CVE-2024-12905, p 0.97), qs → 6.16.0 |
+| `IBM/watson-speech-translator` | 730 | 145 | 0 | 49 | routine npm bump, qs/underscore first |
+| `IBM/watson-banking-chatbot` | 333 | 102 | 0 | 22 | qs 6.7.0 → 6.16.1 (CVE-2022-24999), underscore → 1.13.8 |
+| `IBM/watson-vehicle-damage-analyzer` | 324 | 78 | 0 | 26 | npm bump |
+| `IBM/watson-stock-advisor` | 347 | 68 | 0 | 29 | qs, underscore, lodash → 4.17.21 |
+| `IBM/MAX-Object-Detector-Web-App` | 232 | 56 | 0 | 16 | npm bump |
+| `IBM/pytorch-seq2seq` | 0 | 0 | 0 | 0 | requirements.txt has no pinned versions |
+
+All are archived, so these are "if you still deploy it, fork and upgrade" findings, not open IBM vulnerabilities.
+
+## Public Sheridan Datathon 2026 repos (Nov 8)
+
+Searched GitHub for "sheridan datathon", scanned the 11 most recent. Most are fresh 2026 projects with current
+dependencies (0 CVEs) or no lockfile. One stands out and is now a one-click example:
+
+- **`seanyzlee/sheridan-datathon`**: `web/package-lock.json`, 227 deps, 23 CVEs, **1 on CISA KEV**: `vite@6.0.3` has
+  CVE-2025-31125 (dev-server arbitrary file read; fix in 6.0.13). Top non-KEV picks are also vite (CVE-2025-30208 p 0.98).
+  Upgrade plan: vite → 6.4.4, react-router → 7.18.0. Only matters if the vite dev server is exposed to a network.
+- `Pranvos/GraniteWall---Sheridan-Datathon-2026`: 285 deps, 0 CVEs, the "clean" example.
+- Our own repo (`Solarcemir/Sheridan_Datathon_DATACENTERS`) is also an example: it scans `luis/repo_scanner/demo_repo`.
