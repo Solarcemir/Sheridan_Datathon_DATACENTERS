@@ -52,3 +52,5 @@ python -E -P luis/repo_scanner/server.py           # repo scanner: API + fronten
 ```
 
 Environment notes and known install issues: `context_Luis.md` §12.
+
+**Repo scanner (product demo):** full install + run steps from a fresh clone are in [`repo_scanner/README.md`](repo_scanner/README.md#install-and-run-it-from-scratch).

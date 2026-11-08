@@ -1,0 +1,10 @@
+# Python packages for the repo scanner (and the feature build it trains on). Tested with Python 3.12.
+# Named requirements-scanner.txt on purpose: the scanner only reads files called exactly "requirements.txt",
+# so scanning this repo doesn't pick this file up as a lockfile.
+pandas>=2.2
+numpy>=1.26
+scikit-learn>=1.5
+joblib>=1.4
+requests>=2.31
+packaging>=24.0
+lightgbm>=4.0

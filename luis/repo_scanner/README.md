@@ -5,13 +5,66 @@ upload a `package-lock.json` / `requirements.txt`, we match its exact dependency
 (via [OSV.dev](https://osv.dev)), and rank every match that isn't already on the CISA KEV list with the same
 feature definitions as `luis/analysis/common.py` — not raw CVSS.
 
-**Run it (one command, after the one-time step below):**
+## Install and run it from scratch
+
+**You need:** Python 3.10+ (tested on 3.12), `git` on the PATH (used to clone repos for GitHub scans), an internet
+connection (OSV.dev, FIRST.org EPSS, CISA KEV, Exploit-DB / Nuclei indexes), and the IBM datathon data zip.
+
+**1. Get the code**
 ```
-python -E -P luis/repo_scanner/train_export.py   # once: trains + exports the servable model (~15s)
-python -E -P luis/repo_scanner/server.py         # starts the API + serves the frontend
+git clone https://github.com/Solarcemir/Sheridan_Datathon_DATACENTERS.git
+cd Sheridan_Datathon_DATACENTERS
 ```
-Then open **http://127.0.0.1:8900/repo-scan.html**. The IBM data must be unzipped at the repo root, same as
-every other script here (`IBM-20261107T174321Z-1-001/IBM/data/data/`).
+
+**2. Put the IBM data at the repo root.** It is not in git (competition data). Unzip the datathon zip so this
+folder exists: `IBM-20261107T174321Z-1-001/IBM/data/data/` with `vulnerabilities.csv`, `known_exploited.csv`,
+`exploit_signals_2024.csv`, `exploit_signals_2025.csv`, `scoreboard_2026.csv`, etc. (any `IBM-*` folder name works
+for the scanner; `build_features.py` expects that exact name or takes the data path as its first argument).
+
+**3. Install the Python packages** (a virtual environment is recommended)
+```
+python -m venv .venv
+.venv\Scripts\activate          # Windows   (macOS/Linux: source .venv/bin/activate)
+pip install -r luis/repo_scanner/requirements-scanner.txt
+```
+
+**4. Build the training features** (once, a few minutes; writes `luis/derived/features_2024/2025/2026.csv`,
+git-ignored)
+```
+python -E -P luis/analysis/build_features.py
+```
+
+**5. Train and export the scanner's model** (once, ~15 s; writes `luis/repo_scanner/model/`, git-ignored)
+```
+python -E -P luis/repo_scanner/train_export.py
+```
+
+**6. Start the server**
+```
+python -E -P luis/repo_scanner/server.py
+```
+Wait for `[server] ready.` (first start downloads the Exploit-DB / Nuclei indexes into `repo_scanner/cache/`, cached
+24 h). Then open **http://127.0.0.1:8900/repo-scan.html**, click an example (e.g. `seanyzlee/sheridan-datathon` or
+`IBM/MAX-Object-Detector`) and press **Scan**. Chen's model presentation is at http://127.0.0.1:8900/chen/breach_radar.html.
+
+**Test without the browser:**
+```
+python -E -P luis/repo_scanner/scan.py luis/repo_scanner/test_requirements.txt
+curl -X POST http://127.0.0.1:8900/api/scan-github -H "Content-Type: application/json" -d "{\"url\":\"IBM/MAX-Object-Detector\"}"
+```
+
+**Share it with a link (optional):** the server only listens on 127.0.0.1. To demo it from another device, run a
+tunnel yourself, e.g. `cloudflared tunnel --url http://127.0.0.1:8900` or `npx localtunnel --port 8900`, and share
+the URL it prints. Anyone with that URL can make your machine clone public GitHub repos, so stop it after the demo.
+
+**Common problems**
+| Symptom | Fix |
+|---|---|
+| `IndexError` on `glob(... "IBM-*" ...)` | Step 2: the IBM data folder isn't at the repo root. |
+| `FileNotFoundError: features_2024.csv` | Run step 4 before step 5. |
+| `model/lr_a.joblib` not found | Run step 5 before starting the server. |
+| "Could not clone it" | Repo is private, misspelled, or `git` isn't installed / no network. |
+| Port 8900 busy | `set PORT=8901` (PowerShell: `$env:PORT=8901`) before step 6. |
 
 ## What it actually does (MVP scope — see the proposal's §10 for what's deferred)
 
