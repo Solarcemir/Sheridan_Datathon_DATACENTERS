@@ -1,0 +1,62 @@
+{
+  "nov04": {
+    "positives": 48,
+    "candidates": 35280,
+    "models": {
+      "epss_only": {
+        "hits_at_100": 4,
+        "hits_at_500": 8,
+        "unique_kev_hits_vs_flag_baseline": 0,
+        "top500_cve_overlap_with_flag_baseline": 144
+      },
+      "public_flag_then_epss": {
+        "hits_at_100": 8,
+        "hits_at_500": 17,
+        "unique_kev_hits_vs_flag_baseline": 0,
+        "top500_cve_overlap_with_flag_baseline": 500
+      },
+      "cox": {
+        "hits_at_100": 7,
+        "hits_at_500": 15,
+        "unique_kev_hits_vs_flag_baseline": 1,
+        "top500_cve_overlap_with_flag_baseline": 376
+      },
+      "discrete": {
+        "hits_at_100": 8,
+        "hits_at_500": 12,
+        "unique_kev_hits_vs_flag_baseline": 1,
+        "top500_cve_overlap_with_flag_baseline": 358
+      }
+    }
+  },
+  "yearend": {
+    "positives": 52,
+    "candidates": 35280,
+    "models": {
+      "epss_only": {
+        "hits_at_100": 4,
+        "hits_at_500": 8,
+        "unique_kev_hits_vs_flag_baseline": 0,
+        "top500_cve_overlap_with_flag_baseline": 144
+      },
+      "public_flag_then_epss": {
+        "hits_at_100": 8,
+        "hits_at_500": 18,
+        "unique_kev_hits_vs_flag_baseline": 0,
+        "top500_cve_overlap_with_flag_baseline": 500
+      },
+      "cox": {
+        "hits_at_100": 7,
+        "hits_at_500": 15,
+        "unique_kev_hits_vs_flag_baseline": 1,
+        "top500_cve_overlap_with_flag_baseline": 379
+      },
+      "discrete": {
+        "hits_at_100": 8,
+        "hits_at_500": 14,
+        "unique_kev_hits_vs_flag_baseline": 1,
+        "top500_cve_overlap_with_flag_baseline": 355
+      }
+    }
+  }
+}

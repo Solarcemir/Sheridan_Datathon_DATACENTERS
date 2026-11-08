@@ -1,0 +1,94 @@
+{
+  "notes": [
+    "Original files have not been modified.",
+    "No target/label column has been created in this cleaning step.",
+    "Never use current NIST metadata as an historical feature without checking availability dates.",
+    "in_kev is for checking snapshot eligibility, not a feature on the 2026 scoreboard.",
+    "EPSS model changed in March 2025; February 2025 historical data has a known gap.",
+    "June 2026 scoreboard vulnerabilities intentionally use July snapshot_month."
+  ],
+  "vulnerabilities_publication_clean.csv": {
+    "rows": 401082,
+    "exact_duplicate_rows_removed": 0,
+    "missing_values_by_column": {}
+  },
+  "known_exploited_caveats": {
+    "kev_added_before_nist_published": 62,
+    "kev_cves_without_publication_match": 0,
+    "max_kev_date": "2025-12-29"
+  },
+  "known_exploited_clean.csv": {
+    "rows": 1484,
+    "exact_duplicate_rows_removed": 0,
+    "missing_values_by_column": {
+      "cwe_ids": 166
+    }
+  },
+  "exploit_signals_2024_caveats": {
+    "unique_cves_not_in_vulnerabilities_csv": 11573,
+    "snapshot_months_present": [
+      "2024-01",
+      "2024-02",
+      "2024-03",
+      "2024-04",
+      "2024-05",
+      "2024-06",
+      "2024-07",
+      "2024-08",
+      "2024-09",
+      "2024-10",
+      "2024-11",
+      "2024-12"
+    ]
+  },
+  "exploit_signals_2024_clean.csv": {
+    "rows": 3023284,
+    "exact_duplicate_rows_removed": 0,
+    "missing_values_by_column": {
+      "epss": 648
+    }
+  },
+  "exploit_signals_2025_caveats": {
+    "unique_cves_not_in_vulnerabilities_csv": 11782,
+    "snapshot_months_present": [
+      "2025-01",
+      "2025-02",
+      "2025-03",
+      "2025-04",
+      "2025-05",
+      "2025-06",
+      "2025-07",
+      "2025-08",
+      "2025-09",
+      "2025-10",
+      "2025-11",
+      "2025-12"
+    ]
+  },
+  "exploit_signals_2025_clean.csv": {
+    "rows": 3440450,
+    "exact_duplicate_rows_removed": 0,
+    "missing_values_by_column": {
+      "epss": 1259
+    }
+  },
+  "scoreboard_caveats": {
+    "june_published_with_july_snapshot": 7921,
+    "number_of_candidates": 72670
+  },
+  "scoreboard_2026_clean.csv": {
+    "rows": 72670,
+    "exact_duplicate_rows_removed": 0,
+    "missing_values_by_column": {
+      "epss": 1431
+    }
+  },
+  "weakness_types_clean.csv": {
+    "rows": 1374,
+    "exact_duplicate_rows_removed": 0,
+    "missing_values_by_column": {
+      "abstraction": 411,
+      "status": 2
+    }
+  }
+}

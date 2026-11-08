@@ -1,0 +1,854 @@
+{
+  "about": "Investigations written offline after the IBM watsonx.ai Lite token quota was exhausted. Each entry uses only the evidence packet that watson_explain_misses.py builds for that CVE (explanation_evidence.json), follows the same schema and prompt rules, and is scored by the same validator. 'cursor_revised_watsonx_draft' entries start from the saved watsonx.ai draft, which is kept unchanged under watsonx_original.",
+  "author": "Cursor agent (Anthropic Claude Opus 5.5); not IBM watsonx.ai",
+  "investigations": {
+    "CVE-2025-6554": {
+      "source": "cursor_revised_watsonx_draft",
+      "revision_notes": [
+        "Replaced 'lack of public exploit code' with the verified fact that exploit-code status was unknown (no monthly signal row) and was counted as zero.",
+        "Added the flagged Granite product-type mismatch (Chrome V8 labelled web application or CMS) as a data_quality explanation.",
+        "Replaced three near-identical lessons with three lessons that each point to a different observable."
+      ],
+      "what_happened": "CVE-2025-6554, a type confusion in the V8 engine of Google Chrome, finished at ensemble rank 1,930 of 75,148, 1,413 places outside the top 517. The ensemble averages the three models' percentile ranks, so logistic regression's rank of 629 was outweighed by Granite LoRA at 6,299 and LightGBM at 7,269; no model had it inside its own top 517. In the linear model the biggest drags were exploit-code flags stored as zero (any public code, GitHub proof-of-concept, Nuclei template) and 'no user interaction required' being false, while a strongly KEV-like description and an out-of-band release worked in its favour.",
+      "possible_explanations": [
+        {
+          "hypothesis": "Exploit-code status was unknown rather than absent: there was no monthly signal row in 2025-06, and the model treated the unknown flags as 'no exploit code', which may have cost it ground against top-517 CVEs, whose typical rate of recorded code was 0.559.",
+          "category": "information_gap",
+          "evidence_anchors": ["gap.no_signal_row", "any_code", "poc_github"],
+          "confidence": "medium",
+          "how_to_check": "Find the first monthly signal row and first EPSS score for CVE-2025-6554 and see whether any exploit-code flag was set in it."
+        },
+        {
+          "hypothesis": "Granite labelled the product a web application or CMS although the description is about the V8 engine in Google Chrome, a browser, so the product-type features the model used may describe the wrong kind of product.",
+          "category": "data_quality",
+          "evidence_anchors": ["gap.granite_product_type_possible_mismatch", "description", "granite.product_type"],
+          "confidence": "medium",
+          "how_to_check": "Compare Granite's product_type for other Chrome and V8 CVEs in the evaluation with this one to see whether the browser label is applied consistently."
+        },
+        {
+          "hypothesis": "KEV confirmation came 2 days after the snapshot, so there was almost no time for EPSS or public exploit code to appear before the ranking was fixed.",
+          "category": "information_gap",
+          "evidence_anchors": ["gap.kev_soon_after_snapshot", "signals.epss"],
+          "confidence": "medium",
+          "how_to_check": "Check whether the Chrome release note for 138.0.7204.96 stated that an exploit was known to exist, information the model never saw."
+        }
+      ],
+      "analyst_lessons": [
+        {
+          "warning_sign_or_gap": "A browser-engine bug (V8 in Chrome) published with no monthly exploit-signal row, so its exploit status was unknown rather than negative.",
+          "evidence_anchors": ["gap.no_signal_row", "granite.product"],
+          "what_to_investigate": "For new Chrome or other browser-engine CVEs without EPSS or exploit-signal data, read the vendor release note for an in-the-wild exploitation statement before treating empty exploit flags as reassurance.",
+          "why_it_applies_here": "The empty flags counted against this CVE even though nothing had been observed, and KEV confirmation followed 2 days after the snapshot.",
+          "limits": "Most browser CVEs never reach KEV; 0 of 628 other Google CVEs in this evaluation did, partly because browser zero-days confirmed within their publication month were excluded from the evaluation."
+        },
+        {
+          "warning_sign_or_gap": "Granite's product-type label (web application or CMS) does not match a browser engine.",
+          "evidence_anchors": ["gap.granite_product_type_possible_mismatch", "granite.product_type", "peer.same_product_type"],
+          "what_to_investigate": "When a CVE affects a web browser, check which product class the triage features assigned; if it is mislabelled, judge the CVE against browser history rather than the web-application group's 1.4 KEV additions per thousand CVEs.",
+          "why_it_applies_here": "This CVE was scored inside a group of 14,303 other web-application CVEs with 20 KEV additions, a group that does not describe Chrome.",
+          "limits": "The keyword rule that flagged the mismatch is simple, and the label's effect on the ensemble rank was not isolated."
+        },
+        {
+          "warning_sign_or_gap": "An out-of-band release with a description the text classifier rated as strongly KEV-like.",
+          "evidence_anchors": ["out_of_band", "text_kev_lr_logit"],
+          "what_to_investigate": "Treat an off-cycle Chrome security release as a prompt to read the advisory for exploitation language and to confirm managed browsers have reached the fixed version (here 138.0.7204.96).",
+          "why_it_applies_here": "Both signals pushed this CVE up in the linear model, yet the other two models ranked it 6,299 and 7,269.",
+          "limits": "Off-cycle releases also ship non-exploited fixes; this evaluation does not measure how often off-cycle Chrome fixes end in KEV."
+        }
+      ],
+      "caveats": [
+        "Only the logistic regression has feature attributions; the Granite LoRA and LightGBM ranks are observed, not explained.",
+        "The description and CVSS 8.1 are current NVD values and may differ from what was published at the snapshot."
+      ]
+    },
+    "CVE-2024-8957": {
+      "source": "cursor_revised_watsonx_draft",
+      "revision_notes": [
+        "Lesson 2 (low EPSS percentile) was generic; replaced with an exposure check tied to Granite's install-base reading for camera firmware.",
+        "Added a data_quality explanation: Granite read the product as a web application and the precondition as local access, while the description describes camera firmware reachable remotely and unauthenticated when chained with CVE-2024-8956.",
+        "Removed the unsupported claim that the CVE was 'not well-represented by the features'."
+      ],
+      "what_happened": "CVE-2024-8957, an OS command injection in PTZOptics PT30X-SDI/NDI camera firmware, ranked 2,708 of 75,148, 2,191 places outside the top 517. LightGBM ranked it 825, but the ensemble averages percentile ranks, and logistic regression (9,472) and Granite LoRA (7,924) pulled the average far down. The linear attribution is approximate for this CVE; in it, zero recorded exploit code, Granite's small-or-niche install-base rating and a below-typical attacker-appeal rating held it back, while 'unauthenticated' and 'pre-authentication' wording helped.",
+      "possible_explanations": [
+        {
+          "hypothesis": "A monthly row existed and all four exploit-code flags were zero, with EPSS at the 10.46 percentile in 2024-09, so the public signals the model relies on most gave it nothing.",
+          "category": "observable_signal",
+          "evidence_anchors": ["signals.code_flags", "signals.epss", "gap.no_recorded_exploit_code"],
+          "confidence": "medium",
+          "how_to_check": "Find the first month in which an exploit-code flag or a higher EPSS value appeared for CVE-2024-8957 and compare it with the KEV addition on 2024-11-04."
+        },
+        {
+          "hypothesis": "Granite labelled the product a web application or CMS and read the precondition as 'needs local access', but the description is about a camera's firmware and says a remote, unauthenticated attacker can run commands when it is chained with CVE-2024-8956; these readings may have understated its exposure.",
+          "category": "data_quality",
+          "evidence_anchors": ["description", "granite.product_type", "granite.precondition"],
+          "confidence": "medium",
+          "how_to_check": "Compare Granite's product_type and precondition fields for the PTZOptics CVEs against their description text."
+        },
+        {
+          "hypothesis": "Vendor history could not help: Granite's vendor match found no prior KEV entries for PTZOptics, which has only 3 other CVEs in the evaluation.",
+          "category": "information_gap",
+          "evidence_anchors": ["gap.vendor_no_prior_kev", "peer.same_vendor"],
+          "confidence": "low",
+          "how_to_check": "Check whether the 1 other PTZOptics CVE that reached KEV is CVE-2024-8956, the bug this description says it chains with."
+        }
+      ],
+      "analyst_lessons": [
+        {
+          "warning_sign_or_gap": "The description says the flaw becomes remote and unauthenticated when chained with a named second CVE (CVE-2024-8956).",
+          "evidence_anchors": ["description", "unauth_text", "peer.same_vendor"],
+          "what_to_investigate": "For camera or other device-firmware CVEs whose description names a companion CVE for chaining, look up the companion's exploit-code and KEV status and prioritise the pair by the worse of the two.",
+          "why_it_applies_here": "The chain is stated in this CVE's own text, and 1 of the 3 other PTZOptics CVEs in this evaluation was also added to KEV.",
+          "limits": "Chaining language is common in advisories and does not by itself mean exploitation; the companion is not confirmed to be the other KEV addition."
+        },
+        {
+          "warning_sign_or_gap": "Granite rated the install base small or niche for camera firmware.",
+          "evidence_anchors": ["granite.install_base", "llm_install_base"],
+          "what_to_investigate": "For niche PTZ or broadcast cameras, estimate internet exposure directly, for example how many devices of the model answer publicly in a scanning service, instead of relying on install-base size.",
+          "why_it_applies_here": "Granite's install-base rating here was 0 against a typical top-517 value of 1.5368, and it held the CVE back in the linear model.",
+          "limits": "Scanning counts are point-in-time and miss devices behind NAT or VPNs."
+        },
+        {
+          "warning_sign_or_gap": "LightGBM ranked this unauthenticated command injection at 825, just outside the review list, while exploit-code flags were all zero.",
+          "evidence_anchors": ["rank.lightgbm", "gap.no_recorded_exploit_code"],
+          "what_to_investigate": "When a network-reachable device injection bug sits just past the cutoff for one model, schedule a follow-up look within weeks for new exploit code rather than treating its first rank as final.",
+          "why_it_applies_here": "KEV addition followed 48 days after publication, while the other two models ranked it 7,924 and 9,472.",
+          "limits": "One model ranking a CVE much higher was common among CVEs never added to KEV, so the follow-up rests on the device and exposure facts, not the rank gap."
+        }
+      ],
+      "caveats": [
+        "The linear attribution is approximate for this CVE because the rebuilt linear rank differs from the evaluated one by more than 5 percentile points.",
+        "Granite's readings are its judgments from the description, not facts about PTZOptics devices.",
+        "The CVSS 7.2 score and the description are current NVD values."
+      ]
+    },
+    "CVE-2025-32463": {
+      "source": "cursor_revised_watsonx_draft",
+      "revision_notes": [
+        "Replaced 'lack of public exploit code' with the verified fact that exploit-code status was unknown (no monthly signal row) and was counted as zero.",
+        "Added the weakness-type (CWE-829) and local-access attributions that were in the evidence but unused.",
+        "Rewrote lesson 3 (generic peer-group review) into a concrete deployment check for sudo."
+      ],
+      "what_happened": "CVE-2025-32463, a sudo --chroot flaw that lets local users obtain root, ranked 3,184 of 75,148, 2,667 places outside the top 517. All three models ranked it outside their own top 517 (Granite LoRA 2,143, logistic regression 6,361, LightGBM 12,010), so averaging could not lift it. In the linear model the largest drag was a description the text classifier rated far from past KEV entries (score -2.4356 against a typical -0.2369), followed by exploit-code flags stored as zero, a weakness type (CWE-829) with a low historical KEV rate, and Granite's 'needs local access' reading.",
+      "possible_explanations": [
+        {
+          "hypothesis": "Exploit-code status was unknown because no monthly signal row existed in 2025-06; the model treated the unknown flags as 'none', and none of the 6 other KEV additions with this signal state reached the top 517.",
+          "category": "information_gap",
+          "evidence_anchors": ["gap.no_signal_row", "peer.same_signal_state"],
+          "confidence": "medium",
+          "how_to_check": "Find the first monthly signal row for CVE-2025-32463 and the month exploit code was first recorded."
+        },
+        {
+          "hypothesis": "A local root escalation in a command-line utility may read differently from the KEV descriptions the text classifier learned from, which could explain the strongly negative text score and the penalty on the local-access reading.",
+          "category": "observable_signal",
+          "evidence_anchors": ["text_kev_lr_logit", "llm_precondition=needs_local_access"],
+          "confidence": "low",
+          "how_to_check": "Compare this CVE's text-classifier score with those of other local privilege escalation CVEs that were added to KEV."
+        },
+        {
+          "hypothesis": "The weakness type CWE-829 carried a historical KEV rate of about 0.001445 against about 0.011091 for a typical top-517 CVE, so it added little.",
+          "category": "observable_signal",
+          "evidence_anchors": ["log_cwe_kev_rate"],
+          "confidence": "medium",
+          "how_to_check": "Count how many CWE-829 CVEs were added to KEV in 2024-2025."
+        }
+      ],
+      "analyst_lessons": [
+        {
+          "warning_sign_or_gap": "A root privilege escalation in sudo, which Granite rated as having a very large install base.",
+          "evidence_anchors": ["granite.install_base", "granite.impact", "granite.product"],
+          "what_to_investigate": "For local root escalations in near-universal Unix utilities such as sudo, ask whether an attacker with a foothold (a web shell or low-privilege account) could use it as a second stage, and check whether a public proof-of-concept appeared after disclosure.",
+          "why_it_applies_here": "The 'needs local access' reading held this CVE back, yet it was added to KEV 91 days after publication.",
+          "limits": "Most local escalations are never added to KEV; the ranking evidence alone cannot say which ones will be."
+        },
+        {
+          "warning_sign_or_gap": "No exploit-signal row at snapshot, so EPSS and exploit-code flags were unknown.",
+          "evidence_anchors": ["gap.no_signal_row", "epss_missing"],
+          "what_to_investigate": "When a new CVE in widely deployed system software has no EPSS score yet, record it as 'not yet scored' and recheck EPSS and exploit-code sources after the first monthly update instead of reading the empty fields as low risk.",
+          "why_it_applies_here": "The model counted this CVE's unknown flags as zero.",
+          "limits": "The first row may also show nothing; the gap explains uncertainty, not exploitation."
+        },
+        {
+          "warning_sign_or_gap": "Granite rated sudo's attacker appeal high, and 14 of the 28 other enterprise-server KEV additions in this evaluation were caught.",
+          "evidence_anchors": ["granite.attacker_appeal", "peer.same_product_type"],
+          "what_to_investigate": "For sudo and similar components bundled with Linux distributions, use the distributions' security trackers to see which supported releases ship the vulnerable version and whether the affected --chroot option is in use on your hosts.",
+          "why_it_applies_here": "The high attacker-appeal reading could not offset the local-access and text penalties in the linear model.",
+          "limits": "Deployment breadth sizes the affected population; it does not show exploitation."
+        }
+      ],
+      "caveats": [
+        "The description and CVSS 7.8 are current NVD values.",
+        "Granite's enterprise-server label for sudo, a command-line utility, is its own approximation."
+      ]
+    },
+    "CVE-2024-7262": {
+      "source": "cursor_revised_watsonx_draft",
+      "revision_notes": [
+        "Removed lesson 2, which rested only on model ranks, and replaced it with a check on the current description's weaponization wording.",
+        "Removed the unsupported hypothesis that disagreement meant the CVE 'was not as severe as others'.",
+        "Added the desktop-application peer result (0 of 2 other KEV additions caught)."
+      ],
+      "what_happened": "CVE-2024-7262, an improper path validation in promecefpluginhost.exe in Kingsoft WPS Office on Windows, ranked 4,040 of 75,148, 3,523 places outside the top 517. LightGBM ranked it 1,813 and Granite LoRA 3,609, but logistic regression ranked it 18,790, which pulled the averaged percentile rank down. The linear attribution is approximate for this CVE; in it, a description far from past KEV text (score -2.3841), zero recorded exploit code and the user-interaction requirement held it back.",
+      "possible_explanations": [
+        {
+          "hypothesis": "Exploit-code flags were all zero and EPSS sat at the 23.77 percentile in 2024-08, so the signals that carried most caught CVEs were not present.",
+          "category": "observable_signal",
+          "evidence_anchors": ["signals.code_flags", "signals.epss", "gap.no_recorded_exploit_code"],
+          "confidence": "medium",
+          "how_to_check": "Find the first month in which an exploit-code flag or an EPSS rise was recorded for CVE-2024-7262."
+        },
+        {
+          "hypothesis": "KEV confirmation came 3 days after the snapshot, leaving little time for public signals to accumulate.",
+          "category": "information_gap",
+          "evidence_anchors": ["gap.kev_soon_after_snapshot"],
+          "confidence": "medium",
+          "how_to_check": "Check whether any vendor or researcher exploitation report was public before the snapshot; KEV addition came 19 days after publication."
+        },
+        {
+          "hypothesis": "Desktop applications that need a user to open a file may rank structurally low: neither of the 2 other desktop-application KEV additions in this evaluation reached the top 517, and the 'needs user action' reading held this CVE back.",
+          "category": "observable_signal",
+          "evidence_anchors": ["peer.same_product_type", "llm_precondition=needs_user_action", "ui_none"],
+          "confidence": "medium",
+          "how_to_check": "List the other desktop-application KEV additions in the evaluation and their ensemble ranks."
+        }
+      ],
+      "analyst_lessons": [
+        {
+          "warning_sign_or_gap": "A document-handling desktop application (WPS Office) where the attack needs a user to open a file.",
+          "evidence_anchors": ["peer.same_product_type", "granite.precondition"],
+          "what_to_investigate": "For office suites and document readers, read 'needs user action' as 'needs a victim to open a crafted file', which is the product's normal use, and look for vendor or researcher reports of malicious documents.",
+          "why_it_applies_here": "0 of the 2 other desktop-application KEV additions reached the top 517, so this product type depends on analyst follow-up.",
+          "limits": "The group is small (3,705 other desktop CVEs, 2 KEV additions), so the pattern rests on few cases."
+        },
+        {
+          "warning_sign_or_gap": "Granite rated the install base large and attacker appeal high for a vendor with no prior KEV history.",
+          "evidence_anchors": ["gap.vendor_no_prior_kev", "peer.same_vendor", "granite.install_base"],
+          "what_to_investigate": "For large-install-base software from vendors with little KEV history (Kingsoft had 4 other CVEs in this evaluation, none in KEV), check where and by whom the product is deployed in your environment rather than reading the empty vendor history as low risk.",
+          "why_it_applies_here": "Vendor history gave this CVE no lift.",
+          "limits": "Deployment breadth indicates possible impact, not likelihood of exploitation."
+        },
+        {
+          "warning_sign_or_gap": "The current NVD description says the flaw was found weaponized as a single-click exploit in a deceptive spreadsheet.",
+          "evidence_anchors": ["description"],
+          "what_to_investigate": "Re-read the NVD and vendor text for WPS Office CVEs a few days after publication for added exploitation wording, since descriptions can be revised after the snapshot the model used.",
+          "why_it_applies_here": "The weaponization wording is in the current description; whether it was there at the snapshot is not known.",
+          "limits": "Description revisions are irregular and many CVEs never receive them."
+        }
+      ],
+      "caveats": [
+        "The linear attribution is approximate for this CVE.",
+        "The description is the current NVD text; the weaponization statement may have been added after the snapshot."
+      ]
+    },
+    "CVE-2024-1086": {
+      "source": "cursor_revised_watsonx_draft",
+      "revision_notes": [
+        "Removed lesson 2, which rested only on model ranks.",
+        "Replaced 'absence of public exploit code' with the verified fact that exploit-code status was unknown (no monthly signal row).",
+        "Added a low-confidence data_quality note: Granite labelled the Linux kernel a network edge device."
+      ],
+      "what_happened": "CVE-2024-1086, a use-after-free in the Linux kernel's netfilter nf_tables component that allows local privilege escalation, ranked 4,391 of 75,148, 3,874 places outside the top 517. LightGBM ranked it 1,283, but Granite LoRA ranked it 19,690 and logistic regression 4,750, so the averaged percentile rank stayed far from the cutoff. In the linear model, exploit-code flags stored as zero and a description far from past KEV text (score -1.6561) held it back most.",
+      "possible_explanations": [
+        {
+          "hypothesis": "Exploit-code status was unknown because no monthly signal row existed in 2024-01; the model treated the unknown flags as 'no exploit code', which counted against it.",
+          "category": "information_gap",
+          "evidence_anchors": ["gap.no_signal_row", "any_code", "poc_github"],
+          "confidence": "medium",
+          "how_to_check": "Find the first monthly signal row for CVE-2024-1086 and the month a GitHub proof-of-concept was first flagged."
+        },
+        {
+          "hypothesis": "Granite labelled the Linux kernel a 'network edge device', while the description is about a kernel component exploited for local privilege escalation and Granite itself read the precondition as local access; the product-type features may describe the wrong product class.",
+          "category": "data_quality",
+          "evidence_anchors": ["description", "granite.product_type", "granite.precondition", "llm_product_type=network_edge_device"],
+          "confidence": "low",
+          "how_to_check": "Compare Granite's product_type across other Linux kernel CVEs in the evaluation."
+        },
+        {
+          "hypothesis": "Linux kernel CVEs are numerous and rarely confirmed in KEV (2 of 8,251 other Linux CVEs here, none in the top 517), so features shared by kernel bugs may carry little weight.",
+          "category": "observable_signal",
+          "evidence_anchors": ["peer.same_vendor"],
+          "confidence": "low",
+          "how_to_check": "Look up the ensemble ranks of the 2 other Linux kernel KEV additions."
+        }
+      ],
+      "analyst_lessons": [
+        {
+          "warning_sign_or_gap": "A kernel privilege escalation in netfilter nf_tables published without exploit-signal data.",
+          "evidence_anchors": ["gap.no_signal_row", "granite.impact"],
+          "what_to_investigate": "For Linux kernel local escalations, check whether the affected subsystem (here nf_tables) is enabled and reachable by unprivileged users on your distributions, and watch for a public exploit write-up in the following weeks.",
+          "why_it_applies_here": "This CVE's exploit status was unknown at snapshot, and it was added to KEV 120 days after publication.",
+          "limits": "Most kernel CVEs see no exploitation; 2 of 8,251 other Linux CVEs here were added to KEV."
+        },
+        {
+          "warning_sign_or_gap": "Granite's 'network edge device' label for the Linux kernel.",
+          "evidence_anchors": ["granite.product_type", "description", "peer.same_product_type"],
+          "what_to_investigate": "When the product is the Linux kernel, check which product class the triage data assigned; a kernel bug affects servers, desktops, containers and appliances at once, which no single class captures.",
+          "why_it_applies_here": "This CVE was grouped with 15,308 other network-edge CVEs (12 KEV additions), a group that may not reflect its real footprint.",
+          "limits": "The label's effect on the final rank was not isolated."
+        },
+        {
+          "warning_sign_or_gap": "Granite rated the install base very large and attacker appeal high for a root-level impact, and LightGBM ranked it 1,283.",
+          "evidence_anchors": ["granite.install_base", "granite.attacker_appeal", "rank.lightgbm"],
+          "what_to_investigate": "For a root escalation on a very large Linux install base, ask whether it would serve as the second stage after an initial-access bug, and read the Red Hat, Debian and Ubuntu advisories for exploitation notes.",
+          "why_it_applies_here": "Granite's readings described a high-value target, but the linear model's text and exploit-code penalties outweighed them.",
+          "limits": "Second-stage usefulness is a judgment, not evidence of exploitation."
+        }
+      ],
+      "caveats": [
+        "Granite's labels are its readings of the description, not facts about the kernel.",
+        "The description and CVSS 7.8 are current NVD values."
+      ]
+    },
+    "CVE-2025-23209": {
+      "source": "cursor_revised_watsonx_draft",
+      "revision_notes": [
+        "Replaced 'lack of public exploit code' with the verified fact that exploit-code status was unknown (no monthly signal row).",
+        "Added a data_quality explanation: Granite read the precondition as 'none', but the description requires an already compromised security key.",
+        "Replaced generic lessons (investigate exposure, impact, vendor history) with Craft-specific checks."
+      ],
+      "what_happened": "CVE-2025-23209, a remote code execution in Craft CMS 4 and 5 that applies only when the installation's security key is already compromised, ranked 5,828 of 75,148, 5,311 places outside the top 517. LightGBM ranked it 1,717, but logistic regression ranked it 5,579 and Granite LoRA 23,979, so the averaged rank stayed far out. In the linear model, exploit-code flags stored as zero, a description far from past KEV text (score -2.1631) and attack complexity not being low held it back; an out-of-band release helped.",
+      "possible_explanations": [
+        {
+          "hypothesis": "Exploit-code status was unknown because no monthly signal row existed in 2025-01, and the model treated the unknown flags as 'none'; KEV confirmation then came 20 days after the snapshot.",
+          "category": "information_gap",
+          "evidence_anchors": ["gap.no_signal_row", "gap.kev_soon_after_snapshot"],
+          "confidence": "medium",
+          "how_to_check": "Find the first monthly signal row for CVE-2025-23209 and whether exploit code was flagged in it."
+        },
+        {
+          "hypothesis": "Granite read the precondition as 'none', but the description says only installs whose security key has already been compromised are affected; the extracted reading and the model's 'attack complexity not low' feature describe the same bug in opposite ways.",
+          "category": "data_quality",
+          "evidence_anchors": ["description", "granite.precondition", "ac_low"],
+          "confidence": "medium",
+          "how_to_check": "Compare Granite's precondition field with the description for other CVEs that require a leaked secret."
+        },
+        {
+          "hypothesis": "Vendor history may be split across names: Granite extracted 'craft' here, a group of 13 other CVEs with no KEV additions, while another Craft CMS CVE among the 43 misses was extracted as 'craft cms'.",
+          "category": "information_gap",
+          "evidence_anchors": ["gap.vendor_no_prior_kev", "peer.same_vendor"],
+          "confidence": "low",
+          "how_to_check": "Search the extracted vendor field for both 'craft' and 'craft cms' and count KEV additions under each."
+        }
+      ],
+      "analyst_lessons": [
+        {
+          "warning_sign_or_gap": "The bug requires a compromised Craft security key, a precondition the description states plainly.",
+          "evidence_anchors": ["description", "granite.precondition"],
+          "what_to_investigate": "For Craft CMS CVEs that depend on a leaked secret, check whether a separate disclosure or earlier CVE exposes that key, because a chain removes the precondition as a barrier.",
+          "why_it_applies_here": "Granite read the precondition as 'none' and the model penalised the high attack complexity, so neither captured the dependency on a leaked key.",
+          "limits": "Whether a key-leak path existed at the time is not in this evidence."
+        },
+        {
+          "warning_sign_or_gap": "A CMS Granite judged typically internet-facing, with exploit-code status unknown at snapshot.",
+          "evidence_anchors": ["granite.internet_exposed", "gap.no_signal_row"],
+          "what_to_investigate": "For internet-facing CMS platforms like Craft, check scanning templates and exploit repositories again in the first weeks after disclosure, since a missing EPSS row at publication says nothing about exploitation.",
+          "why_it_applies_here": "KEV confirmation came 20 days after the snapshot.",
+          "limits": "Early rechecks will often find nothing; they only shorten the time an unknown status goes unreviewed."
+        },
+        {
+          "warning_sign_or_gap": "Vendor history gave no lift for 'craft', a name under which 13 other CVEs had no KEV additions.",
+          "evidence_anchors": ["gap.vendor_no_prior_kev", "peer.same_vendor"],
+          "what_to_investigate": "When vendor history is empty, search KEV and advisories under every name variant (Craft, Craft CMS) before concluding the vendor has no exploitation record.",
+          "why_it_applies_here": "Two Craft CMS CVEs in this set were extracted under different vendor names.",
+          "limits": "The name split is observed in the extracted data; its effect on this rank was not tested."
+        }
+      ],
+      "caveats": [
+        "The description and CVSS 8.1 are current NVD values.",
+        "Granite's readings are its own judgments from the description."
+      ]
+    },
+    "CVE-2024-13160": {
+      "source": "cursor_generated",
+      "what_happened": "CVE-2024-13160, an absolute path traversal in Ivanti EPM that lets a remote unauthenticated attacker leak sensitive information, ranked 16,261 of 75,148, 15,744 places outside the top 517. All three models ranked it far outside their own top 517 (logistic regression 10,215, LightGBM 11,110, Granite LoRA 41,875), and Granite LoRA's much lower rank pulled the averaged percentile rank down further. The linear attribution is approximate for this CVE; in it, zero recorded exploit code, an ID reserved a year or more before publication and a large same-day release batch (about 20 CVEs from the assigner) held it back, while 'unauthenticated' wording and Granite's enterprise-server reading helped.",
+      "possible_explanations": [
+        {
+          "hypothesis": "At the 2025-01 snapshot all four exploit-code flags were zero and EPSS sat at the 11.61 percentile, so no public signal lifted it.",
+          "category": "observable_signal",
+          "evidence_anchors": ["signals.code_flags", "signals.epss", "gap.no_recorded_exploit_code"],
+          "confidence": "medium",
+          "how_to_check": "Find the first month an exploit-code flag or EPSS jump was recorded for CVE-2024-13160, relative to its KEV addition on 2025-03-10."
+        },
+        {
+          "hypothesis": "Release in a batch of about 20 same-day CVEs from the assigner counted against it in the linear model, and two other Ivanti EPM path-traversal CVEs with the same description and KEV date are also among the 43 misses, so the whole group may have been diluted together.",
+          "category": "observable_signal",
+          "evidence_anchors": ["log_batch_size", "description"],
+          "confidence": "medium",
+          "how_to_check": "List the same-day Ivanti CVEs and compare their ensemble ranks."
+        },
+        {
+          "hypothesis": "The ID was reserved a year or more before publication, which the linear model treats as less KEV-like, although reservation timing says little about this bug.",
+          "category": "observable_signal",
+          "evidence_anchors": ["old_id"],
+          "confidence": "low",
+          "how_to_check": "Compare KEV rates of Ivanti CVEs with old reserved IDs against those with new IDs."
+        }
+      ],
+      "analyst_lessons": [
+        {
+          "warning_sign_or_gap": "An unauthenticated remote flaw in Ivanti EPM, from a vendor whose other CVEs here reached KEV at 16.67 per thousand against 3.01 for enterprise server applications.",
+          "evidence_anchors": ["peer.same_vendor", "peer.same_product_type", "unauth_text"],
+          "what_to_investigate": "For new unauthenticated Ivanti EPM or other Ivanti management-server CVEs, weigh the vendor's KEV track record directly and check whether the EPM server is reachable from outside the management network.",
+          "why_it_applies_here": "Granite read the precondition as 'none', and the vendor's peer KEV rate was far above its product type's.",
+          "limits": "4 of 240 other Ivanti CVEs is a small count and includes the two sibling EPM CVEs missed alongside this one."
+        },
+        {
+          "warning_sign_or_gap": "Three EPM path-traversal CVEs with identical descriptions, the same snapshot month and the same KEV date.",
+          "evidence_anchors": ["log_batch_size", "description"],
+          "what_to_investigate": "When a vendor ships several near-identical CVEs in one large release, review them as one group and raise all of them if any member gains exploit code or an EPSS jump, because they share the exposed component.",
+          "why_it_applies_here": "All three EPM siblings ranked far outside the top 517 and were added to KEV on 2025-03-10.",
+          "limits": "Grouping helps only once one member shows a signal; here none did at snapshot."
+        },
+        {
+          "warning_sign_or_gap": "EPSS at the 11.61 percentile with all exploit-code flags zero in the snapshot month.",
+          "evidence_anchors": ["signals.epss", "signals.code_flags"],
+          "what_to_investigate": "For Ivanti EPM CVEs, recheck EPSS and exploit-code sources monthly for two to three months after release instead of relying on publication-month values.",
+          "why_it_applies_here": "KEV addition came 55 days after publication, after the snapshot month had passed.",
+          "limits": "Repeated checks cost analyst time, and this evidence covers only three Ivanti cases."
+        }
+      ],
+      "caveats": [
+        "The linear attribution is approximate for this CVE.",
+        "The description and CVSS 7.5 are current NVD values.",
+        "Granite LoRA's much lower rank (41,875) is observed, not explained."
+      ]
+    },
+    "CVE-2024-13159": {
+      "source": "cursor_generated",
+      "what_happened": "CVE-2024-13159, an absolute path traversal in Ivanti EPM that lets a remote unauthenticated attacker leak sensitive information, ranked 16,292 of 75,148, 15,775 places outside the top 517. Logistic regression ranked it 10,031 and LightGBM 10,927, but Granite LoRA ranked it 42,324, and because the ensemble averages percentile ranks that one model pulled it further down. The linear attribution is approximate for this CVE; in it, zero recorded exploit code, an ID reserved a year or more before publication and a large same-day batch (about 20 CVEs from the assigner) held it back, while 'unauthenticated' and 'pre-authentication' wording and Granite's enterprise-server reading helped.",
+      "possible_explanations": [
+        {
+          "hypothesis": "At the 2025-01 snapshot all four exploit-code flags were zero and EPSS sat at the 11.61 percentile, so the signals that lifted most caught CVEs were not present.",
+          "category": "observable_signal",
+          "evidence_anchors": ["signals.code_flags", "signals.epss", "gap.no_recorded_exploit_code"],
+          "confidence": "medium",
+          "how_to_check": "Find the first month an exploit-code flag or EPSS jump was recorded for CVE-2024-13159."
+        },
+        {
+          "hypothesis": "Being one of about 20 same-day CVEs from the assigner counted against it in the linear model, and it shares its description and KEV date with two other missed EPM CVEs, so the group may have been diluted together.",
+          "category": "observable_signal",
+          "evidence_anchors": ["log_batch_size", "description"],
+          "confidence": "medium",
+          "how_to_check": "Compare the ensemble ranks of all same-day Ivanti CVEs against the three EPM path-traversal CVEs."
+        },
+        {
+          "hypothesis": "Granite read the impact as sensitive-data disclosure rather than code execution; Granite LoRA's very low rank may reflect a lower-severity reading, though its reasons are not observable.",
+          "category": "model_disagreement",
+          "evidence_anchors": ["granite.impact", "rank.granite_lora"],
+          "confidence": "low",
+          "how_to_check": "Compare Granite LoRA's ranks for Ivanti CVEs with disclosure impact against those with code-execution impact."
+        }
+      ],
+      "analyst_lessons": [
+        {
+          "warning_sign_or_gap": "An unauthenticated information leak in Ivanti EPM, a product Granite read as enterprise server software with a large install base.",
+          "evidence_anchors": ["granite.product", "granite.install_base", "unauth_text"],
+          "what_to_investigate": "For data-leak bugs in Ivanti EPM and other endpoint-management servers, ask what the leaked files could contain (credentials, configuration, agent secrets) and whether that would let an attacker reach the managed fleet.",
+          "why_it_applies_here": "A 'sensitive data disclosure' label sounds less severe than code execution, yet this CVE was added to KEV 55 days after publication.",
+          "limits": "What the traversal can actually read is not described in this evidence."
+        },
+        {
+          "warning_sign_or_gap": "Vendor peers: 4 of 240 other Ivanti CVEs in the evaluation were added to KEV, against 28 of 9,289 for enterprise server applications.",
+          "evidence_anchors": ["peer.same_vendor", "peer.same_product_type"],
+          "what_to_investigate": "For any new unauthenticated Ivanti CVE, treat the vendor's KEV track record as a reason to check external reachability of the affected server on the day of release.",
+          "why_it_applies_here": "The linear model's vendor features did not lift this CVE enough to offset the batch and exploit-code penalties.",
+          "limits": "The Ivanti count includes this CVE's two EPM siblings, so the rate overstates independent evidence."
+        },
+        {
+          "warning_sign_or_gap": "One of three near-identical EPM CVEs released together in a large batch.",
+          "evidence_anchors": ["log_batch_size", "description"],
+          "what_to_investigate": "When near-identical CVEs ship in one batch, track them as a single item so that exploit news about any of them raises all three.",
+          "why_it_applies_here": "All three EPM path-traversal CVEs were missed and added to KEV on the same day, 2025-03-10.",
+          "limits": "Grouping only helps once some member shows a signal."
+        }
+      ],
+      "caveats": [
+        "The linear attribution is approximate for this CVE.",
+        "The description and CVSS 7.5 are current NVD values.",
+        "Granite LoRA's ranks are observed, not explained."
+      ]
+    },
+    "CVE-2024-13161": {
+      "source": "cursor_generated",
+      "what_happened": "CVE-2024-13161, an absolute path traversal in Ivanti EPM that lets a remote unauthenticated attacker leak sensitive information, ranked 19,129 of 75,148, 18,612 places outside the top 517. Logistic regression ranked it 10,373, but LightGBM ranked it 18,347 and Granite LoRA 41,875, so the averaged percentile rank fell below its two EPM siblings. The linear attribution is approximate for this CVE; in it, zero recorded exploit code, an ID reserved a year or more before publication and a large same-day batch (about 20 CVEs from the assigner) held it back, while 'unauthenticated' wording and Granite's enterprise-server reading helped.",
+      "possible_explanations": [
+        {
+          "hypothesis": "At the 2025-01 snapshot all four exploit-code flags were zero and EPSS sat at the 11.61 percentile, so no public signal lifted it.",
+          "category": "observable_signal",
+          "evidence_anchors": ["signals.code_flags", "signals.epss", "gap.no_recorded_exploit_code"],
+          "confidence": "medium",
+          "how_to_check": "Find the first month an exploit-code flag or EPSS jump was recorded for CVE-2024-13161."
+        },
+        {
+          "hypothesis": "Release in a batch of about 20 same-day CVEs from the assigner counted against it, and the identical description shared with two other missed EPM CVEs means the three may have been diluted together.",
+          "category": "observable_signal",
+          "evidence_anchors": ["log_batch_size", "description"],
+          "confidence": "medium",
+          "how_to_check": "Compare the ensemble ranks of all same-day Ivanti CVEs."
+        },
+        {
+          "hypothesis": "LightGBM ranked this CVE at 18,347, well below its rank for the two siblings with the same description, which hints that features other than the text separated them; the reason is not observable.",
+          "category": "model_disagreement",
+          "evidence_anchors": ["rank.lightgbm", "description"],
+          "confidence": "low",
+          "how_to_check": "Diff the non-text inputs (affected versions, references, CVSS vector) of the three EPM CVEs."
+        }
+      ],
+      "analyst_lessons": [
+        {
+          "warning_sign_or_gap": "An unauthenticated traversal in Ivanti EPM, a vendor whose other CVEs here reached KEV at 16.67 per thousand.",
+          "evidence_anchors": ["peer.same_vendor", "unauth_text"],
+          "what_to_investigate": "For unauthenticated Ivanti EPM CVEs, check on release day whether the EPM core server is reachable from untrusted networks and which files a path traversal there could read.",
+          "why_it_applies_here": "Granite read the precondition as 'none', and the vendor's KEV rate far exceeded the 3.01 per thousand of its product type.",
+          "limits": "The vendor count includes this CVE's EPM siblings and rests on 4 KEV additions."
+        },
+        {
+          "warning_sign_or_gap": "A near-identical sibling of two other missed EPM CVEs, ranked lowest of the three.",
+          "evidence_anchors": ["description", "log_batch_size"],
+          "what_to_investigate": "When CVEs share a description, give them the priority of the highest-ranked member instead of reviewing each by its own rank.",
+          "why_it_applies_here": "This CVE ranked 19,129 while sharing its description, snapshot month and KEV date with its siblings.",
+          "limits": "Sharing a description does not guarantee equal exploitability."
+        },
+        {
+          "warning_sign_or_gap": "The ID was reserved a year or more before publication and counted against it.",
+          "evidence_anchors": ["old_id"],
+          "what_to_investigate": "For Ivanti CVEs published with older reserved IDs, ignore the reservation year when judging urgency and use the release date of the security update instead.",
+          "why_it_applies_here": "The old-ID flag pushed this CVE down even though it was fixed in the January 2025 security update.",
+          "limits": "The old-ID effect is one of several small drags and was not isolated."
+        }
+      ],
+      "caveats": [
+        "The linear attribution is approximate for this CVE.",
+        "The description and CVSS 7.5 are current NVD values.",
+        "The Granite LoRA and LightGBM ranks are observed, not explained."
+      ]
+    },
+    "CVE-2025-6205": {
+      "source": "cursor_generated",
+      "what_happened": "CVE-2025-6205, a missing-authorization flaw in DELMIA Apriso Release 2020 through Release 2025 that could give an attacker privileged access, ranked 18,450 of 75,148, 17,933 places outside the top 517. Granite LoRA ranked it 1,549, but logistic regression ranked it 41,554 and LightGBM 25,735, so the averaged percentile rank stayed very low. The linear attribution is approximate for this CVE; in it, the strongest drag was a description the text classifier rated far from past KEV entries (score -3.5696), followed by zero recorded exploit code, Granite reading the users as industrial rather than enterprises and governments, and a broad weakness type.",
+      "possible_explanations": [
+        {
+          "hypothesis": "The one-sentence description gives the text classifier little to work with, and the broad weakness type (CWE-862) adds little signal, so the text-based features may have treated it as unremarkable.",
+          "category": "observable_signal",
+          "evidence_anchors": ["text_kev_lr_logit", "gap.cwe_broad", "description"],
+          "confidence": "medium",
+          "how_to_check": "Compare the text-classifier score of this CVE with other one-sentence missing-authorization CVEs."
+        },
+        {
+          "hypothesis": "Granite extracted the vendor as 'DELMIA' while KEV lists the product under Dassault Systèmes, so the vendor-history feature may have missed entries recorded under the parent name.",
+          "category": "information_gap",
+          "evidence_anchors": ["gap.vendor_no_prior_kev", "granite.vendor"],
+          "confidence": "low",
+          "how_to_check": "Count KEV entries listed under Dassault Systèmes before 2025-08."
+        },
+        {
+          "hypothesis": "Granite read the users as industrial, and the linear model penalised the absence of the enterprises-and-governments reading.",
+          "category": "observable_signal",
+          "evidence_anchors": ["llm_used_by=enterprises_and_governments", "granite.used_by"],
+          "confidence": "low",
+          "how_to_check": "Compare ensemble ranks of CVEs Granite read as industrial with those read as enterprise."
+        }
+      ],
+      "analyst_lessons": [
+        {
+          "warning_sign_or_gap": "2 of the 3 other DELMIA CVEs in this evaluation were added to KEV.",
+          "evidence_anchors": ["peer.same_vendor"],
+          "what_to_investigate": "For manufacturing-operations software such as DELMIA Apriso, check whether other CVEs in the same product were recently added to KEV; a cluster of entries in one niche product may mean someone is actively working on it.",
+          "why_it_applies_here": "This CVE was the third DELMIA KEV addition in the evaluation, and only 1 of the other two was inside the top 517.",
+          "limits": "The peer outcomes were not known at the snapshot; they show what an analyst could learn as the other entries appeared."
+        },
+        {
+          "warning_sign_or_gap": "A CVSS 9.1 missing-authorization flaw with a terse description the text classifier scored very low.",
+          "evidence_anchors": ["text_kev_lr_logit", "description"],
+          "what_to_investigate": "When a critical advisory for an industrial or MES application is a single vague sentence, read the vendor's own advisory for the attack vector and whether authentication is needed rather than letting the short NVD text set the priority.",
+          "why_it_applies_here": "The description says only that an attacker could gain privileged access, and the text score was -3.5696.",
+          "limits": "The CVSS 9.1 value is current NVD data and may not have been available at the snapshot."
+        },
+        {
+          "warning_sign_or_gap": "Vendor history was empty for 'DELMIA', while KEV records the product under Dassault Systèmes.",
+          "evidence_anchors": ["gap.vendor_no_prior_kev", "granite.vendor"],
+          "what_to_investigate": "For products sold under a brand of a larger company (DELMIA under Dassault Systèmes), search KEV and threat reporting under both the brand and the parent name.",
+          "why_it_applies_here": "Granite's vendor match found no prior KEV entries for the brand name.",
+          "limits": "Whether the parent name had earlier KEV entries is not in this evidence."
+        }
+      ],
+      "caveats": [
+        "The linear attribution is approximate for this CVE.",
+        "Granite LoRA's rank of 1,549 is observed, not explained.",
+        "The description and CVSS 9.1 are current NVD values."
+      ]
+    },
+    "CVE-2025-35939": {
+      "source": "cursor_generated",
+      "what_happened": "CVE-2025-35939, a Craft CMS flaw that stores unsanitised content from unauthenticated users in PHP session files on the server, ranked 19,514 of 75,148, 18,997 places outside the top 517. All three models ranked it far outside their own top 517 (logistic regression 7,663, LightGBM 22,325, Granite LoRA 41,626). In the linear model, a description far from past KEV text (score -2.6243), zero recorded exploit code and a CVSS score of 5.3 against a typical 8.7988 held it back; an out-of-band release and 'unauthenticated' wording helped.",
+      "possible_explanations": [
+        {
+          "hypothesis": "The CVSS 5.3 score and the description's note that the stored content could be executed 'possibly using an independent vulnerability' present it as one step of an attack rather than a complete one, which the features score low.",
+          "category": "observable_signal",
+          "evidence_anchors": ["cvss", "description"],
+          "confidence": "medium",
+          "how_to_check": "Check whether a companion Craft CMS CVE published around the same time completes the chain."
+        },
+        {
+          "hypothesis": "Granite read the precondition as 'needs admin', but the description says unauthenticated users can introduce the content, so the extracted reading understates how reachable the flaw is.",
+          "category": "data_quality",
+          "evidence_anchors": ["description", "granite.precondition", "unauth_text"],
+          "confidence": "medium",
+          "how_to_check": "Compare Granite's precondition with the description for other Craft CMS CVEs."
+        },
+        {
+          "hypothesis": "KEV confirmation came 2 days after the snapshot, and vendor history gave no lift under the name 'craft cms', which had no other CVEs in the evaluation.",
+          "category": "information_gap",
+          "evidence_anchors": ["gap.kev_soon_after_snapshot", "gap.vendor_no_prior_kev", "peer.same_vendor"],
+          "confidence": "low",
+          "how_to_check": "Check whether the vendor features count KEV entries added during the evaluation period, such as the earlier Craft CMS entry among the 43 misses."
+        }
+      ],
+      "analyst_lessons": [
+        {
+          "warning_sign_or_gap": "A low-CVSS Craft CMS bug whose description says it can be combined with another vulnerability.",
+          "evidence_anchors": ["cvss", "description"],
+          "what_to_investigate": "For CMS bugs that let attackers write content to a known server path, search for a companion CVE or public chain write-up and score the chain rather than the single CVSS 5.3 component.",
+          "why_it_applies_here": "The description itself names the independent-vulnerability path, and KEV addition followed 26 days after publication.",
+          "limits": "Many 'could be combined' statements never lead to exploitation."
+        },
+        {
+          "warning_sign_or_gap": "Granite's 'needs admin' reading contradicts the description's unauthenticated users.",
+          "evidence_anchors": ["granite.precondition", "unauth_text"],
+          "what_to_investigate": "When the description says 'unauthenticated' but extracted fields say admin rights are needed, trust the description and check the Craft advisory for which requests reach the flaw before login.",
+          "why_it_applies_here": "The description says requests that require authentication are redirected to the login page, and the session file is created in that process.",
+          "limits": "This is a reading error in one field; its effect on the final rank was not isolated."
+        },
+        {
+          "warning_sign_or_gap": "Vendor history was empty under 'craft cms' even though another Craft CMS CVE in this set was added to KEV in February 2025.",
+          "evidence_anchors": ["peer.same_vendor", "gap.vendor_no_prior_kev"],
+          "what_to_investigate": "Before treating a CMS vendor as having no exploitation record, check recent KEV additions for the product yourself, under every name variant.",
+          "why_it_applies_here": "This CVE was published in 2025-05, after that earlier Craft CMS KEV addition.",
+          "limits": "It is not verified whether the vendor features include KEV entries added during the evaluation period."
+        }
+      ],
+      "caveats": [
+        "The description shown is truncated current NVD text, and CVSS 5.3 is the current value.",
+        "Granite's readings are its own judgments from the description."
+      ]
+    },
+    "CVE-2025-25181": {
+      "source": "cursor_generated",
+      "what_happened": "CVE-2025-25181, a SQL injection in timeoutWarning.asp of Advantive VeraCore through 2025.1.0 that lets remote attackers run arbitrary SQL commands, ranked 24,728 of 75,148, 24,211 places outside the top 517. LightGBM (7,386) and logistic regression (7,700) ranked it close to each other, but Granite LoRA ranked it 68,965, and because the ensemble averages percentile ranks that one model is what pushed the averaged rank to 24,728. In the linear model, zero recorded exploit code, a description far from past KEV text (score -1.9312), a large same-day batch of about 41 CVEs and Granite's small-or-niche install-base rating held it back.",
+      "possible_explanations": [
+        {
+          "hypothesis": "All four exploit-code flags were zero and EPSS sat at the 18.77 percentile in 2025-02, and KEV confirmation came 10 days after the snapshot, leaving little time for public signals.",
+          "category": "observable_signal",
+          "evidence_anchors": ["signals.code_flags", "signals.epss", "gap.kev_soon_after_snapshot"],
+          "confidence": "medium",
+          "how_to_check": "Find the first month an exploit-code flag or EPSS jump was recorded for CVE-2025-25181."
+        },
+        {
+          "hypothesis": "Release in a batch of about 41 same-day CVEs from the assigner, combined with Granite's small-or-niche install-base reading, may have marked it as routine.",
+          "category": "observable_signal",
+          "evidence_anchors": ["log_batch_size", "llm_install_base"],
+          "confidence": "medium",
+          "how_to_check": "Compare ensemble ranks of the other CVEs in the same assigner batch."
+        },
+        {
+          "hypothesis": "Granite read the precondition as 'needs admin', but the description attributes the flaw to remote attackers and mentions no authentication; the reading may misstate who can reach it.",
+          "category": "data_quality",
+          "evidence_anchors": ["description", "granite.precondition", "llm_precondition=needs_admin"],
+          "confidence": "low",
+          "how_to_check": "Check the vendor advisory for whether timeoutWarning.asp is reachable before login."
+        }
+      ],
+      "analyst_lessons": [
+        {
+          "warning_sign_or_gap": "A remotely reachable SQL injection in Advantive VeraCore, a product Granite rated small or niche.",
+          "evidence_anchors": ["granite.install_base", "description"],
+          "what_to_investigate": "For niche business web applications like VeraCore, check whether your instances are exposed to the internet; a small install base lowers the odds across the population, not for an exposed installation.",
+          "why_it_applies_here": "The niche reading held this CVE back, yet it was added to KEV 35 days after publication.",
+          "limits": "Exposure says who could be hit, not whether exploitation will happen."
+        },
+        {
+          "warning_sign_or_gap": "The 1 other Advantive CVE in this evaluation, a VeraCore file-upload flaw, was also added to KEV, on the same day.",
+          "evidence_anchors": ["peer.same_vendor"],
+          "what_to_investigate": "When two CVEs for the same niche product are disclosed close together (here a SQL injection and a file-upload flaw in VeraCore), consider how they could be used together and review them as a pair.",
+          "why_it_applies_here": "Both VeraCore CVEs were missed and both were added to KEV on 2025-03-10.",
+          "limits": "This rests on two CVEs from one vendor."
+        },
+        {
+          "warning_sign_or_gap": "Granite's 'needs admin' reading for a flaw the description attributes to remote attackers.",
+          "evidence_anchors": ["granite.precondition", "description"],
+          "what_to_investigate": "Check whether the vulnerable page (timeoutWarning.asp) is served before login; a session-timeout page may be reachable without an account.",
+          "why_it_applies_here": "The admin reading lowered the apparent reachability, while the description mentions no login requirement.",
+          "limits": "The description does not state either way whether authentication is required."
+        }
+      ],
+      "caveats": [
+        "Granite LoRA's rank of 68,965 is observed, not explained.",
+        "The description and CVSS 7.5 are current NVD values."
+      ]
+    },
+    "CVE-2025-27915": {
+      "source": "cursor_generated",
+      "what_happened": "CVE-2025-27915, a stored cross-site scripting flaw in the Zimbra Collaboration Classic Web Client that runs when a user views an e-mail containing a malicious ICS entry, ranked 25,696 of 75,148, 25,179 places outside the top 517. LightGBM ranked it 16,516, logistic regression 25,024 and Granite LoRA 44,771, so no model came near the cutoff. The linear attribution is approximate for this CVE; in it, a description far from past KEV text (score -2.2663), zero recorded exploit code, a CVSS score of 5.4 against a typical 8.7988 and the user-interaction requirement held it back, while the assigner's ransomware-linked KEV history and a sibling CVE with public code helped.",
+      "possible_explanations": [
+        {
+          "hypothesis": "A CVSS 5.4 cross-site scripting bug that needs a user to view a message is scored like a low-impact web bug, although in webmail viewing an e-mail is routine and the description says it can redirect the victim's mail.",
+          "category": "observable_signal",
+          "evidence_anchors": ["cvss", "ui_none", "description"],
+          "confidence": "medium",
+          "how_to_check": "Compare the ensemble ranks of webmail XSS CVEs that reached KEV with this one."
+        },
+        {
+          "hypothesis": "Granite extracted the vendor as 'Zimbra' while KEV records this product under Synacor, so the vendor-history feature may have missed earlier entries under the other name.",
+          "category": "information_gap",
+          "evidence_anchors": ["gap.vendor_no_prior_kev", "granite.vendor"],
+          "confidence": "low",
+          "how_to_check": "Count KEV entries listed under Synacor before 2025-03."
+        },
+        {
+          "hypothesis": "At the 2025-03 snapshot exploit-code flags were zero and EPSS sat at the 6.24 percentile, while KEV confirmation came 209 days after publication, so the snapshot saw the CVE long before any public sign of exploitation.",
+          "category": "observable_signal",
+          "evidence_anchors": ["signals.code_flags", "signals.epss", "gap.no_recorded_exploit_code"],
+          "confidence": "low",
+          "how_to_check": "Find the month in which EPSS or exploit-code flags first changed for CVE-2025-27915."
+        }
+      ],
+      "analyst_lessons": [
+        {
+          "warning_sign_or_gap": "Stored XSS in a webmail client triggered by viewing an e-mail with a malicious ICS calendar entry.",
+          "evidence_anchors": ["description", "ui_none"],
+          "what_to_investigate": "For webmail XSS in Zimbra or similar mail servers, read 'user interaction' as 'the victim opens a message', and check whether the payload can change mail filters or forward mail, which turns a moderate CVSS score into account takeover.",
+          "why_it_applies_here": "The description says the script can set e-mail filters that redirect messages to an attacker.",
+          "limits": "Not every webmail XSS reaches account settings; the check is about this kind of payload."
+        },
+        {
+          "warning_sign_or_gap": "Vendor history was empty for 'Zimbra' although KEV lists the product under Synacor; 33 other Zimbra CVEs here had no KEV additions under that name.",
+          "evidence_anchors": ["gap.vendor_no_prior_kev", "granite.vendor", "peer.same_vendor"],
+          "what_to_investigate": "Search KEV under both Zimbra and Synacor before judging the vendor's exploitation history.",
+          "why_it_applies_here": "Granite's vendor match found no prior KEV entries under the 'Zimbra' name.",
+          "limits": "Whether the vendor features would have matched Synacor entries was not tested."
+        },
+        {
+          "warning_sign_or_gap": "A sibling CVE had public exploit code, and the assigner's last KEV entry was about 9 days earlier.",
+          "evidence_anchors": ["sibling_has_code", "log_days_since_assigner_kev"],
+          "what_to_investigate": "When a Zimbra CVE arrives alongside siblings that already have public code, review the whole release together and check the assigner's recent KEV additions for the same product.",
+          "why_it_applies_here": "Both signals helped this CVE in the linear model but were outweighed by the text, CVSS and user-interaction penalties.",
+          "limits": "Sibling code may target a different bug in the release."
+        }
+      ],
+      "caveats": [
+        "The linear attribution is approximate for this CVE.",
+        "The description and CVSS 5.4 are current NVD values.",
+        "KEV addition came 209 days after publication, long after the snapshot."
+      ]
+    },
+    "CVE-2024-37383": {
+      "source": "cursor_generated",
+      "what_happened": "CVE-2024-37383, a cross-site scripting flaw in Roundcube Webmail before 1.5.7 and 1.6.x before 1.6.7 via SVG animate attributes, ranked 27,157 of 75,148, 26,640 places outside the top 517. Logistic regression ranked it 13,091, LightGBM 19,250 and Granite LoRA 57,158. The linear attribution is approximate for this CVE; in it, zero recorded exploit code, the user-interaction requirement, a CVSS score of 6.1 against a typical 8.7988 and a large same-day batch (about 22 CVEs) held it back, while the assigner's ransomware-linked KEV history, Granite's internet-exposed reading and prior KEV entries for the product helped.",
+      "possible_explanations": [
+        {
+          "hypothesis": "At the 2024-06 snapshot exploit-code flags were zero and EPSS sat at the 16.12 percentile, and KEV confirmation came 139 days after publication, so the snapshot preceded any public sign of exploitation.",
+          "category": "observable_signal",
+          "evidence_anchors": ["signals.code_flags", "signals.epss", "gap.no_recorded_exploit_code"],
+          "confidence": "medium",
+          "how_to_check": "Find the month in which EPSS or exploit-code flags first changed for CVE-2024-37383."
+        },
+        {
+          "hypothesis": "A CVSS 6.1 XSS that needs user interaction is scored like a minor web bug, although Granite read the product as typically internet-facing webmail.",
+          "category": "observable_signal",
+          "evidence_anchors": ["cvss", "ui_none", "granite.internet_exposed"],
+          "confidence": "medium",
+          "how_to_check": "Compare ensemble ranks of the webmail XSS CVEs that reached KEV in 2024-2025."
+        },
+        {
+          "hypothesis": "Prior KEV entries for Roundcube helped (Granite product-KEV value 1.7918 against a typical 0.8126) but were outweighed by the exploit-code, interaction and CVSS penalties.",
+          "category": "observable_signal",
+          "evidence_anchors": ["llm_product_kev", "peer.same_vendor"],
+          "confidence": "low",
+          "how_to_check": "List Roundcube's earlier KEV entries and check whether they were also script-injection bugs."
+        }
+      ],
+      "analyst_lessons": [
+        {
+          "warning_sign_or_gap": "Granite found prior KEV entries for Roundcube and judged it typically internet-facing.",
+          "evidence_anchors": ["llm_product_kev", "granite.internet_exposed"],
+          "what_to_investigate": "For webmail products already in KEV such as Roundcube, treat a new XSS as a candidate for the same use and check whether earlier KEV entries were script-injection bugs triggered by opening a message.",
+          "why_it_applies_here": "The product's KEV history was one of the few signals in this CVE's favour.",
+          "limits": "Prior KEV entries show interest in the product, not in this bug."
+        },
+        {
+          "warning_sign_or_gap": "XSS through SVG animate attributes in content the victim views.",
+          "evidence_anchors": ["description", "ui_none"],
+          "what_to_investigate": "Check whether the payload fires when Roundcube simply renders an e-mail, and which of your Roundcube installations run versions before 1.5.7 or 1.6.7 and face the internet.",
+          "why_it_applies_here": "The user-interaction requirement held this CVE back, but for webmail the interaction may only be opening a message.",
+          "limits": "The description does not say whether rendering alone triggers the payload."
+        },
+        {
+          "warning_sign_or_gap": "Released in a large batch of about 22 CVEs from the assigner the same day.",
+          "evidence_anchors": ["log_batch_size"],
+          "what_to_investigate": "When a webmail fix ships inside a large CVE batch, pull the webmail item out for separate review so batch size does not lower its priority.",
+          "why_it_applies_here": "Batch size was one of the linear model's drags on this Roundcube CVE.",
+          "limits": "Batch size is an assigner artifact; its effect beyond the linear model is unknown."
+        }
+      ],
+      "caveats": [
+        "The linear attribution is approximate for this CVE.",
+        "The description and CVSS 6.1 are current NVD values.",
+        "Roundcube had 7 other CVEs in this evaluation with no KEV additions, so the product's KEV history comes from CVEs outside this evaluation."
+      ]
+    },
+    "CVE-2024-57968": {
+      "source": "cursor_generated",
+      "what_happened": "CVE-2024-57968, a file-upload flaw in Advantive VeraCore before 2024.4.2.1 that lets remote authenticated users upload files to unintended folders through upload.aspx, ranked 48,002 of 75,148, 47,485 places outside the top 517, the deepest of the 43 misses. Even its best model, logistic regression, ranked it 28,707; LightGBM ranked it 40,609 and Granite LoRA 66,031. The linear attribution is approximate for this CVE; in it, the strongest drag was a description the text classifier rated very far from past KEV entries (score -4.0407), followed by zero recorded exploit code, a same-day batch of about 41 CVEs and Granite's small-or-niche install-base rating.",
+      "possible_explanations": [
+        {
+          "hypothesis": "The description reads as an authenticated misplacement of files rather than code execution, which may explain the very negative text score.",
+          "category": "observable_signal",
+          "evidence_anchors": ["text_kev_lr_logit", "description"],
+          "confidence": "medium",
+          "how_to_check": "Compare the text-classifier scores of upload CVEs that reached KEV with this one."
+        },
+        {
+          "hypothesis": "A sibling CVE had public exploit code, which helped, but this CVE's own flags were all zero and the help was small next to the text and batch penalties.",
+          "category": "observable_signal",
+          "evidence_anchors": ["sibling_has_code", "signals.code_flags"],
+          "confidence": "low",
+          "how_to_check": "Identify which sibling CVE had code and whether it was the VeraCore SQL injection."
+        },
+        {
+          "hypothesis": "KEV confirmation came 10 days after the snapshot, and vendor history gave no lift, leaving little time or context for the ranking to react.",
+          "category": "information_gap",
+          "evidence_anchors": ["gap.kev_soon_after_snapshot", "gap.vendor_no_prior_kev"],
+          "confidence": "medium",
+          "how_to_check": "Check when EPSS or exploit-code flags first changed for CVE-2024-57968."
+        }
+      ],
+      "analyst_lessons": [
+        {
+          "warning_sign_or_gap": "An authenticated file-upload flaw whose sibling CVE had public exploit code at snapshot.",
+          "evidence_anchors": ["sibling_has_code", "gap.no_recorded_exploit_code"],
+          "what_to_investigate": "When a related CVE in the same product has public exploit code, check whether that code yields the credentials or session this upload flaw needs; if so, treat this CVE as reachable without an account.",
+          "why_it_applies_here": "The upload requires an authenticated user, and the 1 other Advantive CVE in this evaluation, a SQL injection, was added to KEV the same day.",
+          "limits": "The chain is a hypothesis; this evidence does not show the two were used together."
+        },
+        {
+          "warning_sign_or_gap": "Uploads land in folders that other users can reach while browsing (upload.aspx).",
+          "evidence_anchors": ["description", "llm_impact=file_write_or_upload"],
+          "what_to_investigate": "For upload flaws that place files in web-served folders, check whether the server executes uploaded script types (for example .aspx) there, which would turn file placement into code execution.",
+          "why_it_applies_here": "Granite read the impact as file write or upload, not code execution, and the text score was the strongest drag.",
+          "limits": "Whether the affected folders execute scripts is not in this evidence."
+        },
+        {
+          "warning_sign_or_gap": "Even the best model ranked it 28,707, and the vendor has only one other CVE in the evaluation.",
+          "evidence_anchors": ["rank.logistic_regression", "peer.same_vendor"],
+          "what_to_investigate": "For products with few CVEs, group by product: when one VeraCore CVE is investigated or added to KEV, pull every other open VeraCore CVE into the same review regardless of its rank.",
+          "why_it_applies_here": "With its own signals this weak, grouping by product is a practical way to bring a CVE ranked this deep into review.",
+          "limits": "Grouping helps only after a sibling draws attention."
+        }
+      ],
+      "caveats": [
+        "The linear attribution is approximate for this CVE.",
+        "Granite labelled this VeraCore CVE a web application or CMS but labelled its VeraCore sibling an enterprise server application, so product-type features differ within one product.",
+        "The description and CVSS 8.8 are current NVD values."
+      ]
+    }
+  }
+}
