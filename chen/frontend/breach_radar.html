@@ -760,10 +760,11 @@ table.t tr.hl td { background: var(--ibm-soft) }
       return o + T(cx, cy - 2, Math.round((ws[0] || {}).share || 39) + "%", "hb blue", "middle") + T(cx, cy + 16, "Granite", "hs", "middle") + T(0, 184, "Share of the linear model’s decision, by kind of clue", "hs");
     },
     voters: function () {   // three overlapping judges, one result in the middle
-      var C = [[125, 62, "Decision trees", "24", "amber", 92, 48], [195, 62, "Linear model", "26", "teal", 228, 48], [160, 122, "Granite 8B", "25", "ibm", 160, 166]], o = "";
-      C.forEach(function (c) { o += '<circle cx="' + c[0] + '" cy="' + c[1] + '" r="62" fill="var(--' + c[4] + ')" fill-opacity=".16" stroke="var(--' + c[4] + ')" stroke-width="2"/>'; });
+      var R0 = 62, C = [[129, 62, "Decision trees", "24", "amber", 100, 50], [191, 62, "Linear model", "26", "teal", 220, 50], [160, 62 + R0 * Math.sqrt(3) / 2, "Granite 8B", "25", "ibm", 160, 160]], o = "";   // centres one radius apart: each circle runs through the other two centres, so the three-way overlap is a Reuleaux triangle
+      C.forEach(function (c) { o += '<circle cx="' + c[0] + '" cy="' + c[1] + '" r="' + R0 + '" fill="var(--' + c[4] + ')" fill-opacity=".16" stroke="var(--' + c[4] + ')" stroke-width="2"/>'; });
       C.forEach(function (c) { o += T(c[5], c[6], c[3], "hb2 " + c[4], "middle"); });
-      o += '<circle cx="160" cy="86" r="20" fill="var(--alert)"/>' + T(160, 93, "33", "hw", "middle");
+      var a = " A" + R0 + "," + R0 + " 0 0 1 ", P = function (c) { return c[0] + "," + c[1].toFixed(2); }, gy = (C[0][1] + C[1][1] + C[2][1]) / 3;   // Reuleaux: arc A->B around C, B->C around A, C->A around B
+      o += '<path d="M' + P(C[0]) + a + P(C[1]) + a + P(C[2]) + a + P(C[0]) + 'Z" fill="var(--alert)"/>' + T(160, gy + 9, "33", "hw", "middle");
       o += '<circle cx="300" cy="26" r="6" fill="var(--amber)"/>' + T(314, 31, "Decision trees") + '<circle cx="300" cy="50" r="6" fill="var(--teal)"/>' + T(314, 55, "Linear model") +
         '<circle cx="300" cy="74" r="6" fill="var(--ibm)"/>' + T(314, 79, "Granite 4.2 8B") + '<circle cx="300" cy="108" r="6" fill="var(--alert)"/>' + T(314, 114, "<tspan class='hb2 red'>33</tspan> together");
       return o + T(0, 194, "Hits of 75 on practice data · each alone 24–26", "hs");
