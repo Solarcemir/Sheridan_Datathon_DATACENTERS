@@ -66,6 +66,7 @@ Luis's handoff document (folder `luis/`; paths below are relative to it unless t
 
 | Idea | Status / plan | Owner |
 |---|---|---|
+| **One unified LR instead of two** (Luis + Chen features and heuristics in one model; replaces the avg-of-2-LR linear voter) | plan, evidence, every column and a fixed decision rule in §14.16; Chen's AI designs and trains it on the H100 box. `final_build.py` picks up `chen/submissions/lr_unified_scoreboard_2026.parquet` automatically if Chen adopts it | Chen → Luis |
 | LoRA seed averaging (Chen's pushback 3: the tree voter averages 40 seeds, the LLM voter is one run) | optional; 3–4 LoRA seeds rank-averaged, no selection, ~25 min on 3 free H100s. Expected hit gain ≈ 0, but a steadier top-500 boundary. Push as the same `lora8b_scoreboard_2026.parquet` (averaged ranks in `lora_score`) and Luis re-runs `final_build.py` | Chen (optional) |
 | Aggregate time series with Granite TimeSeries TTM (monthly KEV additions per vendor, forecast into 2026) | optional IBM demo for the write-up only; history is 50 months and very sparse per vendor; expected ranking gain ≈ 0 (§14.11) | optional |
 | Weighted ensembles | deliberately not done (selection bias) | – |
@@ -460,6 +461,7 @@ python -E -P luis/analysis/export_top500_json.py   # site/top500.json for the hu
 | Statistical review: seed variability, Holm tests, Romano–Wolf set, power, 2026 projection (§14.12) | `analysis/stats_review.py`, `reports/stats_review_seed_variability.csv`, `reports/stats_review_paired_tests.csv`, `reports/stats_review_best_set.csv`, `reports/stats_review_projection_2026.csv`, `reports/stats_review_log.txt` |
 | Nested hyperparameter tuning (§14.13) | `analysis/nested_tuning.py`, `reports/nested_tuning_choices.csv`, `reports/nested_tuning_results.csv`, `reports/nested_tuning_bootstrap.csv`, `reports/nested_tuning_log.txt` |
 | Final build: voters, filters, cap, sanity checks (§14.14) | `analysis/final_build.py`, `derived/xgb_bag_2026.parquet`, `derived/scored_2026_final.csv`, `submissions/top500_final.csv`, `reports/final_build_info.txt`, `reports/final_build_log.txt`, `reports/top500_final_explained.csv` |
+| Every column of both LRs: group, coefficient per SD, definition, closest equivalent (§14.16) | `reports/lr_columns_luis_chen.csv`; Chen's coefficients from `chen/results/final_lr_coefficients.csv`, Luis's from his LR refit on the 2024 + 2025 replicas (C = 1e-3) |
 | Chen's 3rd push on our A/B: final recipe with his voters, LoRA 30B / llmx, normalization sensitivity (§14.15) | `analysis/chen_round3.py`, `reports/chen_round3.csv`, `reports/chen_round3_log.txt`, `derived/xgb_bag_ab.parquet` (cache); Chen's side: `chen/reports/lora_cv_compare.txt`, `chen/reports/xgb_compare.txt`, `chen/reports/luis_recipe_check.txt` |
 | Static prior from 2022–2024 cohorts (§14.9) | `analysis/static_prior.py`, `derived/static/static_cohort_{2022,2023,2024}.parquet`, `reports/static_prior_results.csv`, `reports/static_prior_bootstrap.csv`, `reports/static_prior_invisible.csv`, `reports/static_prior_log.txt` |
 | Granite 30B demotion filters, vendor caps, v4f (§14.10) | `analysis/postprocess.py`, `reports/postprocess_filters_check.csv`, `reports/postprocess_results.csv`, `reports/postprocess_bootstrap.csv`, `reports/postprocess_log.txt`, `derived/ab_scores_v4.parquet`, `derived/scored_2026_v4f.csv`, `submissions/top500_v4f.csv`, `reports/top500_v4f_explained.csv` |
@@ -855,7 +857,13 @@ Chen delivered both files on Nov 7 (`7d78aa0`); no 30B file, because his 30B LoR
 | LLM voter = avg(8B, 30B) | 31 | 20–41 | +3 to +18 | −6 to +7 | 0.49 | 0.074 |
 | LLM voter = avg(8B, 30B, llmx) | 30 | 20–41 | +3 to +17 | −6 to +6 | 0.40 | 0.082 |
 | 4 voters: + LoRA 30B as its own voter | 32 | 21–43 | +4 to +20 | −5 to +9 | 0.63 | 0.074 |
-| Chen's own OOF LR + LoRA + LightGBM | 29 | 19–39 | +1 to +16 | −9 to +6 | 0.36 | 0.055 |
+| **Chen's recipe: LightGBM + Chen LR + LoRA 8B, no filters** | **32** | 21–43 | +5 to +19 | −5 to +9 | 0.62 | 0.068 |
+| Chen's recipe + Granite filters | 32 | 22–44 | +5 to +20 | −5 to +9 | 0.69 | 0.070 |
+| LightGBM + avg LR + LoRA 8B (filters) | 32 | 21–44 | +4 to +20 | −5 to +9 | 0.67 | 0.078 |
+| LightGBM + Luis LR + LoRA 8B (filters) | 31 | 20–42 | +3 to +19 | −6 to +7 | 0.54 | 0.072 |
+| Chen's *saved* OOF average `avg_lrteam_lora_lgbm` (older "lrteam" LR + LightGBM trained in his CV; **not** his final recipe) | 29 | 19–39 | +1 to +16 | −9 to +6 | 0.36 | 0.055 |
+
+*Correction:* an earlier version of this table labeled the last row "Chen's own OOF LR + LoRA + LightGBM". That was wrong. It's an older average saved in `cv_oof_avg.parquet`. **Chen's actual recipe scores 32 on our A/B too,** the same as our final. On his CV the two recipes are 33 (his) vs 32 (ours). Each wins by about 1 on its own exam, which is noise.
 
 **What it says:**
 - **The final recipe is the best point estimate (32) and needs nothing new.** It ties the 4-voter version. No single change is significant (every "vs v4f" interval contains 0), as the power analysis predicts (minimum detectable gap ≈ 5).
@@ -875,6 +883,149 @@ Chen delivered both files on Nov 7 (`7d78aa0`); no 30B file, because his 30B LoR
 4. *Check the final's composition before submitting.* Done above: Oracle 17 (cap holds, at most 3 per month), WordPress and other Granite-demoted 0, month mix spans Jan–Sep, 120 assigners.
 
 **Decision:** submit `top500_final.csv` as built. Nothing in Chen's 3rd push beats it, and it's the recipe both of us signed off on before seeing these numbers.
+
+### 14.16 Next: ONE linear model instead of two (plan, handed to Chen's GPU box)
+
+**Goal.** Today the linear voter is the average of two logistic regressions: Luis's (56 features) and Chen's (100). Replace them with **one LR that uses every feature and heuristic that proved useful in either workstream**.
+
+**Why:**
+- One model to explain, so the write-up gets one coefficient table for "what drives exploitation".
+- One model to maintain and one 2026 file.
+- The two LRs agree only moderately (Spearman 0.59), so each sees something the other misses.
+
+**The bar:** inside the final ensemble, the single LR must not lose to the 2-LR average.
+
+**Status:** not trained yet. Chen's AI decides how (prompt at the end of this section).
+
+#### The two LRs today
+
+| | Luis's LR (`common.m_lr`, features `SAFE + CHEN_LITE`) | Chen's LR (`lr_full_llmx_noemb`, `chen/scripts/cv.py`, `final.py`) |
+|---|---|---|
+| Features | **56** = 43 "safe" + 13 "Chen-lite" (rebuilt by Luis from Chen's ideas) | **100** = 15 base + 27 meta + 3 team (from Luis's columns) + 55 Granite 4.2 30B extraction |
+| Preprocessing | median imputation, StandardScaler | log/logit transforms in code, Granite NaN → 0, StandardScaler |
+| Model | sklearn LogisticRegression, L2, `class_weight="balanced"`, max_iter 5000 | same (L2, balanced), max_iter 2000 |
+| C | chosen inside training: fit months 01–06, validate 07–11 by average precision, grid 1e-4…1e-1. Final fit (2024 + 2025 replicas): **C = 1e-3** | inner grouped 3-fold CV (all positives + 15k sampled negatives) by AP, grid 1e-4…1e-2. Final: **C = 1e-4, the lower edge of the grid**, so the optimum may be stronger regularization |
+| Training rows | A/B: one replica year. 2026: 2024 + 2025 replicas (y = KEV by Dec 31 of that year) | all 75,148 CVEs of 2024-01..2025-09 (label = KEV after the snapshot month through 2025-12-31; 119 positives) |
+| Largest coefficients (per SD) | `text_kev_lr` +0.83 · `n_same_day` −0.73 · `n_adjacent_ids` −0.70 · `wp_cna` −0.50 · `txt_dos` −0.45 · `txt_unauth` +0.40 · `assigner_volume_3y` −0.36 · `assigner_ransom_kev` +0.35 · `txt_plugin` −0.34 · `cwe_unknown` −0.34 · `txt_kernel` +0.32 · `epss_missing` +0.31 · `days_to_cutoff` +0.30 · `id_year_lag` −0.28 | `text_kev_lr_logit` +0.43 · `log_batch_size` −0.22 · `llm_impact=denial_of_service` −0.20 · `llm_attacker_appeal` +0.19 · `llm_product_type=wordpress_plugin_or_theme` −0.14 · `eol_text` +0.14 · `any_code` +0.14 · `poc_github` +0.13 · `llm_install_base` +0.13 · `llm_product_type=enterprise_server_application` +0.13 · `out_of_band` +0.13 |
+
+**Every column, with group, coefficient per SD, definition and the closest column in the other LR:** `reports/lr_columns_luis_chen.csv` (156 rows). The regexes behind Luis's text flags are in `derived/feature_dictionary.csv` and `analysis/common.py` (`add_chen_lite`).
+
+**Luis's LR, all 56 columns:**
+- **Signals (9):** `epss`, `epss_pct` (percentile within snapshot month), `epss_missing`, `exploitdb`, `metasploit`, `nuclei`, `poc_github`, `n_flags`, `any_flag`.
+- **Time (2):** `age_days` (publication → end of snapshot month), `days_to_cutoff` (end of snapshot month → label cutoff).
+- **Text (20):**
+  - `desc_len`;
+  - regex flags `txt_rce`, `txt_unauth`, `txt_remote`, `txt_wordpress`, `txt_plugin`, `txt_sqli`, `txt_xss`, `txt_traversal`, `txt_deser`, `txt_cmdi`, `txt_memory`, `txt_privesc`, `txt_edge`, `txt_ssrf`, `txt_upload`, `txt_dos`, `txt_kernel`;
+  - `text_kev_lr` (TF-IDF logistic model trained only on past KEV descriptions; best single feature, AUC 0.91);
+  - `text_kev_sim` (max cosine similarity to a past KEV description).
+- **Siblings (4):** `n_same_day` (same assigner, same day, in the cohort), `sib_flags`, `sib_max_epss_pct`, `n_adjacent_ids` (same-day siblings within 3 ID numbers).
+- **History, all before the CVE's year (8):** `assigner_kev_3y`, `assigner_rate_3y` (smoothed), `assigner_volume_3y`, `assigner_kev_all`, `assigner_kev_prev_year`, `kev_product_hist`, `kev_product_hits`, `kev_vendor_hist` (KEV product/vendor names found in the description).
+- **Chen-lite (13):** `id_year_lag`, `old_id`, `wp_cna` (Wordfence/Patchstack/WPScan), `txt_eol`, `txt_vuldb_disclosed` (VulDB "exploit disclosed to the public" boilerplate), `txt_auth_bypass`, `assigner_ransom_kev`, `is_patch_tuesday`, `twins` (same assigner + day + description), `cwe_unknown`, `cv4_urgent`, `cv4_auto`, `cv4_e_poc` (CVSS 4 supplemental/threat metrics).
+
+**Chen's LR, all 100 columns:**
+- **Base (15):** `exploitdb`, `metasploit`, `nuclei`, `poc_github`, `any_code`, `epss_pct`, `epss_missing`, `cvss` (v3, else v4; median-filled), `cvss_missing`, `av_network`, `ac_low`, `pr_none`, `ui_none`, `scope_changed`, `wordpress_cna`.
+- **Meta (27):**
+  - assigner: `log_assigner_kev_rate`, `log_assigner_kev`, `log_days_since_assigner_kev`, `log1p_assigner_ransomware_kev`;
+  - CWE: `log_cwe_kev_rate`, `cwe_unknown`, `cwe_broad`;
+  - release batch: `log_batch_size`, `out_of_band`, `log1p_twins`, `patch_tuesday`, `old_id`;
+  - siblings: `sibling_has_code`, `sibling_max_epss_pct`;
+  - text: `eol_text`, `unauth_text`, `rce_text`, `auth_bypass_text`, `preauth_text`;
+  - CVSS 4: `cvss4_urgent`, `cvss4_automatable`, `cvss4_at_none`, `cvss4_subsequent_high`;
+  - KEV name history: `log1p_vendor_name_kev`, `log1p_product_name_kev`, `log1p_named_ransomware_kev`;
+  - `log1p_n_versions`.
+- **Team (3, from Luis's columns):** `text_kev_lr_logit`, `text_kev_sim`, `log1p_adjacent_ids`.
+- **Granite 4.2 30B world-knowledge extraction (55):**
+  - 7 ordinal/binary: `llm_vendor_kev`, `llm_product_kev`, `llm_product_ransomware_kev`, `llm_internet_exposed`, `llm_install_base`, `llm_attacker_appeal`, `llm_end_of_life`;
+  - one-hots: `product_type` (16), `used_by` (5), `precondition` (7), `impact` (8), `fix_status` (4), `typical_attacker` (5), `exploitation_style` (3).
+
+**Overlap:**
+- 36 of Luis's 56 columns have a close counterpart in Chen's LR. Examples: `any_flag` ↔ `any_code`, `text_kev_lr` ↔ `text_kev_lr_logit`, `n_adjacent_ids` ↔ `log1p_adjacent_ids`, `sib_max_epss_pct` ↔ `sibling_max_epss_pct`, `wp_cna` ↔ `wordpress_cna`, `twins` ↔ `log1p_twins`, `txt_eol` ↔ `eol_text`, `assigner_ransom_kev` ↔ `log1p_assigner_ransomware_kev`. Several are marked "approx." in the CSV and need checking.
+- **20 are Luis-only:** `epss` (raw), `n_flags`, `age_days`, `desc_len`, `txt_remote`, `txt_sqli`, `txt_xss`, `txt_traversal`, `txt_deser`, `txt_cmdi`, `txt_memory`, `txt_privesc`, `txt_ssrf`, `txt_upload`, `txt_kernel`, `assigner_kev_3y`, `assigner_volume_3y`, `days_to_cutoff`, `txt_vuldb_disclosed`, `cv4_e_poc`.
+- **Chen-only:** CVSS base metrics, `log_cwe_kev_rate`, `cwe_broad`, `out_of_band`, `preauth_text`, `log1p_n_versions`, `cvss4_at_none`, `cvss4_subsequent_high`, `log1p_named_ransomware_kev`, and all 55 Granite features.
+
+#### What we already know about merging them (evidence; read before designing)
+
+| Evaluation | Chen LR | Luis LR | Naive union (Chen LR + every Luis column) | Avg of the 2 LRs as the linear voter |
+|---|---|---|---|---|
+| Chen 5-fold purged CV, alone (K 517, 75 Nov-4 positives): hits / cap 3 / AP | 26 / 28 / 0.070 | 24 / 25 / 0.037 (`lr_luis_only`) | **28 / 30** / 0.052 (`lr_best_luis_all`); with only Luis's 4 sibling columns: 26 / 29 / 0.071 (`lr_best_luis_sib`) | – |
+| Chen forward-only (blocks 1–4, K 414, 66 positives): hits / cap 3 / AP | 23 / 23 / 0.062 | – | 23 / 23 / **0.075** | – |
+| Our A/B at density (A@243 + B@198, cap 3; `team_merge.py`) | 28 | – | **24** (Chen-style + Luis safe columns) | – |
+| Final ensemble on Chen's CV (tree + linear + LoRA, filters, cap 3; `chen/reports/luis_recipe_check.txt`) | 33 (his LR + LoRA + XGB) | 32 | not tested | 32 |
+| Final ensemble on our A/B (pooled, §14.15) | 30 | 30 | not tested | **32** |
+
+Reading:
+- **A naive union is mixed.** On Chen's CV it gains 2 hits but loses AP. On his forward-only blocks it ties on hits and gains AP. On our A/B it loses 4.
+- **Chen's naive union was really naive.** It appended every column of `luis/derived/for_chen/*.parquet` except `LUIS_DROP`. That includes columns that are **not** in Luis's LR: ordinal CVSS codes used as numbers (`cv_attack_vector` … `cv_availability_impact`), `cvss3`, `has_cvss4`, `cwe_kev_rate`, plus ~36 near-duplicates of his own columns. Anything above 10 got `log1p`. All of that went into one L2 penalty with C at the edge of the grid.
+- **Averaging the two LRs works better than either one** inside the ensemble on our A/B (32 vs 30 / 30). Averaging two differently regularized models is itself a form of regularization. A single LR has to reproduce that, for example with a curated union, a better C, or per-block scaling.
+
+#### Heuristics and rules we found useful (keep them; decide whether each belongs inside the LR or stays outside)
+
+- **Outside the LR, as post-processing (validated, keep as is):**
+  - **Granite 30B demotion** (impact = DoS only, typical attacker = unlikely target, attacker appeal = low, product = WordPress plugin/theme). Pushes 49–56% of CVEs down and catches 1 of 75 positives. Worth +0..+2 even though the LR already has these as one-hots.
+  - **Cap 3 per assigner per snapshot month** (insurance for vendor batches such as Oracle's 1,097-CVE July).
+  - **Rank average with the tree and the LoRA.**
+- **Signals that carry the LR:** exploit code flags, EPSS percentile within month, the TF-IDF-vs-past-KEV text score (`text_kev_lr`), assigner and product/vendor KEV history, and **batch-release negatives** (`n_same_day`, `n_adjacent_ids`, `log_batch_size`, `twins`: big same-day releases rarely reach KEV). Also WordPress/plugin negatives, DoS negatives, end-of-life positives, and Granite's attacker appeal and install base.
+- **Tested and NOT useful in an LR (don't add back without a reason):**
+  - "assigner heat" features (worse for the LR, §14.7);
+  - Granite Embedding PCA-64 (hurts the LR; `noemb` was Chen's best);
+  - the Granite zero-shot score;
+  - borrowed prior signals (assigner/vendor p90 EPSS, Nuclei/Metasploit share: 40 → 36–38 on Chen's CV);
+  - 2022–23 static-prior training rows (§14.9);
+  - month quotas;
+  - CatBoost-style raw assigner IDs.
+- **Leakage rules (hard):**
+  - never use `nvd_status`, `n_references`, `n_affected_cpes`, `last_modified`, `cvss3_source`, `txt_in_wild`, `assigner_kev_ytd`, `sib_kev_known`;
+  - every history count must be as of before the CVE's year (or before the snapshot), and every signal as of the end of its `snapshot_month`;
+  - `days_to_cutoff` must use the label cutoff of the row's own setup: in Chen's CV, 2025-12-31 minus the end of the snapshot month; for 2026 scoring, 2026-11-04 minus the end of the snapshot month.
+
+#### Decision rule (fixed before the run, to avoid picking the luckiest variant)
+
+1. Choose the unified LR's settings **inside training only** (inner CV). Test at most **3 pre-specified versions** and report all of them, not only the best.
+2. Compare as the **linear voter of the final ensemble**: tree + unified LR + LoRA 8B, Granite filters, cap 3, against tree + avg(Chen LR, Luis LR) + LoRA 8B, same post-processing. Use Chen's proxies from `luis_recipe_check.py` (`xgb_fixed_luis`, `lr_luis_only`) on his 5-fold purged CV **and** forward-only blocks. Report Nov-4 hits at K 517, cap 3, AP, and paired bootstrap CIs. Also report the LR alone.
+3. **Adopt it if it is within 1 hit of the 2-LR version, or better, on both the 5-fold and forward-only checks, and AP is not clearly lower.** Ties go to the single LR (simpler, and it's what Luis wants). If it loses by 2 or more on either check, keep the 2-LR average.
+4. Luis re-checks the out-of-fold scores on his A/B (`chen_round3.py`, new column) before the final is rebuilt.
+
+#### How it plugs in
+
+`final_build.py` uses `chen/submissions/lr_unified_scoreboard_2026.parquet` (`cve_id, lr_score`) as the **only** linear voter as soon as that file exists. Otherwise it keeps the average of the two LRs. So Chen pushes that file **only if the rule above adopts it**.
+
+#### Prompt for Chen's AI (copy as is)
+
+```
+You are working in the team repo (branch main, only write inside chen/). Read luis/context_Luis.md
+section 14.16 first (and 14.14-14.15 for the final recipe), plus luis/reports/lr_columns_luis_chen.csv
+(all 156 columns of both LRs with coefficients, definitions and the closest equivalent in the other LR).
+
+Task: Luis wants ONE logistic regression to replace the current linear voter, which is the average of
+two LRs (Luis's 56 features and your lr_full_llmx_noemb with 100). It should use every feature and
+heuristic that proved useful in either workstream. Reason about the design yourself; the context gives
+the evidence, not a recipe. In particular:
+- Your naive union (lr_best_luis_all) is mixed: +2 hits but lower AP on your 5-fold CV, tie on
+  forward-only, -4 on Luis's A/B. It also took in ordinal CVSS codes as numbers, cvss3/has_cvss4/
+  cwe_kev_rate, and ~36 near-duplicates of your own columns, under one L2 penalty with C = 1e-4 at the
+  edge of your grid. Decide what a principled union looks like (dedup with checks on training data,
+  consistent transforms, regularization range, per-block scaling or elastic net, which Luis-only
+  columns to keep, the days_to_cutoff definition for your label horizon). Explain your choices.
+- Keep the hard leakage rules in 14.16. Keep the Granite demotion filters and the cap of 3 per
+  assigner-month as post-processing, outside the LR.
+- Use the decision rule in 14.16, fixed in advance: at most 3 pre-specified versions, settings chosen
+  inside training, compared as the linear voter of the final ensemble (tree + LR + LoRA 8B, filters,
+  cap 3) against the current avg(your LR, Luis LR), on your 5-fold purged CV AND the forward-only
+  blocks, reporting all versions. Adopt only if within 1 hit or better on both checks with AP not
+  clearly lower; ties go to the single LR.
+
+Deliverables (push to main, commit "chen: unified LR"; git pull --rebase origin main first):
+1. Out-of-fold scores as new columns in chen/results/cv_oof_lr.parquet and cv_fwd_lr.parquet
+   (lr_unified, or lr_unified_v1..v3).
+2. chen/results/lr_unified_coefficients.csv (feature, coef_per_sd) and the exact column list.
+3. chen/reports/lr_unified_compare.txt with all the comparisons above.
+4. ONLY if adopted: chen/submissions/lr_unified_scoreboard_2026.parquet, columns cve_id (str),
+   lr_score (float), trained on all 2024-01..2025-09 CVEs, scoring all 72,670 scoreboard rows; checks:
+   72,670 rows, unique cve_id, no NaN, higher = more likely. Luis's final_build.py then uses it as the
+   only linear voter automatically.
+5. A section in chen/context_Chen.md: what you built, why, the results, and the verdict.
+Do not commit IBM data, model weights or files over 50 MB. Then tell Luis.
+```
 
 ## 15. Research sources
 

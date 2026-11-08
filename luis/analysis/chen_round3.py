@@ -23,7 +23,7 @@ import numpy as np  # noqa: E402
 import pandas as pd  # noqa: E402
 import xgboost as xgb  # noqa: E402
 from sklearn.metrics import average_precision_score  # noqa: E402
-from common import CHEN, CHEN_LITE, DER, FULL, REP, SAFE, XGB_BIG, capped, density_k, hits, jan_sep, load, m_lr, rank01  # noqa: E402
+from common import CHEN, CHEN_LITE, DER, FULL, REP, SAFE, XGB_BIG, capped, density_k, hits, jan_sep, load, m_lgbm, m_lr, rank01  # noqa: E402
 
 T0 = time.time()
 RNG = np.random.default_rng(3)
@@ -50,6 +50,9 @@ else:
         parts.append(pd.DataFrame({"cve_id": te.cve_id, "xgb_bag": np.mean(ps, axis=0), "lr_luis": m_lr(tr, te, SAFE + CHEN_LITE)}))
         log(f"{name}: XGBoost 20 seeds + LR done")
     comp = pd.concat(parts, ignore_index=True)
+    comp.to_parquet(cache, index=False)
+if "lgbm" not in comp:   # LightGBM on Luis's safe features (10 deterministic seeds): the tree in Chen's own recipe
+    comp["lgbm"] = np.r_[m_lgbm(tr24, te25, SAFE), m_lgbm(tr25, te24, SAFE)]
     comp.to_parquet(cache, index=False)
 both = both.merge(comp, on="cve_id", how="left")
 
@@ -84,13 +87,13 @@ def norm(col, how):
     x = both[col].fillna(both[col].min()).to_numpy()
     if how == "month":
         return both.groupby("snapshot_month")[col].rank(pct=True).fillna(0).to_numpy()
-    if how == "split" or col in ("xgb_bag", "lr_luis"):
+    if how == "split" or col in ("xgb_bag", "lr_luis", "lgbm"):
         return np.r_[rank01(x[:nA]), rank01(x[nA:])]
     return rank01(x)
 
 
 def voters(how):
-    V = {k: norm(c, how) for k, c in (("tree", "xgb_bag"), ("lr_luis", "lr_luis"), ("lr_chen", "lr_chen"), ("lora8b", "lora8b"),
+    V = {k: norm(c, how) for k, c in (("tree", "xgb_bag"), ("lgbm", "lgbm"), ("lr_luis", "lr_luis"), ("lr_chen", "lr_chen"), ("lora8b", "lora8b"),
                                       ("lora30b", "lora30b"), ("llmx8b", "llmx8b"), ("chen3", "avg_lrteam_lora_lgbm"))}
     V["linear"] = (V["lr_luis"] + V["lr_chen"]) / 2
     V["llm_8b_30b"] = (V["lora8b"] + V["lora30b"]) / 2
@@ -117,7 +120,13 @@ RECIPES = {   # name: (voters, Granite filters, cap)
     "LLM voter = avg(8B, 30B) [est.]": (("tree", "linear", "llm_8b_30b"), True, 3),
     "LLM voter = avg(8B, 30B, llmx) [est.]": (("tree", "linear", "llm_all3"), True, 3),
     "4 voters: XGB + avg LR + LoRA 8B + LoRA 30B [est.]": (("tree", "linear", "lora8b", "lora30b"), True, 3),
-    "Chen's own OOF LR + LoRA + LightGBM (cap 3) [est.]": (("chen3",), False, 3),
+    "Chen's recipe: LightGBM + LR Chen + LoRA 8B, no filters [est.]": (("lgbm", "lr_chen", "lora8b"), False, 3),
+    "  Chen's recipe + Granite filters [est.]": (("lgbm", "lr_chen", "lora8b"), True, 3),
+    "  LightGBM + avg LR + LoRA 8B (filters) [est.]": (("lgbm", "linear", "lora8b"), True, 3),
+    "  LightGBM + LR Luis + LoRA 8B (filters) [est.]": (("lgbm", "lr_luis", "lora8b"), True, 3),
+    # cv_oof_avg.avg_lrteam_lora_lgbm: an older saved average (earlier "lrteam" LR + LightGBM trained inside Chen's CV);
+    # NOT his final recipe, which is the row above
+    "Chen's saved OOF average avg_lrteam_lora_lgbm (older LR) [est.]": (("chen3",), False, 3),
 }
 
 

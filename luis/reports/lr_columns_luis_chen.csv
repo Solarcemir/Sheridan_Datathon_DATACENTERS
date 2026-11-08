@@ -1,0 +1,157 @@
+lr,feature,group,coef_per_sd,definition,closest_in_other_lr
+Luis,epss,signals,0.0005,EPSS at the end of snapshot_month (0 if blank),none
+Luis,epss_pct,signals,-0.0166,EPSS percentile within the snapshot month (comparable across the 2025 model change),epss_pct
+Luis,epss_missing,signals,0.3117,1 if there was no EPSS score that month,epss_missing
+Luis,exploitdb,signals,0.0081,1 if exploitdb code existed at the snapshot,exploitdb
+Luis,metasploit,signals,-0.0379,1 if metasploit code existed at the snapshot,metasploit
+Luis,nuclei,signals,0.0514,1 if nuclei code existed at the snapshot,nuclei
+Luis,poc_github,signals,0.1958,1 if poc_github code existed at the snapshot,poc_github
+Luis,n_flags,signals,0.1725,Number of exploit flags,none
+Luis,any_flag,signals,0.0644,1 if any exploit flag,any_code
+Luis,age_days,time,0.0977,Days between publication and the end of snapshot_month,none
+Luis,desc_len,text,-0.05,Description length in characters,none
+Luis,txt_rce,text,0.1062,Description matches /remote code execution|\bRCE\b|execute arbitrary (?:code|commands)|arbitrary code execution/,rce_text
+Luis,txt_unauth,text,0.3945,Description matches /unauthenticated|without authentication|authentication bypass|bypass authentication/,unauth_text (+ preauth_text)
+Luis,txt_remote,text,0.0027,"Description matches /remote attacker|remote, unauthenticated|over the network|via the network/",none
+Luis,txt_wordpress,text,-0.2749,Description matches /wordpress/,wordpress_cna / llm_product_type=wordpress_plugin_or_theme (approx.)
+Luis,txt_plugin,text,-0.3367,Description matches /\bplugin\b/,llm_product_type=wordpress_plugin_or_theme (approx.)
+Luis,txt_sqli,text,-0.0638,Description matches /sql injection/,none
+Luis,txt_xss,text,-0.0142,Description matches /cross[- ]site scripting|\bXSS\b/,none
+Luis,txt_traversal,text,0.0926,Description matches /path traversal|directory traversal/,none
+Luis,txt_deser,text,-0.111,Description matches /deserializ/,none
+Luis,txt_cmdi,text,-0.2034,Description matches /command injection|os command/,none
+Luis,txt_memory,text,-0.1153,Description matches /use[- ]after[- ]free|out[- ]of[- ]bounds|buffer overflow|heap overflow|type confusion|memory corruption/,none
+Luis,txt_privesc,text,-0.1015,Description matches /privilege escalation|elevation of privilege|escalate (?:their )?privileges/,none
+Luis,txt_edge,text,-0.0243,Description matches /\b(?:vpn|firewall|gateway|router|appliance|load balancer)\b/,llm_product_type=network_edge_device (approx.)
+Luis,txt_ssrf,text,-0.2193,Description matches /server[- ]side request forgery|\bSSRF\b/,none
+Luis,txt_upload,text,-0.013,Description matches /file upload|upload arbitrary/,none
+Luis,txt_dos,text,-0.45,Description matches /denial of service/,llm_impact=denial_of_service (approx.)
+Luis,txt_kernel,text,0.3203,Description matches /\bkernel\b/,none
+Luis,text_kev_lr,text,0.83,TF-IDF logistic model: how much the description reads like past KEV entries,"text_kev_lr_logit (same TF-IDF model, logit scale)"
+Luis,text_kev_sim,text,-0.0169,Max cosine similarity to any past KEV description,text_kev_sim (same)
+Luis,n_same_day,siblings,-0.7308,CVEs in the cohort from the same assigner on the same day,"log_batch_size (approx., verify definition)"
+Luis,sib_flags,siblings,0.2546,Exploit flags among same-day siblings,sibling_has_code (count vs 0/1)
+Luis,sib_max_epss_pct,siblings,0.0124,Highest EPSS percentile among same-day siblings,sibling_max_epss_pct
+Luis,n_adjacent_ids,siblings,-0.6998,Same-day siblings within 3 ID numbers,"log1p_adjacent_ids (same, log)"
+Luis,assigner_kev_3y,history,-0.2241,KEV entries among this assigner's CVEs from the previous 3 years,none
+Luis,assigner_rate_3y,history,0.0928,Smoothed KEV rate of this assigner over the previous 3 years,log_assigner_kev_rate (approx.)
+Luis,assigner_volume_3y,history,-0.3577,log(1 + CVEs published by this assigner in the previous 3 years),none
+Luis,assigner_kev_all,history,0.2564,All KEV entries before Jan 1 of the year whose CVE has this assigner,log_assigner_kev (approx.)
+Luis,assigner_kev_prev_year,history,-0.2194,KEV entries added in the previous 12 months for this assigner,log_days_since_assigner_kev (related)
+Luis,kev_product_hist,history,-0.0508,Max past KEV count of a KEV product name found in the description,log1p_product_name_kev / llm_product_kev (approx.)
+Luis,kev_product_hits,history,0.1786,Distinct past KEV product names found in the description,log1p_product_name_kev (approx.)
+Luis,kev_vendor_hist,history,-0.0989,Max past KEV count of a KEV vendor name found in the description,log1p_vendor_name_kev / llm_vendor_kev (approx.)
+Luis,days_to_cutoff,time,0.2951,Days from the end of snapshot_month to the label cutoff (Nov 4 / Dec 31),none
+Luis,id_year_lag,Chen-lite (built by Luis),-0.2775,Publish year minus the year in the CVE id,old_id
+Luis,old_id,Chen-lite (built by Luis),-0.1072,1 if id_year_lag >= 1,old_id
+Luis,wp_cna,Chen-lite (built by Luis),-0.502,1 if assigner is Wordfence / Patchstack / WPScan,wordpress_cna
+Luis,txt_eol,Chen-lite (built by Luis),0.041,Description says end-of-life / unsupported,eol_text / llm_end_of_life
+Luis,txt_vuldb_disclosed,Chen-lite (built by Luis),-0.2325,VulDB boilerplate: exploit has been disclosed to the public,none
+Luis,txt_auth_bypass,Chen-lite (built by Luis),0.0558,Description says authentication bypass,auth_bypass_text
+Luis,assigner_ransom_kev,Chen-lite (built by Luis),0.3477,Past KEV entries with known ransomware use from this assigner (before Jan 1),log1p_assigner_ransomware_kev
+Luis,is_patch_tuesday,Chen-lite (built by Luis),-0.0565,Published on the 2nd Tuesday of the month,patch_tuesday
+Luis,twins,Chen-lite (built by Luis),-0.0711,"Other CVEs with the same assigner, day and description",log1p_twins
+Luis,cwe_unknown,Chen-lite (built by Luis),-0.3362,No CWE given,cwe_unknown
+Luis,cv4_urgent,Chen-lite (built by Luis),0.0465,CVSS 4 supplemental urgency Red/Amber,cvss4_urgent
+Luis,cv4_auto,Chen-lite (built by Luis),0.0749,CVSS 4 Automatable = Yes,cvss4_automatable
+Luis,cv4_e_poc,Chen-lite (built by Luis),-0.1404,CVSS 4 exploit maturity = PoC,none
+Chen,log_batch_size,meta,-0.2225,"see chen/scripts/stack.py (features, meta_features), cv.py (team_feats, llm_feats)",n_same_day
+Chen,llm_impact=denial_of_service,Granite 4.2 30B extraction,-0.2022,"see chen/scripts/stack.py (features, meta_features), cv.py (team_feats, llm_feats)",txt_dos
+Chen,llm_product_type=wordpress_plugin_or_theme,Granite 4.2 30B extraction,-0.1442,"see chen/scripts/stack.py (features, meta_features), cv.py (team_feats, llm_feats)",txt_plugin
+Chen,wordpress_cna,base,-0.1125,"see chen/scripts/stack.py (features, meta_features), cv.py (team_feats, llm_feats)","txt_wordpress, wp_cna"
+Chen,cwe_broad,meta,-0.0997,"see chen/scripts/stack.py (features, meta_features), cv.py (team_feats, llm_feats)",none
+Chen,cwe_unknown,meta,-0.0968,"see chen/scripts/stack.py (features, meta_features), cv.py (team_feats, llm_feats)",cwe_unknown
+Chen,llm_product_type=industrial_or_ot,Granite 4.2 30B extraction,-0.0908,"see chen/scripts/stack.py (features, meta_features), cv.py (team_feats, llm_feats)",none
+Chen,llm_product_type=library_or_framework,Granite 4.2 30B extraction,-0.0872,"see chen/scripts/stack.py (features, meta_features), cv.py (team_feats, llm_feats)",none
+Chen,old_id,meta,-0.0832,"see chen/scripts/stack.py (features, meta_features), cv.py (team_feats, llm_feats)","id_year_lag, old_id"
+Chen,llm_used_by=developers,Granite 4.2 30B extraction,-0.0753,"see chen/scripts/stack.py (features, meta_features), cv.py (team_feats, llm_feats)",none
+Chen,sibling_max_epss_pct,meta,-0.0698,"see chen/scripts/stack.py (features, meta_features), cv.py (team_feats, llm_feats)",sib_max_epss_pct
+Chen,llm_precondition=needs_local_access,Granite 4.2 30B extraction,-0.0688,"see chen/scripts/stack.py (features, meta_features), cv.py (team_feats, llm_feats)",none
+Chen,llm_typical_attacker=unlikely_target,Granite 4.2 30B extraction,-0.0637,"see chen/scripts/stack.py (features, meta_features), cv.py (team_feats, llm_feats)",none
+Chen,llm_typical_attacker=botnets,Granite 4.2 30B extraction,-0.0607,"see chen/scripts/stack.py (features, meta_features), cv.py (team_feats, llm_feats)",none
+Chen,llm_product_type=other,Granite 4.2 30B extraction,-0.0582,"see chen/scripts/stack.py (features, meta_features), cv.py (team_feats, llm_feats)",none
+Chen,log_days_since_assigner_kev,meta,-0.0576,"see chen/scripts/stack.py (features, meta_features), cv.py (team_feats, llm_feats)",assigner_kev_prev_year
+Chen,llm_used_by=industrial,Granite 4.2 30B extraction,-0.0495,"see chen/scripts/stack.py (features, meta_features), cv.py (team_feats, llm_feats)",none
+Chen,log1p_adjacent_ids,team (Luis TF-IDF/siblings),-0.0491,"see chen/scripts/stack.py (features, meta_features), cv.py (team_feats, llm_feats)",n_adjacent_ids
+Chen,llm_precondition=needs_user_action,Granite 4.2 30B extraction,-0.049,"see chen/scripts/stack.py (features, meta_features), cv.py (team_feats, llm_feats)",none
+Chen,log1p_twins,meta,-0.0477,"see chen/scripts/stack.py (features, meta_features), cv.py (team_feats, llm_feats)",twins
+Chen,cvss4_at_none,meta,-0.045,"see chen/scripts/stack.py (features, meta_features), cv.py (team_feats, llm_feats)",none
+Chen,llm_end_of_life,Granite 4.2 30B extraction,-0.0415,"see chen/scripts/stack.py (features, meta_features), cv.py (team_feats, llm_feats)",none
+Chen,log1p_n_versions,meta,-0.0397,"see chen/scripts/stack.py (features, meta_features), cv.py (team_feats, llm_feats)",none
+Chen,llm_used_by=both,Granite 4.2 30B extraction,-0.0344,"see chen/scripts/stack.py (features, meta_features), cv.py (team_feats, llm_feats)",none
+Chen,llm_product_ransomware_kev,Granite 4.2 30B extraction,-0.0341,"see chen/scripts/stack.py (features, meta_features), cv.py (team_feats, llm_feats)",none
+Chen,llm_precondition=needs_prior_compromise_or_unusual_config,Granite 4.2 30B extraction,-0.0321,"see chen/scripts/stack.py (features, meta_features), cv.py (team_feats, llm_feats)",none
+Chen,llm_product_type=consumer_router_or_iot,Granite 4.2 30B extraction,-0.0277,"see chen/scripts/stack.py (features, meta_features), cv.py (team_feats, llm_feats)",none
+Chen,llm_exploitation_style=targeted_attacks,Granite 4.2 30B extraction,-0.0246,"see chen/scripts/stack.py (features, meta_features), cv.py (team_feats, llm_feats)",none
+Chen,llm_product_type=developer_tool,Granite 4.2 30B extraction,-0.0239,"see chen/scripts/stack.py (features, meta_features), cv.py (team_feats, llm_feats)",none
+Chen,llm_impact=authentication_bypass,Granite 4.2 30B extraction,-0.0178,"see chen/scripts/stack.py (features, meta_features), cv.py (team_feats, llm_feats)",none
+Chen,metasploit,base,-0.0133,"see chen/scripts/stack.py (features, meta_features), cv.py (team_feats, llm_feats)",metasploit
+Chen,llm_product_type=browser,Granite 4.2 30B extraction,-0.0099,"see chen/scripts/stack.py (features, meta_features), cv.py (team_feats, llm_feats)",none
+Chen,llm_fix_status=no_fix_end_of_life,Granite 4.2 30B extraction,-0.0097,"see chen/scripts/stack.py (features, meta_features), cv.py (team_feats, llm_feats)",none
+Chen,llm_fix_status=workaround_or_mitigation_only,Granite 4.2 30B extraction,-0.0083,"see chen/scripts/stack.py (features, meta_features), cv.py (team_feats, llm_feats)",none
+Chen,cvss_missing,base,-0.0061,"see chen/scripts/stack.py (features, meta_features), cv.py (team_feats, llm_feats)",none
+Chen,llm_precondition=needs_user_account,Granite 4.2 30B extraction,-0.0055,"see chen/scripts/stack.py (features, meta_features), cv.py (team_feats, llm_feats)",none
+Chen,llm_product_type=desktop_os,Granite 4.2 30B extraction,-0.0055,"see chen/scripts/stack.py (features, meta_features), cv.py (team_feats, llm_feats)",none
+Chen,llm_fix_status=unclear,Granite 4.2 30B extraction,-0.0043,"see chen/scripts/stack.py (features, meta_features), cv.py (team_feats, llm_feats)",none
+Chen,llm_product_type=virtualization_or_cloud_infra,Granite 4.2 30B extraction,-0.0043,"see chen/scripts/stack.py (features, meta_features), cv.py (team_feats, llm_feats)",none
+Chen,llm_vendor_kev,Granite 4.2 30B extraction,-0.0036,"see chen/scripts/stack.py (features, meta_features), cv.py (team_feats, llm_feats)",none
+Chen,llm_used_by=consumers,Granite 4.2 30B extraction,-0.0035,"see chen/scripts/stack.py (features, meta_features), cv.py (team_feats, llm_feats)",none
+Chen,llm_product_type=mobile_os_or_app,Granite 4.2 30B extraction,-0.0029,"see chen/scripts/stack.py (features, meta_features), cv.py (team_feats, llm_feats)",none
+Chen,llm_exploitation_style=difficult_or_theoretical,Granite 4.2 30B extraction,-0.0004,"see chen/scripts/stack.py (features, meta_features), cv.py (team_feats, llm_feats)",none
+Chen,llm_impact=other,Granite 4.2 30B extraction,0.0,"see chen/scripts/stack.py (features, meta_features), cv.py (team_feats, llm_feats)",none
+Chen,llm_typical_attacker=opportunistic_criminals,Granite 4.2 30B extraction,0.0,"see chen/scripts/stack.py (features, meta_features), cv.py (team_feats, llm_feats)",none
+Chen,llm_typical_attacker=state_sponsored_espionage,Granite 4.2 30B extraction,0.0089,"see chen/scripts/stack.py (features, meta_features), cv.py (team_feats, llm_feats)",none
+Chen,epss_pct,base,0.01,"see chen/scripts/stack.py (features, meta_features), cv.py (team_feats, llm_feats)",epss_pct
+Chen,llm_precondition=none,Granite 4.2 30B extraction,0.011,"see chen/scripts/stack.py (features, meta_features), cv.py (team_feats, llm_feats)",none
+Chen,scope_changed,base,0.0137,"see chen/scripts/stack.py (features, meta_features), cv.py (team_feats, llm_feats)",none
+Chen,llm_impact=client_side_script_injection,Granite 4.2 30B extraction,0.0139,"see chen/scripts/stack.py (features, meta_features), cv.py (team_feats, llm_feats)",none
+Chen,patch_tuesday,meta,0.0139,"see chen/scripts/stack.py (features, meta_features), cv.py (team_feats, llm_feats)",is_patch_tuesday
+Chen,llm_fix_status=patch_available,Granite 4.2 30B extraction,0.0146,"see chen/scripts/stack.py (features, meta_features), cv.py (team_feats, llm_feats)",none
+Chen,cvss4_subsequent_high,meta,0.0147,"see chen/scripts/stack.py (features, meta_features), cv.py (team_feats, llm_feats)",none
+Chen,log1p_product_name_kev,meta,0.015,"see chen/scripts/stack.py (features, meta_features), cv.py (team_feats, llm_feats)","kev_product_hist, kev_product_hits"
+Chen,exploitdb,base,0.018,"see chen/scripts/stack.py (features, meta_features), cv.py (team_feats, llm_feats)",exploitdb
+Chen,llm_impact=privilege_escalation,Granite 4.2 30B extraction,0.0188,"see chen/scripts/stack.py (features, meta_features), cv.py (team_feats, llm_feats)",none
+Chen,av_network,base,0.0235,"see chen/scripts/stack.py (features, meta_features), cv.py (team_feats, llm_feats)",none
+Chen,cvss4_urgent,meta,0.024,"see chen/scripts/stack.py (features, meta_features), cv.py (team_feats, llm_feats)",cv4_urgent
+Chen,llm_product_type=desktop_application,Granite 4.2 30B extraction,0.0271,"see chen/scripts/stack.py (features, meta_features), cv.py (team_feats, llm_feats)",none
+Chen,llm_exploitation_style=mass_exploitable_at_scale,Granite 4.2 30B extraction,0.0283,"see chen/scripts/stack.py (features, meta_features), cv.py (team_feats, llm_feats)",none
+Chen,llm_product_type=web_application_or_cms,Granite 4.2 30B extraction,0.0319,"see chen/scripts/stack.py (features, meta_features), cv.py (team_feats, llm_feats)",none
+Chen,cvss4_automatable,meta,0.0338,"see chen/scripts/stack.py (features, meta_features), cv.py (team_feats, llm_feats)",cv4_auto
+Chen,log_assigner_kev,meta,0.0377,"see chen/scripts/stack.py (features, meta_features), cv.py (team_feats, llm_feats)",assigner_kev_all
+Chen,log1p_vendor_name_kev,meta,0.0391,"see chen/scripts/stack.py (features, meta_features), cv.py (team_feats, llm_feats)",kev_vendor_hist
+Chen,rce_text,meta,0.0407,"see chen/scripts/stack.py (features, meta_features), cv.py (team_feats, llm_feats)",txt_rce
+Chen,llm_impact=file_write_or_upload,Granite 4.2 30B extraction,0.0408,"see chen/scripts/stack.py (features, meta_features), cv.py (team_feats, llm_feats)",none
+Chen,llm_product_type=email_or_collaboration,Granite 4.2 30B extraction,0.0419,"see chen/scripts/stack.py (features, meta_features), cv.py (team_feats, llm_feats)",none
+Chen,llm_product_type=remote_access_or_it_management,Granite 4.2 30B extraction,0.0438,"see chen/scripts/stack.py (features, meta_features), cv.py (team_feats, llm_feats)",none
+Chen,sibling_has_code,meta,0.0476,"see chen/scripts/stack.py (features, meta_features), cv.py (team_feats, llm_feats)",sib_flags
+Chen,ac_low,base,0.0482,"see chen/scripts/stack.py (features, meta_features), cv.py (team_feats, llm_feats)",none
+Chen,pr_none,base,0.0484,"see chen/scripts/stack.py (features, meta_features), cv.py (team_feats, llm_feats)",none
+Chen,log1p_named_ransomware_kev,meta,0.0487,"see chen/scripts/stack.py (features, meta_features), cv.py (team_feats, llm_feats)",none
+Chen,llm_precondition=needs_adjacent_network_or_physical,Granite 4.2 30B extraction,0.05,"see chen/scripts/stack.py (features, meta_features), cv.py (team_feats, llm_feats)",none
+Chen,epss_missing,base,0.0589,"see chen/scripts/stack.py (features, meta_features), cv.py (team_feats, llm_feats)",epss_missing
+Chen,llm_internet_exposed,Granite 4.2 30B extraction,0.0618,"see chen/scripts/stack.py (features, meta_features), cv.py (team_feats, llm_feats)",none
+Chen,preauth_text,meta,0.064,"see chen/scripts/stack.py (features, meta_features), cv.py (team_feats, llm_feats)",none
+Chen,log_assigner_kev_rate,meta,0.0793,"see chen/scripts/stack.py (features, meta_features), cv.py (team_feats, llm_feats)",assigner_rate_3y
+Chen,llm_impact=remote_code_execution,Granite 4.2 30B extraction,0.0802,"see chen/scripts/stack.py (features, meta_features), cv.py (team_feats, llm_feats)",none
+Chen,text_kev_sim,team (Luis TF-IDF/siblings),0.0812,"see chen/scripts/stack.py (features, meta_features), cv.py (team_feats, llm_feats)",text_kev_sim
+Chen,unauth_text,meta,0.0814,"see chen/scripts/stack.py (features, meta_features), cv.py (team_feats, llm_feats)",txt_unauth
+Chen,nuclei,base,0.0871,"see chen/scripts/stack.py (features, meta_features), cv.py (team_feats, llm_feats)",nuclei
+Chen,log_cwe_kev_rate,meta,0.0918,"see chen/scripts/stack.py (features, meta_features), cv.py (team_feats, llm_feats)",none
+Chen,llm_product_kev,Granite 4.2 30B extraction,0.094,"see chen/scripts/stack.py (features, meta_features), cv.py (team_feats, llm_feats)",none
+Chen,log1p_assigner_ransomware_kev,meta,0.0959,"see chen/scripts/stack.py (features, meta_features), cv.py (team_feats, llm_feats)",assigner_ransom_kev
+Chen,llm_typical_attacker=ransomware_or_extortion_groups,Granite 4.2 30B extraction,0.0987,"see chen/scripts/stack.py (features, meta_features), cv.py (team_feats, llm_feats)",none
+Chen,ui_none,base,0.1,"see chen/scripts/stack.py (features, meta_features), cv.py (team_feats, llm_feats)",none
+Chen,llm_impact=sensitive_data_disclosure,Granite 4.2 30B extraction,0.1037,"see chen/scripts/stack.py (features, meta_features), cv.py (team_feats, llm_feats)",none
+Chen,auth_bypass_text,meta,0.1041,"see chen/scripts/stack.py (features, meta_features), cv.py (team_feats, llm_feats)",txt_auth_bypass
+Chen,llm_precondition=needs_admin,Granite 4.2 30B extraction,0.1068,"see chen/scripts/stack.py (features, meta_features), cv.py (team_feats, llm_feats)",none
+Chen,llm_product_type=network_edge_device,Granite 4.2 30B extraction,0.1093,"see chen/scripts/stack.py (features, meta_features), cv.py (team_feats, llm_feats)",txt_edge
+Chen,llm_used_by=enterprises_and_governments,Granite 4.2 30B extraction,0.1137,"see chen/scripts/stack.py (features, meta_features), cv.py (team_feats, llm_feats)",none
+Chen,cvss,base,0.1189,"see chen/scripts/stack.py (features, meta_features), cv.py (team_feats, llm_feats)",none
+Chen,out_of_band,meta,0.128,"see chen/scripts/stack.py (features, meta_features), cv.py (team_feats, llm_feats)",none
+Chen,llm_product_type=enterprise_server_application,Granite 4.2 30B extraction,0.1288,"see chen/scripts/stack.py (features, meta_features), cv.py (team_feats, llm_feats)",none
+Chen,llm_install_base,Granite 4.2 30B extraction,0.1293,"see chen/scripts/stack.py (features, meta_features), cv.py (team_feats, llm_feats)",none
+Chen,poc_github,base,0.1336,"see chen/scripts/stack.py (features, meta_features), cv.py (team_feats, llm_feats)",poc_github
+Chen,any_code,base,0.1348,"see chen/scripts/stack.py (features, meta_features), cv.py (team_feats, llm_feats)",any_flag
+Chen,eol_text,meta,0.1404,"see chen/scripts/stack.py (features, meta_features), cv.py (team_feats, llm_feats)",txt_eol
+Chen,llm_attacker_appeal,Granite 4.2 30B extraction,0.1877,"see chen/scripts/stack.py (features, meta_features), cv.py (team_feats, llm_feats)",none
+Chen,text_kev_lr_logit,team (Luis TF-IDF/siblings),0.4297,"see chen/scripts/stack.py (features, meta_features), cv.py (team_feats, llm_feats)",text_kev_lr
