@@ -1,0 +1,29 @@
+﻿[    9s] A: inner fit 20,341 rows / 21 pos, inner validation 16,100 rows / 19 pos
+[   59s] A: XGBoost search done (best inner AP 0.1031 vs default 0.0260)
+[   78s] A: LightGBM search done (best inner AP 0.0519 vs default 0.0286)
+[  111s] A: test scored (weight 0.6, cap 3)
+[  111s] B: inner fit 23,579 rows / 39 pos, inner validation 18,984 rows / 16 pos
+[  159s] B: XGBoost search done (best inner AP 0.0831 vs default 0.0489)
+[  191s] B: LightGBM search done (best inner AP 0.0718 vs default 0.0582)
+[  242s] B: test scored (weight 0.7, cap 3)
+CHOSEN INSIDE TRAINING (compare A vs B: stable choices are a good sign)
+split                                                                                                                                                                       xgb  xgb inner AP  xgb default inner AP                                                                                                                                                                          lgbm  lgbm inner AP  lgbm default inner AP  weight on XGBoost  cap
+    A   {'max_depth': 6, 'learning_rate': 0.01, 'n_estimators': 300, 'min_child_weight': 10, 'subsample': 0.6, 'colsample_bytree': 0.5, 'reg_lambda': 1, 'scale_pos_weight': 5}        0.1031                0.0260 {'num_leaves': 15, 'learning_rate': 0.01, 'n_estimators': 300, 'min_child_samples': 100, 'subsample': 0.8, 'colsample_bytree': 0.5, 'reg_lambda': 30, 'scale_pos_weight': 25}         0.0519                 0.0286                0.6    3
+    B {'max_depth': 8, 'learning_rate': 0.03, 'n_estimators': 800, 'min_child_weight': 3, 'subsample': 0.6, 'colsample_bytree': 0.7, 'reg_lambda': 30, 'scale_pos_weight': 100}        0.0831                0.0489  {'num_leaves': 31, 'learning_rate': 0.03, 'n_estimators': 800, 'min_child_samples': 30, 'subsample': 0.8, 'colsample_bytree': 0.3, 'reg_lambda': 1, 'scale_pos_weight': 100}         0.0718                 0.0582                0.7    3
+TEST (evaluated once)
+                                           model  A@243  B@198  A+B
+                         Exploit code, then EPSS     13      6   19
+v4f default (XGBoost default + LR, w 0.5, cap 3)     20     11   31
+                          v4f tuned XGBoost only     19     10   29
+    v4f tuned XGBoost + tuned weight + tuned cap     19      9   28
+          LightGBM default + LR (filters, cap 3)     18      9   27
+            LightGBM tuned + LR (filters, cap 3)     17      9   26
+pooled top 441 of 64,120 ('vs reference' = vs v4f default)
+                                           model  hits@441 95% CI vs exploit+EPSS vs reference     AP
+                         Exploit code, then EPSS        19  12-29        +0 to +0    -16 to -1 0.0287
+v4f default (XGBoost default + LR, w 0.5, cap 3)        27  18-37       +1 to +16     +0 to +0 0.0653
+                          v4f tuned XGBoost only        26  17-37       +0 to +15     -5 to +3 0.0548
+    v4f tuned XGBoost + tuned weight + tuned cap        26  17-37       +0 to +15     -5 to +3 0.0551
+          LightGBM default + LR (filters, cap 3)        26  17-37       +1 to +14     -5 to +3 0.0642
+            LightGBM tuned + LR (filters, cap 3)        26  17-36       +0 to +14     -6 to +3 0.0675
+[  248s] done

@@ -1,0 +1,70 @@
+﻿[  206s] A: components done (8 XGBoost runs x 5 seeds)
+[  423s] B: components done (8 XGBoost runs x 5 seeds)
+1) RUN-TO-RUN VARIABILITY (pooled hits@441, 8 XGBoost runs of 5 seeds each)
+ run  v4 (cap 3)  v4f (filters + cap 3)
+   0          28                     30
+   1          28                     30
+   2          27                     31
+   3          28                     30
+   4          28                     29
+   5          28                     30
+   6          28                     29
+   7          28                     30
+   v4 (cap 3): mean 27.9, sd 0.35, range 27-28
+   v4f (filters + cap 3): mean 29.9, sd 0.64, range 29-31
+   bagged (all 40 seeds averaged): v4 28, v4f 29
+[  438s] bootstrap done
+2) PAIRED TESTS ON THE SAME 75 POSITIVES (Holm-corrected within each block)
+                             model                            vs  hits  ref hits  positives only model  positives only ref  McNemar p bootstrap diff 95% CI  bootstrap p  McNemar p (Holm)  bootstrap p (Holm)
+   Exploit code, then EPSS + cap 3       Exploit code, then EPSS    22        19                     5                   2     0.4531              -2 to +8        0.402            0.9969               0.987
+                  LightGBM (cap 3)       Exploit code, then EPSS    22        19                     9                   6     0.6072             -5 to +10        0.578            0.9969               0.987
+            XGBoost bagged (cap 3)       Exploit code, then EPSS    26        19                    12                   5     0.1435             -2 to +15        0.155            0.5739               0.620
+       LR Luis + Chen-lite (cap 3)       Exploit code, then EPSS    24        19                    11                   6     0.3323             -3 to +12        0.329            0.9969               0.987
+         v3: LightGBM + LR (cap 3)       Exploit code, then EPSS    26        19                    10                   3     0.0923             +0 to +14        0.067            0.4614               0.335
+   v4 bagged: XGBoost + LR (cap 3)       Exploit code, then EPSS    28        19                    12                   3     0.0352             +1 to +16        0.030            0.2109               0.180
+     v4f bagged: + Granite filters       Exploit code, then EPSS    29        19                    13                   3     0.0213             +3 to +19        0.011            0.1914               0.099
+v4f + LightGBM (3 models, filters)       Exploit code, then EPSS    29        19                    13                   3     0.0213             +2 to +17        0.017            0.1914               0.119
+        v4f + Chen LoRA [estimate]       Exploit code, then EPSS    30        19                    13                   2     0.0074             +4 to +19        0.003            0.0739               0.030
+Chen's own OOF 3-model avg (cap 3)       Exploit code, then EPSS    29        19                    13                   3     0.0213             +2 to +18        0.014            0.1914               0.112
+           Exploit code, then EPSS v4f bagged: + Granite filters    19        29                     3                  13     0.0213             -19 to -3        0.011            0.2127               0.110
+   Exploit code, then EPSS + cap 3 v4f bagged: + Granite filters    22        29                     4                  11     0.1185             -16 to +0        0.070            0.9478               0.560
+                  LightGBM (cap 3) v4f bagged: + Granite filters    22        29                     2                   9     0.0654             -15 to -1        0.023            0.5889               0.207
+            XGBoost bagged (cap 3) v4f bagged: + Granite filters    26        29                     1                   4     0.3750             -10 to +1        0.167            1.0000               1.000
+       LR Luis + Chen-lite (cap 3) v4f bagged: + Granite filters    24        29                     2                   7     0.1797             -13 to +0        0.084            1.0000               0.588
+         v3: LightGBM + LR (cap 3) v4f bagged: + Granite filters    26        29                     1                   4     0.3750              -9 to +1        0.226            1.0000               1.000
+   v4 bagged: XGBoost + LR (cap 3) v4f bagged: + Granite filters    28        29                     0                   1     1.0000              -6 to +0        0.396            1.0000               1.000
+v4f + LightGBM (3 models, filters) v4f bagged: + Granite filters    29        29                     2                   2     1.0000              -6 to +3        0.874            1.0000               1.000
+        v4f + Chen LoRA [estimate] v4f bagged: + Granite filters    30        29                     5                   4     1.0000              -5 to +7        0.856            1.0000               1.000
+Chen's own OOF 3-model avg (cap 3) v4f bagged: + Granite filters    29        29                     7                   7     1.0000              -8 to +7        0.974            1.0000               1.000
+3) ROMANO-WOLF SET vs the best (v4f + Chen LoRA [estimate]); single-step max-t critical value 2.47
+                             model  mean boot hits  t vs best  in set (not significantly worse than best)
+        v4f + Chen LoRA [estimate]            30.7       0.00                                        True
+     v4f bagged: + Granite filters            29.6       0.35                                        True
+Chen's own OOF 3-model avg (cap 3)            28.9       0.52                                        True
+v4f + LightGBM (3 models, filters)            28.6       0.76                                        True
+   v4 bagged: XGBoost + LR (cap 3)            27.5       1.04                                        True
+         v3: LightGBM + LR (cap 3)            26.0       1.42                                        True
+            XGBoost bagged (cap 3)            25.6       1.54                                        True
+       LR Luis + Chen-lite (cap 3)            23.6       2.13                                        True
+   Exploit code, then EPSS + cap 3            21.9       2.20                                        True
+                  LightGBM (cap 3)            21.9       2.44                                        True
+           Exploit code, then EPSS            19.2       2.96                                       False
+4) POWER (80% power, two-sided 5%)
+   v4f vs exploit+EPSS          sd of paired diff 4.08 -> minimum detectable difference 11.4 hits; positives needed to detect +2: ~2,448
+   v4f vs v4 (similar models)   sd of paired diff 1.74 -> minimum detectable difference  4.9 hits; positives needed to detect +2: ~444
+   v4f+LoRA vs v4f              sd of paired diff 3.10 -> minimum detectable difference  8.7 hits; positives needed to detect +2: ~1,412
+5) 2026 PROJECTION: projected = README 2026 anchor x (model hits / anchor hits) on our replicas, Gamma(h + 0.5) posteriors
+                        model                   anchor  anchor 2026 (README)  anchor on replicas  model on replicas  median 80% interval
+v4f bagged: + Granite filters             CVSS 3 first                   7.0                 5.0               29.0    40.4    19.0-88.8
+v4f bagged: + Granite filters               EPSS first                   6.0                11.0               29.0    15.9     7.8-31.1
+v4f bagged: + Granite filters  Exploit code, then EPSS                   8.0                19.0               29.0    12.4     6.8-21.7
+v4f bagged: + Granite filters all three anchors pooled                   NaN                 NaN                NaN    18.2     8.1-56.3
+   v4f + Chen LoRA [estimate]             CVSS 3 first                   7.0                 5.0               30.0    41.6    19.6-91.0
+   v4f + Chen LoRA [estimate]               EPSS first                   6.0                11.0               30.0    16.5     8.1-32.2
+   v4f + Chen LoRA [estimate]  Exploit code, then EPSS                   8.0                19.0               30.0    12.7     7.0-22.3
+   v4f + Chen LoRA [estimate] all three anchors pooled                   NaN                 NaN                NaN    18.8     8.4-57.5
+      Exploit code, then EPSS             CVSS 3 first                   7.0                 5.0               19.0    26.6    12.2-59.5
+      Exploit code, then EPSS               EPSS first                   6.0                11.0               19.0    10.4     5.1-20.6
+      Exploit code, then EPSS  Exploit code, then EPSS                   8.0                19.0               19.0     8.0     4.3-14.6
+      Exploit code, then EPSS all three anchors pooled                   NaN                 NaN                NaN    11.9     5.2-37.5
+[  438s] done

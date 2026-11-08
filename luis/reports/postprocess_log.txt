@@ -1,0 +1,47 @@
+﻿[   48s] A: v4 components scored
+[   88s] B: v4 components scored
+[   88s] Granite fields merged: coverage {'A': 0.999, 'B': 0.999}
+split (training year)                             filter  CVEs  KEV  KEV rate / base  use it
+             A (2024)         impact = denial of service  5935    0             0.00    True
+             A (2024) typical attacker = unlikely target  6505    0             0.00    True
+             A (2024)              attacker appeal = low 12797    1             0.07    True
+             A (2024)   product = WordPress plugin/theme  9120    0             0.00    True
+             A (2024)         install base = small/niche 10101    4             0.36   False
+             B (2025)         impact = denial of service  5639    0             0.00    True
+             B (2025) typical attacker = unlikely target  8032    0             0.00    True
+             B (2025)              attacker appeal = low 13495    1             0.06    True
+             B (2025)   product = WordPress plugin/theme  9922    0             0.00    True
+             B (2025)         install base = small/niche 12875    6             0.36   False
+filters used (passed the training-year check): A ['impact = denial of service', 'typical attacker = unlikely target', 'attacker appeal = low', 'product = WordPress plugin/theme'] | B ['impact = denial of service', 'typical attacker = unlikely target', 'attacker appeal = low', 'product = WordPress plugin/theme']
+                                                     variant  A@243  B@198  A+B
+                                     Exploit code, then EPSS     13      6   19
+                                                  v4, no cap     18      8   26
+                  v4 + cap 3 per assigner-month  [reference]     18     11   29
+                         v4 + cap 3 per Granite vendor-month     18      9   27
+                         v4 + cap 5 per Granite vendor-month     18      9   27
+                                 v4 + cap 3 per assigner-day     18      9   27
+           v4 + both caps (assigner-month 3, vendor-month 3)     19     11   30
+                        v4 + Granite filters (train-checked)     18     10   28
+                 v4 + Granite filters + cap 3 assigner-month     20     11   31
+        v4 + cap 3 + only filter: impact = denial of service     20     11   31
+v4 + cap 3 + only filter: typical attacker = unlikely target     19     11   30
+             v4 + cap 3 + only filter: attacker appeal = low     19     11   30
+  v4 + cap 3 + only filter: product = WordPress plugin/theme     19     11   30
+        v4 + cap 3 + only filter: install base = small/niche     17     11   28
+pooled top 441 of 64,120, 75 positives ('vs reference' = vs v4 + cap 3 assigner-month)
+                                                       model  hits@441 95% CI vs exploit+EPSS vs reference     AP
+                                     Exploit code, then EPSS        19  12-29        +0 to +0    -15 to +1 0.0287
+                                                  v4, no cap        26  17-36       -1 to +14     -4 to +3 0.0602
+                  v4 + cap 3 per assigner-month  [reference]        26  17-36       -1 to +15     +0 to +0 0.0622
+                         v4 + cap 3 per Granite vendor-month        27  18-37       +0 to +15     -3 to +3 0.0618
+                         v4 + cap 5 per Granite vendor-month        26  17-36       -0 to +14     -4 to +3 0.0612
+                                 v4 + cap 3 per assigner-day        27  17-37       +0 to +15     -4 to +3 0.0621
+           v4 + both caps (assigner-month 3, vendor-month 3)        26  17-36       -1 to +15     +0 to +0 0.0619
+                        v4 + Granite filters (train-checked)        27  18-37       +1 to +15     -3 to +4 0.0634
+                 v4 + Granite filters + cap 3 assigner-month        27  18-37       +1 to +16     -1 to +4 0.0653
+        v4 + cap 3 + only filter: impact = denial of service        26  17-36       -1 to +15     -1 to +3 0.0631
+v4 + cap 3 + only filter: typical attacker = unlikely target        26  18-37       +0 to +15     +0 to +3 0.0631
+             v4 + cap 3 + only filter: attacker appeal = low        26  17-36       +0 to +15     -1 to +3 0.0637
+  v4 + cap 3 + only filter: product = WordPress plugin/theme        27  18-37       +0 to +15     +0 to +3 0.0627
+        v4 + cap 3 + only filter: install base = small/niche        24  16-34       -3 to +14     -6 to +2 0.0546
+[  103s] done

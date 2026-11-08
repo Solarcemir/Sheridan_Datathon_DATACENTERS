@@ -1,0 +1,15 @@
+model,hits@441,95% CI,vs exploit+EPSS,vs reference,AP
+"Exploit code, then EPSS",19,12-29,+0 to +0,-15 to +1,0.0287
+"v4, no cap",26,17-36,-1 to +14,-4 to +3,0.0602
+v4 + cap 3 per assigner-month  [reference],26,17-36,-1 to +15,+0 to +0,0.0622
+v4 + cap 3 per Granite vendor-month,27,18-37,+0 to +15,-3 to +3,0.0618
+v4 + cap 5 per Granite vendor-month,26,17-36,-0 to +14,-4 to +3,0.0612
+v4 + cap 3 per assigner-day,27,17-37,+0 to +15,-4 to +3,0.0621
+"v4 + both caps (assigner-month 3, vendor-month 3)",26,17-36,-1 to +15,+0 to +0,0.0619
+v4 + Granite filters (train-checked),27,18-37,+1 to +15,-3 to +4,0.0634
+v4 + Granite filters + cap 3 assigner-month,27,18-37,+1 to +16,-1 to +4,0.0653
+v4 + cap 3 + only filter: impact = denial of service,26,17-36,-1 to +15,-1 to +3,0.0631
+v4 + cap 3 + only filter: typical attacker = unlikely target,26,18-37,+0 to +15,+0 to +3,0.0631
+v4 + cap 3 + only filter: attacker appeal = low,26,17-36,+0 to +15,-1 to +3,0.0637
+v4 + cap 3 + only filter: product = WordPress plugin/theme,27,18-37,+0 to +15,+0 to +3,0.0627
+v4 + cap 3 + only filter: install base = small/niche,24,16-34,-3 to +14,-6 to +2,0.0546
