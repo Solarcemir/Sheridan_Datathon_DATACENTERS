@@ -1,6 +1,6 @@
 # Project context · Chen · IBM "Before the Breach" (Sheridan Datathon 2026)
 
-Handoff for teammates and their AI assistants. Last updated **Nov 7, 2026, ~8:00 pm**. Written so someone who never saw the session can continue it. Every number points to a file in `chen/` (§13). Hardware: 4× H100 Linux box (Granite 4.2 30B / 8B via vLLM, LoRA training). Companion: `luis/context_Luis.md` (§11 compares the two).
+Handoff for teammates and their AI assistants. Last updated **Nov 8, 2026, ~12:15 am**. Written so someone who never saw the session can continue it. Every number points to a file in `chen/` (§13). Hardware: 4× H100 Linux box (Granite 4.2 30B / 8B via vLLM, LoRA training). Companion: `luis/context_Luis.md` (§11 compares the two).
 
 ---
 
@@ -21,6 +21,7 @@ Handoff for teammates and their AI assistants. Last updated **Nov 7, 2026, ~8:00
   - **Granite 30B as a direct zero-shot scorer:** significantly *worse* than the baseline.
   - **Memorization probe:** 0 of 122 exploited CVEs identified from the ID alone.
 - **Granite 30B LoRA does not beat the 8B** (§8.3): alone 19 vs 25 hits; in the 3-model average 29 vs 32. Writing Granite's 30B answers into the 8B prompt doesn't help either (29). So no `lora30b_scoreboard_2026.parquet`; the 8B is the LLM voter.
+- **Public point-in-time history (NVD change history, CVE List git history) doesn't help the ensemble** (§8.7): +0 on 5-fold, +2 forward, not adopted. It proves NVD analysis status was a leak (no lift at month-end). An "exploited in the wild at month-end" rule (140x, +3 on 5-fold) was found after the fact and is not adopted.
 - **Tuning XGBoost doesn't help** (§8.3): a nested random search (60 settings, inner purged CV) raised inner AP from ~0.05 to ~0.08, but on the held-out folds the tuned model ties Luis's fixed settings and LightGBM (24 hits each). Same conclusion as Luis's nested grid search.
 
 ## 2. Data views (`scripts/build_historical.py`)
@@ -295,6 +296,34 @@ Luis's `final_build.py` (his §14.14): equal-weight rank average of tree (XGBoos
 2. **His "+LoRA" forward-test numbers are slightly optimistic.** They use our 5-fold out-of-fold LoRA scores, which are not strictly forward on his A/B split (a 2024 test CVE's LoRA saw 2025 folds). Our forward-only LR check (§5.3) showed no inflation, so the bias is probably small, but "v4f + LoRA = 30, Holm p = 0.03" is an estimate, as his §14.8 says.
 3. **The LLM voter was a single training run** while the tree voter averages 40 seeds. **Done:** 4 seeds now averaged (§8.4); single runs share only 135–264 of their top 500.
 4. **After the build:** compare `luis/submissions/top500_final.csv` against our ensemble's top 500 and check Oracle / WordPress counts, month mix and assigner spread before submitting.
+
+### 8.7 Public point-in-time history (organizers allowed cited public data; `reports/asof_eval.txt`, `reports/itw_nested.txt`)
+
+**Sources (cite in the write-up):**
+- NIST NVD **CVE Change History API** (`https://services.nvd.nist.gov/rest/json/cvehistory/2.0`): every change event to every CVE with a timestamp. 33 monthly windows, 2024-01-01..2026-10-01; 729,190 events for our 160,577 CVEs (`scripts/fetch_nvd_history.py`; raw data in `~/datathon/external/nvd_history`, 114 MB, not committed).
+- **CVEProject/cvelistV5** git history (`https://github.com/CVEProject/cvelistV5`): every version of every official CVE record, including CISA's ADP "Vulnrichment" SSVC triage (`scripts/asof_cvelist.py`; clone 3.2 GB, not committed).
+
+**Leak guards:** every feature is rebuilt as of the CVE's snapshot month-end (June uses July), from events dated on or before it (412,983 later events dropped) or the last git commit before it; all 721 "CVE CISA KEV Update" events are dropped; no KEV-catalog links are used. Today's NVD/CVE List/KEV state is never read.
+
+**Features** (`processed/asof_nvd_*`, `processed/asof_cvelist_*`): NVD analysis status and speed, references and NVD "Exploit" tags, news / threat-intel / government-advisory links, references added during the month, CNA edits, CPE count, "exploited in the wild" wording in the description at month-end; CISA SSVC exploitation (none / PoC / active), automatable, technical impact.
+
+**Findings:**
+- **NVD analysis status was a pure leak.** At month-end, "analyzed" has no lift (0.9x). NVD analyzes attacked CVEs after the fact, so today's value encodes the label; dropping `nvd_status` was right.
+- **CISA SSVC "exploitation: active" never precedes KEV** in our cohort (9 rows in 2024-25, 0 in 2026): CISA sets it when it adds the CVE to KEV. "Technical impact: total" is 2.9x and "automatable" 2.4x, but overlap with Granite's answers. SSVC starts in Jun 2024 (50% of 2024 rows triaged vs 88% of 2026).
+- Other lifts: references added during the month 3.1x; CNA edits 1.7x but drift badly (71% of 2026 rows vs ~25% in training).
+- **"Exploited in the wild" wording at month-end** (verified with the edit history): 35 CVEs in 2024-25, 5 exploited by Nov 4 (7 by Dec 31), ~140x the base rate; the current ensemble ranks 4 of the 5 outside the top 517. 14 scoreboard CVEs carry it.
+
+**Pre-registered A/B (rule: adopt only if the ensemble gains >= +2 on both checks):**
+
+| Ensemble (unified LR + XGBoost + LoRA 8B, Granite filters, cap 3) | 5-fold (K 517, 75 pos.) | Forward-only (K 414, 66 pos.) |
+|---|---|---|
+| Current | 33 | 27 |
+| A: LR + as-of features | 33 (CI -4..+4) | 29 (CI +0..+5) |
+| B: also XGBoost + as-of features | 33 | 29 |
+
+Single models gain +1..+2 (LR 29 -> 31, XGBoost 26 -> 27 on 5-fold). **Not adopted** (+0 on 5-fold).
+
+**The in-the-wild promotion rule was found after the A/B, so it was checked for p-hacking** (`scripts/itw_nested.py`): picking the best binary flag from training rows only chose the in-the-wild wording in all 5 folds (108-142x), held-out gain 33 -> 36. But on forward-only blocks the same training-only search picked weak broad flags in blocks 1-3 (too few early examples) and collapsed the list (27 -> 11); only block 4 picked the wording. The signal is real, but its gain can't be confirmed forward and the expected 2026 effect is small (14 CVEs, ~2-3 hits). **Decision (Chen): not adopted; the pipeline stays pre-registered.** Write-up material: point-in-time history confirms which columns leaked, and a "scan flags, promote the winner" procedure is dangerous with few positives.
 
 ## 9. IBM technology
 
