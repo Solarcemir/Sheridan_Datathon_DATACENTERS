@@ -243,10 +243,12 @@ Same 5-fold purged CV, Nov-4 labels, K = 517.
 
 | File | Model | Training | Checks |
 |---|---|---|---|
-| `submissions/lora8b_scoreboard_2026.parquet` (`cve_id, lora_score`) | Granite 4.2 8B LoRA, `cv_control` recipe: r16 / alpha 32, 20 random negatives per positive per epoch, 3 epochs, final epoch (`scripts/final_lora.sh`) | all 75,148 CVEs of 2024-01..2025-09, label = KEV after the snapshot month through 2025-12-31 (119 positives) | 72,670 rows, unique `cve_id`, no NaN; score = logP(Yes) − logP(No) via vLLM; mean −2.5 with exploit code vs −6.5 without |
+| `submissions/lora8b_scoreboard_2026.parquet` (`cve_id, lora_score`) | **Average of 4 seeds** (0–3) of the Granite 4.2 8B LoRA, `cv_control` recipe: r16 / alpha 32, 20 random negatives per positive per epoch, 3 epochs, final epoch (`scripts/final_lora.sh`, `scripts/final_lora_seed.sh`); `lora_score` = mean percentile rank over seeds (`scripts/lora_seed_avg.py`) | all 75,148 CVEs of 2024-01..2025-09, label = KEV after the snapshot month through 2025-12-31 (119 positives) | 72,670 rows, unique `cve_id`, no NaN; score = logP(Yes) − logP(No) via vLLM; mean −2.5 with exploit code vs −6.5 without |
 | `submissions/lr_best_scoreboard_2026.parquet` (`cve_id, lr_score`) | `lr_full_llmx_noemb`: base + meta + TF-IDF + Granite 30B, 100 features, C = 1e-4 from inner grouped CV (`scripts/final.py train`) | same rows | 72,670 rows, unique, no NaN; decision function, higher = more likely |
 
 The two agree only moderately (Spearman 0.58; 203 shared CVEs in their top 500s), which is why averaging them helps.
+
+**Seed stability of the LoRA (`reports/lora_seed_stability.txt`).** One run is unstable: two seeds have Spearman 0.75–0.87 but share only **135–264 of their top 500**; each single run shares 256–289 with the 4-seed average. So the LLM voter is now the 4-seed average (no selection, same recipe; matches Luis's 40-seed XGBoost bag). The first push of this file was seed 0 only.
 
 ### 8.5 Review of Luis's final recipe (`scripts/luis_recipe_check.py`, `reports/luis_recipe_check.txt`)
 
@@ -268,7 +270,7 @@ Luis's `final_build.py` (his §14.14): equal-weight rank average of tree (XGBoos
 **Pushbacks (minor, none change the build):**
 1. **"2026 rewards CVSS" is not evidence of a shift.** It rests on the README's 2026 baselines, CVSS-first 7 vs EPSS-first 6 hits: one hit apart, inside Poisson noise. Including our LR as a hedge is fine because it costs nothing, but the write-up shouldn't present a CVSS shift as a finding.
 2. **His "+LoRA" forward-test numbers are slightly optimistic.** They use our 5-fold out-of-fold LoRA scores, which are not strictly forward on his A/B split (a 2024 test CVE's LoRA saw 2025 folds). Our forward-only LR check (§5.3) showed no inflation, so the bias is probably small, but "v4f + LoRA = 30, Holm p = 0.03" is an estimate, as his §14.8 says.
-3. **The LLM voter is a single training run** while the tree voter averages 40 seeds. A LoRA run's top 500 also moves with the seed. Averaging 3–4 LoRA seeds (rank-averaged, no selection, `train_lora.py --seed`) would stabilize it the same way; ~25 min on 3 free H100s. Optional.
+3. **The LLM voter was a single training run** while the tree voter averages 40 seeds. **Done:** 4 seeds now averaged (§8.4); single runs share only 135–264 of their top 500.
 4. **After the build:** compare `luis/submissions/top500_final.csv` against our ensemble's top 500 and check Oracle / WordPress counts, month mix and assigner spread before submitting.
 
 ## 9. IBM technology
@@ -351,7 +353,7 @@ Luis's `final_build.py` (his §14.14): equal-weight rank average of tree (XGBoos
 | Nested tuning | made things worse | inner AP doubles, held-out tie | agree (§8.3) |
 | 2026 "CVSS shift" (README baselines 7 vs 6) | a shift, hedge with Chen's LR | one hit apart = noise; the hedge is harmless | agree on the build, not on calling it a shift (§8.5) |
 | "+LoRA" forward-test estimates | v4f + LoRA = 30, only Holm-significant combo | our OOF LoRA isn't strictly forward on A/B; probably small bias | caveat (§8.5) |
-| Seed averaging | 40 XGBoost seeds | LLM voter is one LoRA run; 3–4 seeds would match | suggestion (§8.5) |
+| Seed averaging | 40 XGBoost seeds | LoRA now 4 seeds (single runs share 135–264 of top 500) | done (§8.4) |
 
 ## 12. Environment and run order
 
