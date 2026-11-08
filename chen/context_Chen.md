@@ -1,6 +1,6 @@
 # Project context · Chen · IBM "Before the Breach" (Sheridan Datathon 2026)
 
-Handoff for teammates and their AI assistants. Last updated **Nov 7, 2026, ~6:00 pm**. Written so someone who never saw the session can continue it. Every number points to a file in `chen/` (§13). Hardware: 4× H100 Linux box (Granite 4.2 30B / 8B via vLLM, LoRA training). Companion: `luis/context_Luis.md` (§11 compares the two).
+Handoff for teammates and their AI assistants. Last updated **Nov 7, 2026, ~8:00 pm**. Written so someone who never saw the session can continue it. Every number points to a file in `chen/` (§13). Hardware: 4× H100 Linux box (Granite 4.2 30B / 8B via vLLM, LoRA training). Companion: `luis/context_Luis.md` (§11 compares the two).
 
 ---
 
@@ -13,18 +13,15 @@ Handoff for teammates and their AI assistants. Last updated **Nov 7, 2026, ~6:00
 
   It gets **32 hits** at scoreboard density (top 517 of 75,148; 75 positives) vs **20** for exploit-code-then-EPSS. Paired bootstrap difference **+5 to +19**. **33 with a cap of 3 per assigner per month.** With KEV-by-Dec-31 labels (119 positives): **47 vs 27**. (`reports/eval_all.txt`)
 - **Simpler 2-model version** (LR + LoRA): **30 vs 20** (+4 to +17), the same at cap 3. Forward-only check (each block scored by a model trained only on earlier blocks): the LR alone scores 23 vs 18 for the baseline, almost the same as in the 5-fold CV (24 on the same blocks). **So the 5-fold numbers are not inflated by training on future blocks.** (§5.3)
-- **No final `top500.csv` from this folder yet.** The team fallback is Luis's `luis/submissions/top500_v4.csv`. The final scoring run is §10, step 1.
+- **Final 2026 scores for Luis's `final_build.py` (§8.4):** `submissions/lora8b_scoreboard_2026.parquet` (`cve_id, lora_score`) and `submissions/lr_best_scoreboard_2026.parquet` (`cve_id, lr_score`). Both were trained on all 75,148 CVEs of 2024-01..2025-09 (119 positives) and score all 72,670 scoreboard rows; higher = more likely. Luis builds the team's `top500_final.csv`.
 - **IBM tech, measured:**
   - **Granite 4.2 30B world-knowledge extraction:** 55 features; +50% average precision on the simple LR. It rated 37% of CVEs "low attacker appeal", and only 5 of 27,716 of those reached KEV.
   - **Granite 4.2 8B LoRA:** ties the LR alone, but adds +4 to +6 hits when averaged with it.
   - **Granite Embedding r2:** drops out of the final LR (TF-IDF + extraction cover it); still used for nearest-KEV explanations.
   - **Granite 30B as a direct zero-shot scorer:** significantly *worse* than the baseline.
   - **Memorization probe:** 0 of 122 exploited CVEs identified from the ID alone.
-- **Running when this was written (GPU):**
-  - 5-fold LoRA on Granite **30B** (`runs/cv_lora30b_f*`, GPUs 2–3, ETA ~8 pm);
-  - 8B LoRA with Granite's answers written into the prompt (`runs/cv_llmx8b_f*`, GPU 1, ETA ~7 pm).
-
-  Results land in `results/cv_lora30b_f*.parquet`, `results/cv_llmx8b_f*.parquet`. Evaluate with §12, step 9.
+- **Granite 30B LoRA does not beat the 8B** (§8.3): alone 19 vs 25 hits; in the 3-model average 29 vs 32. Writing Granite's 30B answers into the 8B prompt doesn't help either (29). So no `lora30b_scoreboard_2026.parquet`; the 8B is the LLM voter.
+- **Tuning XGBoost doesn't help** (§8.3): a nested random search (60 settings, inner purged CV) raised inner AP from ~0.05 to ~0.08, but on the held-out folds the tuned model ties Luis's fixed settings and LightGBM (24 hits each). Same conclusion as Luis's nested grid search.
 
 ## 2. Data views (`scripts/build_historical.py`)
 
@@ -211,12 +208,45 @@ The best LR uses groups 1, 2, 5 and 6 (**100 features**). All are standardized, 
 - **Borrowed signals from older CVEs** (`prior_signals.py`; assigner and vendor level: p90 EPSS, Nuclei/Metasploit share): 40 → 36–38. Worse (overlaps with assigner KEV rate). The lifts alone were real: assigner p90 EPSS > 0.05 = 4.2×, Metasploit share > 1% = 3.9×.
 - **Cap per assigner-month:** helps the baseline (+3) and most single models (+0..+3); the best averages are flat (±1). Keep it as insurance for the 2026 Oracle batch (1,097 CVEs in one day; not seen in 2024–25).
 
-### 8.3 Still running when written
+### 8.3 LoRA variants and XGBoost tuning (`reports/lora_cv_compare.txt`, `reports/xgb_compare.txt`)
 
-| Run | Question | Files when done |
-|---|---|---|
-| `cv_lora30b` (Granite 4.2 **30B** LoRA, same recipe as the 8B, 5 folds, GPUs 2–3, ~30 min/fold) | Does the bigger model's built-in knowledge beat the 8B? | `results/cv_lora30b_f{0-4}.parquet` |
-| `cv_llmx8b` (8B LoRA + Granite 30B answers as words in the prompt, `--llmx`, GPU 1) | Do category words help where numbers didn't? | `results/cv_llmx8b_f{0-4}.parquet` |
+Same 5-fold purged CV, Nov-4 labels, K = 517.
+
+| Model | Hits Nov-4 | Nov-4 cap 3 | vs baseline (95% CI) | AP Dec-31 | AP Nov-4 |
+|---|---|---|---|---|---|
+| LoRA 8B control (`cv_control`) | 25 | 26 | −3..+12 | 0.045 | 0.029 |
+| LoRA 8B + Granite 30B answers as words in the prompt (`cv_llmx8b`, `--llmx`) | 23 | 26 | −4..+10 | 0.031 | 0.027 |
+| LoRA **30B**, same recipe (`cv_lora30b`) | 19 | 25 | −8..+6 | 0.048 | 0.026 |
+| **LR + LoRA 8B control + LightGBM (Luis features)** | **32** | **33** | **+5..+20** | 0.083 | 0.056 |
+| LR + LoRA 8B + profile + LightGBM | 29 | 31 | +2..+16 | 0.073 | 0.058 |
+| LR + LoRA 30B + LightGBM | 29 | 31 | +2..+16 | 0.085 | 0.059 |
+| LR + LoRA 30B (no tree) | 28 | 29 | +2..+15 | **0.101** | 0.059 |
+
+- **30B:** better overall ordering when paired with the LR (AP 0.101, the best of any model), but fewer hits in the top 517. Not used; 8B stays.
+- **Profile in the prompt:** the LR already has those 55 features, so the LoRA's errors become more like the LR's. Not used.
+
+**Nested XGBoost tuning** (`scripts/xgb_tune.py`, `scripts/xgb_compare.py`; trials in `results/xgb_tune_trials.csv`, out-of-fold scores in `results/cv_xgb.parquet`). For each outer fold, 60 random settings (Luis's XGB_BIG included) were ranked by pooled inner AP on 3 purged time blocks of that fold's training rows only; the winner was refit with 5 seeds. Two feature sets: Luis's 53 features, and ours + his (153).
+
+| Tree model | Alone, hits Nov-4 | AP Nov-4 | In LR + LoRA + tree: hits / cap 3 | vs current ensemble (95% CI) |
+|---|---|---|---|---|
+| LightGBM, Luis features (current) | 24 | 0.039 | **32 / 33** | – |
+| XGBoost, Luis's fixed settings, his features | 24 | 0.041 | 30 / 31 | −6..+0 |
+| XGBoost tuned, his features | 24 | 0.043 | 29 / 29 | −7..+0 |
+| XGBoost tuned, all 153 features | 24 | 0.037 | 30 / 29 | −7..+1 |
+| XGBoost fixed, all 153 features | 24 | 0.038 | 31 / 30 | −6..+2 |
+
+- The inner winner (8 of 10 cases: depth 8, 3,000 trees, lr 0.005, scale_pos_weight ≈ 1) sat at the edge of the space and roughly doubled inner AP (Luis's settings 0.04–0.06 → 0.06–0.09), **but that gain did not survive on the held-out folds.** With ~100 positives per training fold, the search fits noise.
+- A round 2 that extended the space (depth to 14, up to 12k trees, GPU) was stopped after ~20 min: it moved in the direction that already failed to transfer, at ~3 h per feature set.
+- XGBoost vs LightGBM is a tie. Luis's XGBoost 40-seed tree voter is fine.
+
+### 8.4 Final 2026 scores (handed to Luis's `luis/analysis/final_build.py`)
+
+| File | Model | Training | Checks |
+|---|---|---|---|
+| `submissions/lora8b_scoreboard_2026.parquet` (`cve_id, lora_score`) | Granite 4.2 8B LoRA, `cv_control` recipe: r16 / alpha 32, 20 random negatives per positive per epoch, 3 epochs, final epoch (`scripts/final_lora.sh`) | all 75,148 CVEs of 2024-01..2025-09, label = KEV after the snapshot month through 2025-12-31 (119 positives) | 72,670 rows, unique `cve_id`, no NaN; score = logP(Yes) − logP(No) via vLLM; mean −2.5 with exploit code vs −6.5 without |
+| `submissions/lr_best_scoreboard_2026.parquet` (`cve_id, lr_score`) | `lr_full_llmx_noemb`: base + meta + TF-IDF + Granite 30B, 100 features, C = 1e-4 from inner grouped CV (`scripts/final.py train`) | same rows | 72,670 rows, unique, no NaN; decision function, higher = more likely |
+
+The two agree only moderately (Spearman 0.58; 203 shared CVEs in their top 500s), which is why averaging them helps.
 
 ## 9. IBM technology
 
@@ -278,7 +308,7 @@ The best LR uses groups 1, 2, 5 and 6 (**100 features**). All are standardized, 
    - average the ranks, apply cap 3;
    - check the Oracle July batch (≤ cap), WordPress ≈ 0, and the month mix (June CVEs use July);
    - write `submissions/top500_final.csv` and `top500_final_explained.csv` (columns per Luis's brief: rank, cve_id, snapshot_month, assigner, product, category, epss, 4 flags, reason; the reason comes from the nearest-KEV match + the Granite fields).
-2. **Evaluate §8.3** when it finishes. If the 30B LoRA beats the 8B, use it as model 2.
+2. ~~Evaluate §8.3~~ done: the 8B stays (§8.3). Final scores handed to Luis (§8.4).
 3. **Forward-only LoRA runs** (4 trainings) to complete §5.3.
 
 ## 11. Agreements and disagreements with `luis/context_Luis.md`
