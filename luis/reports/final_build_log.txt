@@ -1,0 +1,19 @@
+﻿[   40s] XGBoost run 1/8 done
+[   72s] XGBoost run 2/8 done
+[  106s] XGBoost run 3/8 done
+[  138s] XGBoost run 4/8 done
+[  192s] XGBoost run 5/8 done
+[  296s] XGBoost run 6/8 done
+[  383s] XGBoost run 7/8 done
+[  417s] XGBoost run 8/8 done
+wrote C:\Users\Luis Hoi\Desktop\Sheridan II\Sheridan_Datathon_DATACENTERS\luis\site\top500.json: 500 rows, 250 KB
+top500_final built 2026-11-07 19:39
+voters (equal-weight rank average): tree, linear
+  - tree: XGBoost big, 40 seeds averaged
+  - linear: Luis's LR (Chen's LR file not found)
+  - LLM: Chen's LoRA file not found, so not included yet
+then: 4 Granite-30B demotion filters (DoS only, unlikely target, low appeal, WordPress), cap 3 per assigner-month
+rows 500 | unique 500 | with exploit code 222 | Oracle 11 | Granite-demoted inside top 500 0 | assigners 144 | max per assigner-month 3
+month mix {'2026-01': 44, '2026-02': 39, '2026-03': 57, '2026-04': 51, '2026-05': 68, '2026-07': 110, '2026-08': 68, '2026-09': 63}
+overlap with top500_v4f.csv: 491
+[  436s] done

@@ -42,6 +42,7 @@ python -E -P luis/analysis/postprocess.py --score-2026     # current pick: submi
 python -E -P luis/analysis/team_merge.py --score-2026 --ranking derived/scored_2026_v4f.csv rank_v4f v4f   # explain v4f
 python -E -P luis/analysis/stats_review.py         # seed variability, Holm tests, Romano-Wolf set, power, 2026 projection (~7 min)
 python -E -P luis/analysis/nested_tuning.py        # grid search inside training only (~4 min): doesn't help, keep defaults
+python -E -P luis/analysis/final_build.py          # THE FINAL: submissions/top500_final.csv (+ Chen's voters when his files exist)
 ```
 
 Environment notes and known install issues: `context_Luis.md` §12.

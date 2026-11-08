@@ -1,9 +1,9 @@
 # Project context · Luis · IBM "Before the Breach" (Sheridan Datathon 2026)
 
-Luis's handoff document (folder `luis/`; paths below are relative to it unless they start with `luis/`). Last updated **Nov 7, 2026, ~9 pm**. Written so a teammate can pick up the work without re-deriving anything. Every number comes from a script in `luis/analysis/` and is backed by a file listed in **§13 Evidence index**. Companion: `chen/context_Chen.md` (Chen's GPU-box workstream).
+Luis's handoff document (folder `luis/`; paths below are relative to it unless they start with `luis/`). Last updated **Nov 7, 2026, ~9:30 pm**. Written so a teammate can pick up the work without re-deriving anything. Every number comes from a script in `luis/analysis/` and is backed by a file listed in **§13 Evidence index**. Companion: `chen/context_Chen.md` (Chen's GPU-box workstream).
 
 - **Team hub (web):** https://claude.ai/artifact/Np2SfMguMKySJnBfvNfnjR (ranked Top 500 table explained by IBM Granite, rules, CSV/column explorer, data map, shared notes; code in `site/breach-hub.html`)
-- **Current pick:** `submissions/top500_v4f.csv` = v4 (XGBoost big + logistic regression, rank average) + **4 Granite-30B demotion filters** (validated on the training year) + cap 3 per assigner-month (§14.10), explained in `reports/top500_v4f_explained.csv` (Granite 30B fields + nearest past KEV entry) and shown in the hub. `submissions/top500_v4.csv` is the same without filters (statistically tied; 438 shared). **Planned final:** v4 + Chen's LoRA 8B scores = `top500_v5.csv`, built automatically by `analysis/team_merge.py --score-2026` once Chen pushes them (§14.8).
+- **Current pick: `submissions/top500_final.csv`**, built by one command, `python -E -P luis/analysis/final_build.py` (§14.14). Today it's v4f with 40 XGBoost seeds averaged (XGBoost big + LR, rank average, 4 Granite-30B demotion filters, cap 3 per assigner-month); explained in `reports/top500_final_explained.csv` and shown in the hub. **When Chen pushes his 2026 LoRA 8B and best-LR scores, re-running the same command adds them as voters** (message for Chen in §14.14).
 - **Practice-exam headline** (2024 + 2025 Jan–Sep pooled, top 441 of 64,120 = the scoreboard's selection rate, 75 exploited CVEs): exploit-then-EPSS **19** · v4 **26–28** (+1 to +16; varies by run) · v4f **27** pooled / **31** at density (A 20 of 48 + B 11 of 27) · v4 + Chen's LoRA **≈ 30** (+4 to +18; estimate, see §14.8).
 
 ---
@@ -51,16 +51,16 @@ Luis's handoff document (folder `luis/`; paths below are relative to it unless t
 | Cap by Granite-normalized vendor-month, by assigner-day, or both caps | 27 / 27 / 30 at density vs 29 | no gain over the assigner-month cap | §14.10 |
 | **Statistical review** (8 XGBoost runs, Holm-corrected McNemar + paired bootstrap, Romano–Wolf set, power, 2026 projection) | v4f 29.9 ± 0.6 over 8 runs (v4 27.9 ± 0.4); after Holm only v4f + LoRA beats exploit+EPSS (p = 0.03); every ML model is tied with the best; minimum detectable gap ≈ 5 hits between similar models (+2 would need ~444 positives); 2026 ≈ 12 (7–22) vs 8 | **stop chasing +1–2 hits** | §14.12 |
 | Nested hyperparameter tuning (random search over XGBoost / LightGBM grids, ensemble weight and cap, all chosen inside the training year) | inner AP 0.026 → 0.103, but test 31 → 28–29 at density and AP 0.065 → 0.055; choices flip between A and B | rejected: keep defaults | §14.13 |
+| Bagged final (40 XGBoost seeds averaged) | A/B: bagged v4f 29 (runs 29–31); 2026: shares 491 of 500 with v4f | **adopted in `top500_final.csv`** | §14.12, §14.14 |
 | **Time-series model on the exploit signals** (Granite TimeSeries TTM / 1D RNN) | every CVE has exactly 1 signal month at prediction time (0 of 72,670 scoreboard and 0 of 87,215 2024–25 CVEs have earlier rows) | **not feasible per CVE**; aggregate version low value | §14.11 |
 
 ### Not tested yet / pending
 
 | Idea | Status / plan | Owner |
 |---|---|---|
-| **v5 = v4 + Chen's LoRA 8B on the 2026 scoreboard** | needs `chen/submissions/lora8b_scoreboard_2026.parquet` (`cve_id, lora_score`); request drafted (§14.8), not sent yet | Chen → Luis |
+| **Chen's 2026 voters for the final** | needs `chen/submissions/lora8b_scoreboard_2026.parquet` (`cve_id, lora_score`) and `chen/submissions/lr_best_scoreboard_2026.parquet` (`cve_id, lr_score`), trained on Chen's H100 box; message in §14.14. Then re-run `final_build.py` | Chen → Luis |
 | Aggregate time series with Granite TimeSeries TTM (monthly KEV additions per vendor, forecast into 2026) | optional IBM demo for the write-up only; history is 50 months and very sparse per vendor; expected ranking gain ≈ 0 (§14.11) | optional |
-| Bagged final ranking (average 40 XGBoost seeds) for 2026 | evaluated on A/B (bagged v4f = 29, stable); 2026 bagged scoring not run yet | Luis |
-| Hedge the 2026 shift: in 2026 CVSS-first (7) beats EPSS-first (6), the opposite of our replicas (5 vs 11), and v4 uses no CVSS | add a CVSS-aware third voter (Chen's LR uses CVSS + Granite 30B); tied on replicas, so it's a robustness choice | team |
+| Hedge the 2026 shift: in 2026 CVSS-first (7) beats EPSS-first (6), the opposite of our replicas (5 vs 11), and v4 uses no CVSS | built into `final_build.py`: Chen's CVSS-aware LR is averaged into the linear voter as soon as his file exists | Chen → Luis |
 | Weighted ensembles | deliberately not done (selection bias) | – |
 | Forward-only LoRA folds; Granite 30B LoRA | Chen running / to-do | Chen |
 | Month quotas / time-left adjustment | Chen tested: neutral; not repeated here | – |
@@ -450,6 +450,7 @@ python -E -P luis/analysis/export_top500_json.py   # site/top500.json for the hu
 | Model zoo: XGBoost, CatBoost, LambdaRank, big linear, ensembles, diversity (§14.7) | `analysis/model_zoo.py`, `reports/model_zoo_results.csv`, `reports/model_zoo_bootstrap.csv`, `reports/model_zoo_correlation.csv`, `reports/model_zoo_catboost_importance.csv`, `reports/model_zoo_log.txt` |
 | Statistical review: seed variability, Holm tests, Romano–Wolf set, power, 2026 projection (§14.12) | `analysis/stats_review.py`, `reports/stats_review_seed_variability.csv`, `reports/stats_review_paired_tests.csv`, `reports/stats_review_best_set.csv`, `reports/stats_review_projection_2026.csv`, `reports/stats_review_log.txt` |
 | Nested hyperparameter tuning (§14.13) | `analysis/nested_tuning.py`, `reports/nested_tuning_choices.csv`, `reports/nested_tuning_results.csv`, `reports/nested_tuning_bootstrap.csv`, `reports/nested_tuning_log.txt` |
+| Final build: voters, filters, cap, sanity checks (§14.14) | `analysis/final_build.py`, `derived/xgb_bag_2026.parquet`, `derived/scored_2026_final.csv`, `submissions/top500_final.csv`, `reports/final_build_info.txt`, `reports/final_build_log.txt`, `reports/top500_final_explained.csv` |
 | Static prior from 2022–2024 cohorts (§14.9) | `analysis/static_prior.py`, `derived/static/static_cohort_{2022,2023,2024}.parquet`, `reports/static_prior_results.csv`, `reports/static_prior_bootstrap.csv`, `reports/static_prior_invisible.csv`, `reports/static_prior_log.txt` |
 | Granite 30B demotion filters, vendor caps, v4f (§14.10) | `analysis/postprocess.py`, `reports/postprocess_filters_check.csv`, `reports/postprocess_results.csv`, `reports/postprocess_bootstrap.csv`, `reports/postprocess_log.txt`, `derived/ab_scores_v4.parquet`, `derived/scored_2026_v4f.csv`, `submissions/top500_v4f.csv`, `reports/top500_v4f_explained.csv` |
 | Luis + Chen combined on the forward test, LoRA estimate (§14.8) | `analysis/team_merge.py`, `analysis/common.py`, `reports/team_merge_results.csv`, `reports/team_merge_bootstrap.csv`, `reports/team_merge_log.txt` |
@@ -754,6 +755,54 @@ To avoid tuning on the exam, the search runs **inside the training year only**: 
 - **Inner gains didn't transfer:** XGBoost inner AP jumped 0.026 → 0.103 (A) and 0.049 → 0.083 (B), yet test hits dropped. That's overfitting to ~20 inner positives.
 - **Choices flip between splits:** XGBoost depth 6 vs 8, learning rate 0.01 vs 0.03, positive weight 5 vs 100; ensemble weight 0.6 vs 0.7. The cap stayed at 3 in both.
 - **Verdict: keep the defaults.** Write-up line: "we tuned honestly (nested, inside training only) and it didn't help, which is what the power analysis predicts."
+
+### 14.14 The final build (`analysis/final_build.py`) and what Chen needs to send
+
+**One command:** `python -E -P luis/analysis/final_build.py`. Equal-weight rank average of three voters (tree + linear + LLM, the pattern that kept winning on A/B):
+
+| Voter | What | Status |
+|---|---|---|
+| tree | XGBoost big on Luis's features, **40 seeds averaged** (8 GPU runs × 5; cached in `derived/xgb_bag_2026.parquet`, ~7 min to rebuild) | in |
+| linear | Luis's LR (safe + Chen-lite features); **plus Chen's best LR averaged in** once `chen/submissions/lr_best_scoreboard_2026.parquet` exists (CVSS-aware hedge for the 2026 shift) | Luis's in; Chen's pending |
+| LLM | Chen's Granite 4.2 8B LoRA, once `chen/submissions/lora8b_scoreboard_2026.parquet` exists (only addition that survives Holm correction, §14.12) | pending |
+
+Then the 4 Granite-30B demotion filters and a cap of 3 per assigner-month. Outputs: `submissions/top500_final.csv`, `derived/scored_2026_final.csv`, `reports/final_build_info.txt`, `reports/top500_final_explained.csv`, and the hub's `site/top500.json` (republish the hub after running).
+
+**Today's build** (no Chen voters yet): 500 unique CVEs, 222 with public exploit code, 11 Oracle, 0 Granite-demoted, 144 assigners, max 3 per assigner-month; month mix Jan 44 · Feb 39 · Mar 57 · Apr 51 · May 68 · Jul 110 · Aug 68 · Sep 63; **shares 491 of 500 with `top500_v4f.csv`** (bagging stabilizes the boundary). Expected on 2026: ~12 hits (80% 7–22) vs 8 for the best README baseline (§14.12).
+
+**Where to train the LoRA: Chen's box.** Luis's laptop has an 8 GB RTX 4070; a Granite 4.2 8B LoRA needs ~16 GB in bf16 (4-bit QLoRA with bitsandbytes on Windows is fragile and much slower), and Granite 4.2 needs transformers 5.x, which broke Luis's environment. Chen has 4× H100, a tested recipe (~11 min per training) and vLLM scoring.
+
+**Message for Chen's AI** (copy as is):
+
+```
+Context: Luis ran a statistical review of both workstreams on his strictly forward A/B test
+(luis/context_Luis.md §14.8-14.13; pooled 2024+2025 Jan-Sep, top 441 of 64,120, 75 positives).
+- v4f (Luis: XGBoost + LR, rank average, 4 Granite-30B demotion filters, cap 3) = 29-30 hits.
+- v4f + Chen's LoRA 8B (your out-of-fold scores) = 30: the ONLY combination that beats
+  exploit-then-EPSS (19) after Holm correction (p = 0.03, paired gap +4 to +19).
+- Every ML ensemble is statistically tied with the best (Romano-Wolf); nested tuning made things
+  worse. We stop tuning and build the final now.
+- 2026 shift: in 2026 CVSS-first (7) beats EPSS-first (6), the opposite of our replicas. Your LR
+  uses CVSS + Granite 30B, so it joins the final as a hedge voter.
+Train on Chen's GPU box (Luis's laptop GPU has 8 GB; an 8B LoRA needs ~16 GB in bf16).
+
+Please push exactly these two files to main:
+1. chen/submissions/lora8b_scoreboard_2026.parquet, columns cve_id (str), lora_score (float).
+   One Granite 4.2 8B LoRA, same recipe as cv_control (r16 / alpha 32, 20 random negatives per
+   positive per epoch, 3 epochs, final epoch, no epoch picking), trained on ALL CVEs published
+   2024-01..2025-09 (label = KEV by 2025-12-31). Score all 72,670 scoreboard_2026 rows with vLLM:
+   logit(Yes) - logit(No). Higher = more likely.
+2. chen/submissions/lr_best_scoreboard_2026.parquet, columns cve_id (str), lr_score (float).
+   Your best LR (lr_full_llmx_noemb, ~100 features), C from your inner CV on the same rows,
+   scored on all 72,670 rows.
+Checks: 72,670 rows each, unique cve_id, no NaN, higher = more likely. Don't commit adapters or
+weights. If the 30B LoRA beats the 8B in your CV, also push lora30b_scoreboard_2026.parquet (same
+columns) and say so in chen/context_Chen.md.
+Commit as "chen: 2026 scoreboard scores for the final", git pull --rebase origin main,
+git push origin main, and tell Luis. He then runs `python -E -P luis/analysis/final_build.py`
+(tree XGBoost 40 seeds + linear Luis LR & your LR + LLM your LoRA, equal weights, Granite filters,
+cap 3) -> luis/submissions/top500_final.csv with explanations, and updates the team hub.
+```
 
 ## 15. Research sources
 

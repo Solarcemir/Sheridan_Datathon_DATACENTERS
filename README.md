@@ -11,7 +11,7 @@ Team repo. Goal: rank the 72,670 CVEs in `scoreboard_2026.csv` so the top 500 co
 | `<name>/` | other teammates | `<name>/context_<Name>.md` |
 
 - **Team hub** (Top 500 table, rules, data map, shared notes): https://claude.ai/artifact/Np2SfMguMKySJnBfvNfnjR
-- **Current fallback submission:** `luis/submissions/top500_v4f.csv` (XGBoost + LR with Chen's features, rank average, Granite-30B demotion filters, cap 3; see `luis/context_Luis.md` §14.10), until the merged pipeline produces the final `top500.csv`.
+- **Team submission candidate:** `luis/submissions/top500_final.csv`, built by `python -E -P luis/analysis/final_build.py` (XGBoost 40 seeds + LR, Granite-30B demotion filters, cap 3). When Chen pushes `chen/submissions/lora8b_scoreboard_2026.parquet` and `lr_best_scoreboard_2026.parquet`, re-running the same command adds his LoRA and LR as voters. See `luis/context_Luis.md` §14.14.
 
 ## Data
 
