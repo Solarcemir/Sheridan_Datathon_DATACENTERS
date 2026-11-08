@@ -33,7 +33,7 @@ DECK = [
     (57.0, "scroll_scan"),
     (59.0, "pick_repo"),
     (60.5, "scan"),
-    (76.0, "scroll_results"),
+    (70.0, "scroll_results"),
     (84.0, "end_card"),
 ]
 DECK_S = 90.0
@@ -73,7 +73,10 @@ async def deck(b, out):
     pg = await ctx.new_page()
     errs = []; pg.on("pageerror", lambda e: errs.append(str(e)))
     await pg.goto(BASE + "/frontend/breach_radar.html?video=1#problem")
-    await pg.wait_for_function("window.__deck && document.querySelector('#demo').contentWindow.__advance", polling=200)   # rAF polling would wait forever: clock.js owns rAF
+    for _ in range(300):   # poll from Python: page-side polling uses rAF/timers, which the virtual clock freezes
+        if await pg.evaluate("!!(window.__deck && document.querySelector('#demo').contentWindow.__advance)"): break
+        await asyncio.sleep(.1)
+    else: raise RuntimeError("deck video mode did not start")
     await pg.evaluate("document.fonts.ready")
     for _ in range(90): await pg.evaluate("__advance(1000/30)")   # settle boot (3 s of page time, not filmed)
     await pg.evaluate("__deck.go(-1)")
@@ -95,8 +98,8 @@ async def deck(b, out):
             elif a == "scan": await fr.locator("#scan-btn").click()
             elif a == "scroll_results":
                 y0 = await fr.locator("html").evaluate("e => scrollY")
-                y = await fr.locator("#results").evaluate("e => e.getBoundingClientRect().top + scrollY - 20")
-                scroll = (y0, y, t, t + 2.2)
+                y = await fr.locator("#results").evaluate("e => Math.min(e.getBoundingClientRect().top + scrollY + 900, document.documentElement.scrollHeight - innerHeight)")
+                scroll = (y0, y, t, t + 6.5)   # slow glide down the ranked list
             elif a == "end_card": await pg.evaluate(END_CARD)
         if scroll:
             y0, y1, t0, t1 = scroll; k = min(1, max(0, (t - t0) / (t1 - t0))); e = k * k * (3 - 2 * k)
