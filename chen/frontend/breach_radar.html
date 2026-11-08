@@ -6,7 +6,7 @@
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@75..100,500..800&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@75..100,500..800&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
 <style>
 /* Layout: one zoomable canvas. Overview = the whole machine (7 stage regions, 22 bubbles, every wire).
    Zooming into a region keeps its bubbles and wires: they shrink into the middle of the region, and the slide's
@@ -74,6 +74,12 @@ svg.edges { position: absolute; left: 0; top: 0; overflow: visible; pointer-even
 .bub .bt { font-weight: 600; font-size: 1em; line-height: 1.15 }
 .bub .bs { font-family: var(--f-mono); font-size: .76em; color: var(--muted); line-height: 1.25 }
 .bub.ibm { background: var(--ibm-soft); border-color: var(--ibm) } .bub.ibm .bt { color: var(--ibm) }
+/* IBM mark: a small tag on the Granite nodes and in the corner of the overview's Granite stat */
+.ibm-mark rect { fill: currentColor }
+.bub .ibmtag { position: absolute; top: -.95em; right: 1.6em; padding: .1em .35em; border-radius: .35em; background: var(--panel); border: 1px solid var(--ibm); color: var(--ibm); line-height: 0 }
+.bub .ibmtag .ibm-mark { width: 2.1em; height: .84em }
+.hs.blue { position: relative }
+.hs .ibmcorner { position: absolute; top: 12px; right: 14px; color: var(--ibm); line-height: 0 } .hs .ibmcorner .ibm-mark { width: 46px; height: 18px }
 .bub.red { background: var(--alert-soft); border-color: var(--alert) }
 .bub.main { border-width: 2px } .bub.main .bt { font-size: 1.12em }
 .bub.in { cursor: default; border-width: .5px }
@@ -520,6 +526,11 @@ table.t tr.hl td { background: var(--ibm-soft) }
       more: [["Browse all 500", function () { return '<div class="tools"><input class="q" type="search" placeholder="Search a CVE, product or reason…" aria-label="Search our 500"><select class="mf" aria-label="Month"><option value="">All months</option>' + Object.keys((D.months || {}).top || {}).map(function (k) { return "<option>" + k + "</option>"; }).join("") + '</select></div><div class="cves"></div><button class="btn more" type="button">Show more</button><p class="note">Red tags: public exploit code (E Exploit-DB, M Metasploit, N Nuclei, G GitHub PoC).</p>'; }, "list"],
         ["What they are", function () { return pairs("Product type, according to Granite", (D.product_type || []).slice(0, 6)) + pairs("What an attacker gets", (D.impact || []).slice(0, 5)); }]] }
   ];
+  var GRANITE = { granite30: 1, embed: 1, lora: 1 };   // the three IBM Granite models get the IBM tag
+  function ibmMark(uid) {   // the IBM wordmark as 8 horizontal stripes, same drawing as the scanner's (scan.html)
+    var r = ""; for (var k = 0; k < 8; k++) r += '<rect x="0" y="' + (k * 15 + 2.85).toFixed(2) + '" width="300" height="9.3"/>';
+    return '<svg class="ibm-mark" viewBox="0 0 300 120" aria-label="IBM"><defs><clipPath id="ibmc-' + uid + '"><text x="150" y="111" text-anchor="middle" font-family="IBM Plex Sans, Arial Black, sans-serif" font-weight="700" font-size="150" letter-spacing="2" textLength="296" lengthAdjust="spacingAndGlyphs">IBM</text></clipPath></defs><g clip-path="url(#ibmc-' + uid + ')">' + r + "</g></svg>";
+  }
   var byId = {}; S.forEach(function (s) { byId[s.id] = s; });
   var PATH = S.map(function (s) { return s.id; });
   var E = [["vulns", "scoreboard"], ["sig", "scoreboard"], ["kev", "scoreboard"], ["scoreboard", "snap"], ["kev", "hist"], ["vulns", "leak", 1],
@@ -839,7 +850,7 @@ table.t tr.hl td { background: var(--ibm-soft) }
     world.appendChild(t);
     var h = document.createElement("div"); h.className = "heros";
     h.style.left = WB.heros.x + "px"; h.style.top = WB.heros.y + "px"; h.style.width = WB.heros.w + "px";
-    h.innerHTML = '<div class="hs red"><div class="v">+65%</div><div class="l">more exploited bugs found than the standard ranking in practice (33 vs 20)</div></div><div class="hs"><div class="v">≈12 <small>vs 8</small></div><div class="l">expected hits in 2026, vs the best standard ranking</div></div><div class="hs blue"><div class="v">3 <small>Granite models</small></div><div class="l">one reads every bug, one votes, one explains</div></div>';
+    h.innerHTML = '<div class="hs red"><div class="v">+65%</div><div class="l">more exploited bugs found than the standard ranking in practice (33 vs 20)</div></div><div class="hs"><div class="v">≈12 <small>vs 8</small></div><div class="l">expected hits in 2026, vs the best standard ranking</div></div><div class="hs blue"><span class="ibmcorner" title="IBM Granite">' + ibmMark("hero") + '</span><div class="v">3 <small>Granite models</small></div><div class="l">one reads every bug, one votes, one explains</div></div>';
     world.appendChild(h);
     S.forEach(function (s, i) {
       var r = R[s.id], d = document.createElement("div");
@@ -876,7 +887,8 @@ table.t tr.hl td { background: var(--ibm-soft) }
       s.bubbles.forEach(function (b) {
         var d = document.createElement("div");
         d.className = "bub " + (b[7] || ""); d.setAttribute("data-b", b[0]); d.setAttribute("data-r", s.id);
-        d.innerHTML = (BIC[b[0]] ? icon(BIC[b[0]], "bi") : "") + '<span class="bx"><span class="bt">' + esc(b[1]) + '</span><span class="bs">' + esc(b[2]) + "</span></span>";
+        d.innerHTML = (BIC[b[0]] ? icon(BIC[b[0]], "bi") : "") + '<span class="bx"><span class="bt">' + esc(b[1]) + '</span><span class="bs">' + esc(b[2]) + "</span></span>" +
+          (GRANITE[b[0]] ? '<span class="ibmtag" title="IBM Granite">' + ibmMark("b" + b[0]) + "</span>" : "");
         d.addEventListener("click", function (ev) { ev.stopPropagation(); if (idx !== i) go(i); });
         world.appendChild(d);
       });
