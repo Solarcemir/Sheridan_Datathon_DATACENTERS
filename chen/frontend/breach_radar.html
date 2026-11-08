@@ -303,6 +303,7 @@ table.t tr.hl td { background: var(--ibm-soft) }
 #world { transition: opacity .35s }
 .hud, .prog { transition: opacity .35s }
 #demoBtn { font-size: 13px !important; font-weight: 600; color: var(--ibm) }
+#blindBtn { font-size: 13px; font-weight: 600; color: var(--muted); text-decoration: none; padding: 0 10px; white-space: nowrap } #blindBtn:hover { color: var(--ink) }
 </style>
 
 <div id="stage" aria-label="Zoomable presentation canvas"><div id="world"></div><div id="demoLayer"><div id="demoBox"><iframe id="demo" src="scan.html" title="Repo scanner demo"></iframe><button type="button" id="demoCatch" aria-label="Open the demo"></button></div></div></div>
@@ -314,6 +315,7 @@ table.t tr.hl td { background: var(--ibm-soft) }
   <button type="button" id="next" aria-label="Next" title="Next (→)">›</button>
   <button type="button" class="play" id="play">Start</button>
   <button type="button" id="demoBtn" title="Back to the demo">Demo ⤡</button>
+  <a id="blindBtn" href="blind-spots.html" target="_blank" rel="noopener" title="Where the model misses: the 43 exploited bugs below our review line">Blind spots ↗</a>
 </nav>
 <div class="hint">→ / space next · ← back · Esc overview · click any stage</div>
 
@@ -518,6 +520,7 @@ table.t tr.hl td { background: var(--ibm-soft) }
         ["The three tests", function () { return ul(["<b>5-fold purged CV:</b> 5 publish-date blocks of 75,148 CVEs; 26 hand-made groups of related CVEs never split across train and test. K = 517.", "<b>Forward-only:</b> blocks 1–4 each scored by models trained only on earlier blocks, LoRA included (K = 414, 66 positives).", "<b>Year-swap exam:</b> the benchmark rebuilt on 2024 and 2025, each scored by a model trained on the other year (top 441, 75 positives)."]); }],
         ["Statistics", function () { return ul(["Ensemble vs baseline: paired bootstrap 95% CI +5 to +20 hits.", "On the year-swap exam the only Holm-significant combination includes the Granite LoRA (p = 0.03).", "Between our ensembles the differences are noise (±3 hits; Romano–Wolf: all tied with the best).", "2026 projection: about 12 hits (80% range 7–22) vs 8."]); }],
         ["watsonx.governance", function () { return table(["Drift v2 metric, 2026 vs training", "Value", "Alert at"], [["Feature drift (weighted by importance)", "0.168 ⚠", "0.05"], ["Output (confidence) drift", "0.161 ⚠", "0.05"], ["Prediction drift: share flagged, 14.6% vs 16.7%", "0.025 ✓", "0.05"], ["Estimated accuracy drop", "0.021 ✓", "0.05"]]) + '<p class="note">Our model registered in IBM watsonx.governance (Toronto) as an external model, with a factsheet. Baseline: 1,000 training CVEs from 2024–25 with out-of-fold scores; payload: 1,000 scoreboard CVEs (trial limit). The drift sits in the CISA-history features, which grow every year; our own per-feature check (PSI) finds the same 6 of 100. Ranking within the year makes the list immune to that whole-year shift.</p>'; }],
+        ["Blind spots", function () { return '<p>43 of the 75 exploited practice bugs fell below our review line. We opened a case file on every one: what the models saw, what was missing at publish time, and what similar bugs did.</p><p><a href="blind-spots.html" target="_blank" rel="noopener" style="display:inline-block;padding:9px 16px;border-radius:999px;background:var(--ink);color:var(--panel);text-decoration:none;font-weight:600">Open the Blind Spot Investigator ↗</a></p>'; }],
         ["Judges' questions", function () { return ul(["<b>Did the LLM memorize KEV?</b> Granite 30B identified 0 of 122 exploited CVEs from their IDs.", "<b>Is anything from the future?</b> Signals are from the snapshot month; KEV history stops at the previous year-end; after-the-fact NIST fields and “in the wild” wording are excluded.", "<b>Why not a bigger model?</b> The 30B LoRA scored 19 alone vs 25 for the 8B."]); }],
         ["What didn't work", function () { return table(["Idea", "Result"], [["Granite 30B as a direct judge", "worse than baseline"], ["Granite 30B LoRA", "19 alone"], ["Granite answers in the LoRA prompt", "29 vs 32"], ["Embeddings as inputs", "no gain"], ["Nested hyperparameter tuning", "tie"], ["Same-year hidden-KEV inputs", "neutral"], ["Time-left adjustment, days public", "neutral"], ["Borrowed EPSS from older CVEs", "−2 to −4"], ["Training on 2022–24 without signals", "−1 to −4"], ["Elastic-net LR", "23 alone"]]); }]] },
     { id: "top500", t: "Our 500", stage: "The answer",
