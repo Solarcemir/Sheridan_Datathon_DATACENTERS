@@ -1,0 +1,13 @@
+{
+  "name": "demo-frontend",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Fake demo app, exists only for luis/repo_scanner's demo_repo. Do not run.",
+  "main": "server.js",
+  "dependencies": {
+    "express": "4.16.0",
+    "lodash": "4.17.4",
+    "minimist": "0.0.8",
+    "node-fetch": "2.6.0"
+  }
+}

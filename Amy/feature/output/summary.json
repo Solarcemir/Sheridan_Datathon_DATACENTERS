@@ -1,0 +1,15 @@
+{
+  "evaluation": "Historical 5-fold purged out-of-fold scores (not 2026 ground truth)",
+  "historical_cves": 75148,
+  "top_k": 517,
+  "kev_positives_by_nov4": 75,
+  "caught_in_top_k": 32,
+  "missed_outside_top_k": 43,
+  "recall_at_k": 0.4267,
+  "models": [
+    "lr_full_llmx_noemb",
+    "lora_control",
+    "lgbm_luis_only"
+  ],
+  "note": "A miss means outside the top-K review budget, not a prediction of zero risk."
+}

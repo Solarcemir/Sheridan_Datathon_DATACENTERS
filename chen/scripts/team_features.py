@@ -35,7 +35,7 @@ def adjacent_ids(df: pd.DataFrame) -> pd.Series:
     return adj.reindex(df.index)
 
 
-def main() -> None:
+def main(targets=None, fixed_year=None) -> None:
     v = pd.read_csv(DATA / "vulnerabilities.csv", usecols=["cve_id", "published", "description"])
     v["published"] = pd.to_datetime(v.published)
     v["description"] = v.description.fillna("")
@@ -43,7 +43,7 @@ def main() -> None:
     kev["date_added"] = pd.to_datetime(kev.date_added)
 
     models = {}
-    for year in (2024, 2025, 2026):
+    for year in ((fixed_year,) if fixed_year else (2024, 2025, 2026)):
         start = pd.Timestamp(f"{year}-01-01")
         pos_ids = set(kev[kev.date_added < start].cve_id)
         base = v[(v.published >= "2015-01-01") & (v.published < start)]
@@ -56,11 +56,11 @@ def main() -> None:
         models[year] = (vec, lr, Xt[: len(pos)].T.tocsc())
         print(f"text model {year}: {len(pos):,} KEV positives, {len(neg):,} negatives", flush=True)
 
-    for name, file in (("historical", "historical_2024_2025.parquet"), ("scoreboard", "scoreboard_2026_view.parquet")):
+    for name, file in (targets or (("historical", "historical_2024_2025.parquet"), ("scoreboard", "scoreboard_2026_view.parquet"))):
         df = pd.read_parquet(PROC / file, columns=["cve_id", "published", "assigner", "description"])
         df["description"] = df.description.fillna("")
         out = pd.DataFrame({"cve_id": df.cve_id.to_numpy(), "text_kev_lr": np.nan, "text_kev_sim": np.nan})
-        for year, idx in df.groupby(df.published.dt.year).groups.items():
+        for year, idx in (((fixed_year, df.index),) if fixed_year else df.groupby(df.published.dt.year).groups.items()):
             vec, lr, P = models[int(year)]
             Xc = vec.transform(df.loc[idx, "description"])
             pos_in = out.index[df.index.get_indexer(idx)]
@@ -75,4 +75,8 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    main()
+    import sys
+    if sys.argv[1:] == ["allcves"]:
+        main((("allcves", "allcves_view.parquet"),), 2026)
+    else:
+        main()

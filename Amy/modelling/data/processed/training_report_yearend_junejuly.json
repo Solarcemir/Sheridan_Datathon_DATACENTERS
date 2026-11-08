@@ -1,0 +1,175 @@
+{
+  "label_definition": "1 iff historical KEV date_added is after snapshot_month's last day and on/before Dec 31 of that historical year",
+  "cutoff_mode": "yearend",
+  "june_use_july": true,
+  "output_suffix": "yearend_junejuly",
+  "cohorts": {
+    "2024": {
+      "publication_months": "2024-01 to 2024-09",
+      "kev_cutoff": "2024-12-31",
+      "backtest_role": "TRAIN",
+      "rows": 28836,
+      "positive": 30,
+      "negative": 28806,
+      "positive_rate_pct": 0.104,
+      "counts_by_snapshot_month": {
+        "2024-01": 2585,
+        "2024-02": 2773,
+        "2024-03": 3305,
+        "2024-04": 3612,
+        "2024-05": 4991,
+        "2024-07": 6177,
+        "2024-08": 2885,
+        "2024-09": 2508
+      },
+      "positives_by_snapshot_month": {
+        "2024-01": 4,
+        "2024-02": 3,
+        "2024-03": 2,
+        "2024-04": 1,
+        "2024-05": 4,
+        "2024-07": 6,
+        "2024-08": 5,
+        "2024-09": 5
+      },
+      "checks": {
+        "with_publication_month_signal_record": 27601,
+        "negative_no_kev_by_cutoff": 28806,
+        "no_publication_month_signal_record": 1235,
+        "missing_epss": 1265,
+        "positive_kev_by_cutoff": 30,
+        "snapshot_kev_flag_disagrees_with_kev_date": 2,
+        "excluded_already_kev_at_snapshot": 66,
+        "kev_date_precedes_publication": 5,
+        "known_kev_added_after_cutoff_counted_negative": 13
+      }
+    },
+    "2025": {
+      "publication_months": "2025-01 to 2025-09",
+      "kev_cutoff": "2025-12-31",
+      "backtest_role": "VALIDATION",
+      "rows": 35277,
+      "positive": 49,
+      "negative": 35228,
+      "positive_rate_pct": 0.1389,
+      "counts_by_snapshot_month": {
+        "2025-01": 4267,
+        "2025-02": 3664,
+        "2025-03": 3982,
+        "2025-04": 4024,
+        "2025-05": 3967,
+        "2025-07": 7439,
+        "2025-08": 3621,
+        "2025-09": 4313
+      },
+      "positives_by_snapshot_month": {
+        "2025-01": 7,
+        "2025-02": 6,
+        "2025-03": 7,
+        "2025-04": 5,
+        "2025-05": 6,
+        "2025-07": 7,
+        "2025-08": 5,
+        "2025-09": 6
+      },
+      "checks": {
+        "with_publication_month_signal_record": 31865,
+        "negative_no_kev_by_cutoff": 35228,
+        "no_publication_month_signal_record": 3412,
+        "missing_epss": 3412,
+        "positive_kev_by_cutoff": 49,
+        "excluded_already_kev_at_snapshot": 89,
+        "snapshot_kev_flag_disagrees_with_kev_date": 1,
+        "kev_date_precedes_publication": 3
+      }
+    }
+  },
+  "combined_after_model_selection": {
+    "rows": 64113,
+    "positive": 79,
+    "negative": 64034,
+    "positive_rate_pct": 0.1232,
+    "counts_by_snapshot_month": {
+      "2024-01": 2585,
+      "2024-02": 2773,
+      "2024-03": 3305,
+      "2024-04": 3612,
+      "2024-05": 4991,
+      "2024-07": 6177,
+      "2024-08": 2885,
+      "2024-09": 2508,
+      "2025-01": 4267,
+      "2025-02": 3664,
+      "2025-03": 3982,
+      "2025-04": 4024,
+      "2025-05": 3967,
+      "2025-07": 7439,
+      "2025-08": 3621,
+      "2025-09": 4313
+    },
+    "positives_by_snapshot_month": {
+      "2024-01": 4,
+      "2024-02": 3,
+      "2024-03": 2,
+      "2024-04": 1,
+      "2024-05": 4,
+      "2024-07": 6,
+      "2024-08": 5,
+      "2024-09": 5,
+      "2025-01": 7,
+      "2025-02": 6,
+      "2025-03": 7,
+      "2025-04": 5,
+      "2025-05": 6,
+      "2025-07": 7,
+      "2025-08": 5,
+      "2025-09": 6
+    }
+  },
+  "publication_filter": {
+    "outside_jan_sep_2024_2025": 336814,
+    "publication_candidates_2025": 35366,
+    "publication_candidates_2024": 28902,
+    "june_published_with_july_snapshot_2025": 3681,
+    "june_published_with_july_snapshot_2024": 3078
+  },
+  "historical_signal_scan": {
+    "rows_scanned_2024": 3023284,
+    "matched_snapshot_2024": 27664,
+    "rows_scanned_2025": 3440450,
+    "matched_snapshot_2025": 31946
+  },
+  "feature_columns": [
+    "epss",
+    "exploitdb",
+    "metasploit",
+    "nuclei",
+    "poc_github"
+  ],
+  "metadata_not_model_features": [
+    "cve_id",
+    "published",
+    "snapshot_month"
+  ],
+  "target_column": "target",
+  "scoreboard_candidates": 72670,
+  "exclude_feb_2025": false,
+  "notes": [
+    "2024 labels through the selected 2024 cutoff can be learned before a 2025 backtest.",
+    "2025 outcomes are never used to train a model evaluated on 2025.",
+    "After model selection, optionally refit on the corresponding all_labeled CSV for 2026 predictions.",
+    "Official 2026 scoring runs through Nov 4, 2026; the nov04 option is a closer historical analogue.",
+    "Dec 31 remains the default for reproducibility; alternative label cutoffs are sensitivity tests.",
+    "The june-use-july option also changes historical KEV eligibility at the July month-end snapshot.",
+    "2025 has a known February signal-data gap; missing monthly rows do not prove no signals existed.",
+    "EPSS model was revised in March 2025, so historical scores may shift in distribution.",
+    "Missing signal records are represented with blank EPSS and four 0 exploit flags, as on the 2026 scoreboard.",
+    "The absence of KEV addition is not proof of the absence of exploitation.",
+    "in_kev is used for historical candidate exclusion only and never as a feature.",
+    "Current NIST status, CVSS, CWE, products, references, and last_modified are excluded to limit future-data leakage.",
+    "Model evaluation should compare hits@500 on the SAME 2025 candidate cohort and cutoff.",
+    "2025 has already influenced teammate heuristic selection: do not treat that heuristic's 2025 score as untouched holdout evidence.",
+    "Default validation expects 35,280 / 52 because snapshot in_kev excludes CVE-2025-4664.",
+    "Alternate cutoff or snapshot experiments may change positive counts and cohort membership."
+  ]
+}

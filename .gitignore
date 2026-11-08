@@ -36,3 +36,10 @@ luis/derived/backtest_cohorts_2025.csv
 luis/derived/granite/emb_granite30m.npy
 luis/derived/granite/emb_ids.csv
 luis/derived/granite/granite_features_*.csv
+
+# luis/repo_scanner/: exported model artifacts, regenerated in seconds by train_export.py
+luis/repo_scanner/model/
+luis/repo_scanner/cache/
+
+# Amy: Ignore cleaned CSV datasets, but keep cleaning_report.json
+/Amy/modelling/data/cleaned/*.csv

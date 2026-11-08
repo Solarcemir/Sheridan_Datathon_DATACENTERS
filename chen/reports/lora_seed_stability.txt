@@ -1,0 +1,10 @@
+4 LoRA runs: seed0, seed1, seed2, seed3 (same recipe, only the seed differs)
+
+pairwise Spearman / top-500 overlap:
+  seed0 vs seed1: 0.854 / 135
+  seed0 vs seed2: 0.796 / 163
+  seed0 vs seed3: 0.779 / 138
+  seed1 vs seed2: 0.782 / 209
+  seed1 vs seed3: 0.745 / 224
+  seed2 vs seed3: 0.871 / 264
+each run vs the seed average (top-500 overlap): seed0 256, seed1 258, seed2 289, seed3 256

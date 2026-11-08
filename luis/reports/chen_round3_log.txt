@@ -1,0 +1,26 @@
+﻿[   20s] test rows 64,120, positives 75; missing Chen scores {'lora8b': 1, 'lora30b': 1, 'llmx8b': 1, 'lr_chen': 1, 'avg_lrteam_lora_lgbm': 1}
+   Spearman lora30b vs lora8b: 0.69
+   Spearman llmx8b vs lora8b: 0.68
+   Spearman lr_chen vs lr_luis: 0.59
+
+pooled top 441 of 64,120 (75 positives, KEV by Nov 4); filters + cap 3 unless stated; [est.] = uses Chen OOF
+main normalization = stats_review.py's; last two columns = same recipes with other voter normalizations (sensitivity)
+                                                          model  hits@441 95% CI vs exploit+EPSS    vs v4f  P(better than v4f)     AP  top overlap with FINAL  hits, all ranked per split  hits, all ranked within month
+                               Exploit code, then EPSS (no cap)        20  12-29        +0 to +0 -18 to -3                0.00 0.0377                     116                          20                             20
+         v4f = current final without Chen files (XGB + LR Luis)        30  20-41       +3 to +18  +0 to +0                0.00 0.0696                     262                          30                             29
+          FINAL with Chen files (XGB + avg LR + LoRA 8B) [est.]        32  21-43       +4 to +20  -5 to +9                0.66 0.0730                     441                          31                             27
+                                same, no Granite filters [est.]        31  21-42       +3 to +19  -6 to +8                0.56 0.0701                     402                          28                             27
+                            same, LR Luis only as linear [est.]        30  20-42       +3 to +19  -5 to +7                0.52 0.0712                     387                          31                             29
+                            same, LR Chen only as linear [est.]        30  20-41       +3 to +18  -6 to +6                0.47 0.0622                     396                          30                             30
+                                    XGB + avg LR, no LLM [est.]        28  19-39       +2 to +15  -6 to +2                0.10 0.0773                     277                          28                             29
+                                    LLM voter = LoRA 30B [est.]        28  19-39       +1 to +15  -8 to +5                0.25 0.0673                     346                          29                             28
+            LLM voter = LoRA 8B + Granite answers (llmx) [est.]        28  19-39       +2 to +15  -8 to +4                0.22 0.0762                     327                          28                             25
+                                LLM voter = avg(8B, 30B) [est.]        31  20-41       +3 to +18  -6 to +7                0.49 0.0743                     396                          30                             28
+                          LLM voter = avg(8B, 30B, llmx) [est.]        30  20-41       +3 to +17  -6 to +6                0.40 0.0822                     380                          30                             28
+             4 voters: XGB + avg LR + LoRA 8B + LoRA 30B [est.]        32  21-43       +4 to +20  -5 to +9                0.63 0.0743                     380                          32                             30
+ Chen's recipe: LightGBM + LR Chen + LoRA 8B, no filters [est.]        32  21-43       +5 to +19  -5 to +9                0.62 0.0676                     353                          31                             30
+                         Chen's recipe + Granite filters [est.]        32  22-44       +5 to +20  -5 to +9                0.69 0.0704                     373                          32                             30
+                   LightGBM + avg LR + LoRA 8B (filters) [est.]        32  21-44       +4 to +20  -5 to +9                0.67 0.0781                     398                          32                             30
+                  LightGBM + LR Luis + LoRA 8B (filters) [est.]        31  20-42       +3 to +19  -6 to +7                0.54 0.0723                     376                          30                             27
+Chen's saved OOF average avg_lrteam_lora_lgbm (older LR) [est.]        29  19-39       +1 to +16  -9 to +6                0.36 0.0550                     279                          29                             29
+[   42s] done

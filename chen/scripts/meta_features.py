@@ -77,7 +77,7 @@ def sibling_max(df: pd.DataFrame, grp: list, col: str) -> pd.Series:
     return pd.Series(res, index=df.index)
 
 
-def main() -> None:
+def main(views=None, fixed_cutoff=None) -> None:
     vul = pd.read_csv(DATA / "vulnerabilities.csv",
                       usecols=["cve_id", "published", "assigner", "description", "cwe_ids"])
     vul["published"] = pd.to_datetime(vul.published)
@@ -113,7 +113,7 @@ def main() -> None:
 
     def build(df: pd.DataFrame) -> pd.DataFrame:
         df = df.copy()
-        df["cutoff"] = pd.to_datetime((df.published.dt.year - 1).astype(str) + "-12-31")
+        df["cutoff"] = pd.Timestamp(fixed_cutoff) if fixed_cutoff else pd.to_datetime((df.published.dt.year - 1).astype(str) + "-12-31")
         H = history(sorted(df.cutoff.unique()))
         a_k, a_n, a_rate, a_days, cwe_rate, a_ransom = [], [], [], [], [], []
         for r in df[["assigner", "cwe_ids", "cutoff"]].itertuples(index=False):
@@ -170,9 +170,10 @@ def main() -> None:
         })
         return meta
 
-    hist = pd.read_parquet(PROC / "historical_2024_2025.parquet")
-    sb = pd.read_parquet(PROC / "scoreboard_2026_view.parquet")
-    for name, df in (("historical", hist), ("scoreboard", sb)):
+    if views is None:
+        views = (("historical", pd.read_parquet(PROC / "historical_2024_2025.parquet")),
+                 ("scoreboard", pd.read_parquet(PROC / "scoreboard_2026_view.parquet")))
+    for name, df in views:
         m = build(df)
         m.to_parquet(PROC / f"meta_{name}.parquet", index=False)
         print(f"{name}: {len(m):,} rows; KEV cutoffs {sorted(m.kev_cutoff.unique())}", flush=True)
@@ -181,4 +182,8 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    main()
+    import sys
+    if sys.argv[1:] == ["allcves"]:   # every other CVE, scored like a 2026 bug: KEV history to Dec 31 2025
+        main([("allcves", pd.read_parquet(PROC / "allcves_view.parquet"))], "2025-12-31")
+    else:
+        main()

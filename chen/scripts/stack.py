@@ -17,6 +17,12 @@ from sklearn.metrics import average_precision_score
 from sklearn.model_selection import GroupKFold
 from sklearn.preprocessing import StandardScaler
 
+def _both(proc, name: str) -> pd.DataFrame:
+    """Historical + scoreboard versions of a per-CVE table (CVE ids don't overlap)."""
+    parts = [proc / f"{name}_historical.parquet", proc / f"{name}_scoreboard.parquet", proc / f"{name}_allcves.parquet"]
+    return pd.concat([pd.read_parquet(x) for x in parts if x.exists()], ignore_index=True).drop_duplicates("cve_id")
+
+
 ROOT = Path(__file__).resolve().parent.parent
 RES = ROOT / "results"
 FLAGS = ["exploitdb", "metasploit", "nuclei", "poc_github"]
@@ -50,7 +56,7 @@ def features(df: pd.DataFrame) -> pd.DataFrame:
 
 def meta_features(df: pd.DataFrame) -> pd.DataFrame:
     """Fair publish-time metadata (scripts/meta_features.py), log-scaled where counts drift."""
-    m = pd.read_parquet(ROOT / "processed" / "meta_historical.parquet").set_index("cve_id").reindex(df.cve_id)
+    m = _both(ROOT / "processed", "meta").set_index("cve_id").reindex(df.cve_id)
     return pd.DataFrame({
         "log_assigner_kev_rate": np.log(m.assigner_kev_rate.to_numpy()),
         "log_assigner_kev": np.log1p(m.assigner_kev.to_numpy()),

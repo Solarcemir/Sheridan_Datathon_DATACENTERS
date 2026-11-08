@@ -1,0 +1,8 @@
+== 5-fold purged CV (K=517, 75 Nov-4 positives)
+  flag picked from training rows only: block 0: nv_desc_itw (123.8x); block 1: nv_desc_itw (142.3x); block 2: nv_desc_itw (112.6x); block 3: nv_desc_itw (108.3x); block 4: nv_desc_itw (140.1x)
+  hits: current 33 | + flag picked in training 36 | + fixed in-the-wild rule (chosen after seeing all data, optimistic) 36
+
+== forward-only blocks 1-4 (K=414, 66 Nov-4 positives)
+  flag picked from training rows only: block 1: nv_analyzed (2.0x); block 2: cl_ssvc_auto (4.7x); block 3: cl_ssvc_auto (3.3x); block 4: nv_desc_itw (140.1x)
+  hits: current 27 | + flag picked in training 11 | + fixed in-the-wild rule (chosen after seeing all data, optimistic) 31
+

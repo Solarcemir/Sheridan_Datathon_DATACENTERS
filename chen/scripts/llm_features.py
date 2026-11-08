@@ -41,8 +41,8 @@ def matches(a: str, b: str) -> bool:
     return a == b or (len(a) >= 4 and a in b) or (len(b) >= 4 and b in a)
 
 
-def main() -> None:
-    ex = pd.read_parquet(PROC / "llm_extract.parquet")
+def main(targets=None, fixed_cutoff=None) -> None:
+    ex = pd.concat([pd.read_parquet(PROC / "llm_extract.parquet")] + [pd.read_parquet(f) for f in sorted((ROOT / "results").glob("xall_*of3.parquet"))]).drop_duplicates("cve_id")
     ex["v"], ex["p"] = ex.vendor.map(norm), ex["product"].map(norm)
     kev = pd.read_csv(DATA / "known_exploited.csv", usecols=["cve_id", "vendor", "product", "date_added", "known_ransomware_use"])
     kev["date_added"] = pd.to_datetime(kev.date_added)
@@ -62,9 +62,9 @@ def main() -> None:
             cache[key] = (g, gp)
         return cache[key]
 
-    for name, file in (("historical", "historical_2024_2025.parquet"), ("scoreboard", "scoreboard_2026_view.parquet")):
+    for name, file in (targets or (("historical", "historical_2024_2025.parquet"), ("scoreboard", "scoreboard_2026_view.parquet"))):
         df = pd.read_parquet(PROC / file, columns=["cve_id", "published"]).merge(ex, on="cve_id", how="inner")
-        cut = pd.to_datetime((df.published.dt.year - 1).astype(str) + "-12-31")
+        cut = pd.Series(pd.Timestamp(fixed_cutoff), index=df.index) if fixed_cutoff else pd.to_datetime((df.published.dt.year - 1).astype(str) + "-12-31")
         vk, pk, pr = [], [], []
         for v, p, c in zip(df.v, df.p, cut):
             g, gp = kev_rows(v, p)
@@ -87,4 +87,8 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    main()
+    import sys
+    if sys.argv[1:] == ["allcves"]:
+        main((("allcves", "allcves_view.parquet"),), "2025-12-31")
+    else:
+        main()

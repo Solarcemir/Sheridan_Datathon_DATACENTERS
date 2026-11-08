@@ -1,0 +1,3557 @@
+{
+  "evaluation": "Historical 5-fold purged out-of-fold scores, November 4 publication-year labels. Not 2026 outcomes.",
+  "population": 75148,
+  "positives": 75,
+  "top_k": 517,
+  "caught": 32,
+  "missed": 43,
+  "definitions": {
+    "percentile_rank": "pandas Series.rank(method='average', pct=True); higher is a higher model score",
+    "ensemble_score": "mean of the three percentile ranks; matches historical_rankings.csv",
+    "individual_competition_rank": "pandas rank(ascending=False, method='min'); 1 is best",
+    "percentile_range": "max percentile minus min percentile",
+    "percentile_std": "population standard deviation of the three percentile ranks (ddof=0)",
+    "upside_gap": "max percentile minus mean percentile",
+    "primary_watchlist": "single_model_dissent",
+    "tie_break": "better stored ensemble rank, then CVE ID; does not favor the challenger",
+    "material_range_threshold": 0.1,
+    "strong_range_threshold": 0.25,
+    "neighbor_half_width": 250,
+    "label_caveat": "A CVE not in KEV by the cutoff is an observed non-positive, not proof of no exploitation.",
+    "causal_caveat": "Rank differences are descriptive. They are not explanations of why a model scored a CVE as it did."
+  },
+  "validation": {
+    "max_abs_ensemble_score_gap": 0.0,
+    "ties": {
+      "ensemble_score_tied_rows": 11324,
+      "ensemble_tie_across_k_boundary": false,
+      "rows_sharing_rank_k_score": 1,
+      "voter_tied_rows": {
+        "logistic_regression": 3349,
+        "granite_lora": 47212,
+        "lightgbm": 13186
+      },
+      "voter_largest_tie_block": {
+        "logistic_regression": 96,
+        "granite_lora": 104,
+        "lightgbm": 96
+      },
+      "note": "Percentile ranks use average ties, as in Chen's ensemble. Displayed competition ranks use minimum ties, matching investigation_cases.json, so a CVE in a large tie block shows the best rank of that block. Selection rules use average-tie percentiles, except the dissent gate."
+    },
+    "watchlist_candidates_exclude_original_top_k": true,
+    "every_strategy_selects_exactly_B_unique_cves": true,
+    "individual_ranks_match_investigation_cases": true,
+    "snapshot_signals_match_investigation_cases_for_75_positives": true,
+    "caught_and_missed_reproduced": true,
+    "duplicate_cve_ids": 0
+  },
+  "cohorts": {
+    "caught_positive": {
+      "n": 32,
+      "percentile_range": {
+        "n": 32,
+        "min": 0.0005788577207643808,
+        "p50": 0.00905879065311116,
+        "p90": 0.03593974556874436,
+        "p99": 0.04609197849576831,
+        "max": 0.04728003406610948,
+        "mean": 0.013041348405812527
+      },
+      "percentile_std": {
+        "n": 32,
+        "min": 0.0002484977066664822,
+        "p50": 0.004047046805518593,
+        "p90": 0.016788357057969418,
+        "p99": 0.02130803077093461,
+        "max": 0.021682235536352002,
+        "mean": 0.005806309243149458
+      },
+      "upside_gap": {
+        "n": 32,
+        "min": 0.0003437660793811359,
+        "p50": 0.003388868188995864,
+        "p90": 0.01226978761909831,
+        "p99": 0.015984989620482254,
+        "max": 0.01665602100743424,
+        "mean": 0.005162936804705386
+      },
+      "best_individual_rank": {
+        "n": 32,
+        "min": 1.0,
+        "p50": 124.5,
+        "p90": 340.7000000000001,
+        "p99": 641.5300000000001,
+        "max": 653.0,
+        "mean": 162.0625
+      },
+      "share_range_at_least_0_10": 0.0,
+      "share_range_at_least_0_25": 0.0,
+      "share_best_rank_inside_top_k": 0.90625,
+      "n_best_rank_inside_top_k": 29,
+      "best_model_counts": {
+        "lr_full_llmx_noemb": 16,
+        "lgbm_luis_only": 11,
+        "lora_control": 5
+      }
+    },
+    "missed_positive": {
+      "n": 43,
+      "percentile_range": {
+        "n": 43,
+        "min": 0.018177463139404937,
+        "p50": 0.15438867301857673,
+        "p90": 0.46816947889498073,
+        "p99": 0.7215622504923613,
+        "max": 0.8194363123436419,
+        "mean": 0.23016627034280254
+      },
+      "percentile_std": {
+        "n": 43,
+        "min": 0.007426166706428846,
+        "p50": 0.06574620169620468,
+        "p90": 0.20568755876498235,
+        "p99": 0.33237576103666616,
+        "max": 0.3853048948825379,
+        "mean": 0.10140029879029258
+      },
+      "upside_gap": {
+        "n": 43,
+        "min": 0.008891343304767485,
+        "p50": 0.07467929951562247,
+        "p90": 0.20757527368215622,
+        "p99": 0.28043744788062663,
+        "max": 0.28470928478912716,
+        "mean": 0.09429098671644544
+      },
+      "best_individual_rank": {
+        "n": 43,
+        "min": 53.0,
+        "p50": 1457.0,
+        "p90": 10341.400000000001,
+        "p99": 23586.779999999977,
+        "max": 28707.0,
+        "mean": 3972.8372093023254
+      },
+      "share_range_at_least_0_10": 0.7674418604651163,
+      "share_range_at_least_0_25": 0.3488372093023256,
+      "share_best_rank_inside_top_k": 0.20930232558139536,
+      "n_best_rank_inside_top_k": 9,
+      "best_model_counts": {
+        "lgbm_luis_only": 17,
+        "lr_full_llmx_noemb": 14,
+        "lora_control": 12
+      }
+    },
+    "not_confirmed_by_cutoff": {
+      "n": 75073,
+      "percentile_range": {
+        "n": 75073,
+        "min": 0.00010645659232455529,
+        "p50": 0.28304811837973065,
+        "p90": 0.5800021291318466,
+        "p99": 0.7994496194176824,
+        "max": 0.9597461010273061,
+        "mean": 0.3119274406412981
+      },
+      "percentile_std": {
+        "n": 75073,
+        "min": 4.5235353467791606e-05,
+        "p50": 0.12190624077881351,
+        "p90": 0.2485132458629815,
+        "p99": 0.3485791077231828,
+        "max": 0.44001450077851456,
+        "mean": 0.13404082906488246
+      },
+      "upside_gap": {
+        "n": 75073,
+        "min": 4.435691346849069e-05,
+        "p50": 0.13543939958481932,
+        "p90": 0.27957186707120174,
+        "p99": 0.45663189084650724,
+        "max": 0.5928922481858022,
+        "mean": 0.15167253228574668
+      },
+      "best_individual_rank": {
+        "n": 75073,
+        "min": 1.0,
+        "p50": 22554.0,
+        "p90": 55614.8,
+        "p99": 67154.68,
+        "max": 72003.0,
+        "mean": 26206.839849213433
+      },
+      "share_range_at_least_0_10": 0.8814753639790603,
+      "share_range_at_least_0_25": 0.5725493852650088,
+      "share_best_rank_inside_top_k": 0.01487885125144859,
+      "n_best_rank_inside_top_k": 1117,
+      "best_model_counts": {
+        "lora_control": 27596,
+        "lr_full_llmx_noemb": 24616,
+        "lgbm_luis_only": 22857,
+        "tie": 4
+      }
+    },
+    "outside_top_k_not_confirmed": {
+      "n": 74588,
+      "percentile_range": {
+        "n": 74588,
+        "min": 0.0011976366636503588,
+        "p50": 0.28472480970884123,
+        "p90": 0.5807579709373504,
+        "p99": 0.7998711209879175,
+        "max": 0.9597461010273061,
+        "mean": 0.3138464434990257
+      },
+      "percentile_std": {
+        "n": 74588,
+        "min": 0.0005645713375098674,
+        "p50": 0.12262041303258465,
+        "p90": 0.24888713893508535,
+        "p99": 0.3486665138216681,
+        "max": 0.44001450077851456,
+        "mean": 0.13486477947094708
+      },
+      "upside_gap": {
+        "n": 74588,
+        "min": 0.0003992122212168603,
+        "p50": 0.1362067741878249,
+        "p90": 0.2800775358847431,
+        "p99": 0.4573094648781969,
+        "max": 0.5928922481858022,
+        "mean": 0.1526117839963143
+      },
+      "best_individual_rank": {
+        "n": 74588,
+        "min": 1.0,
+        "p50": 22728.0,
+        "p90": 55664.3,
+        "p99": 67181.26000000001,
+        "max": 72003.0,
+        "mean": 26375.45034053735
+      },
+      "share_range_at_least_0_10": 0.8872070574355124,
+      "share_range_at_least_0_25": 0.5762723226256234,
+      "share_best_rank_inside_top_k": 0.009545771437764788,
+      "n_best_rank_inside_top_k": 712,
+      "best_model_counts": {
+        "lora_control": 27417,
+        "lr_full_llmx_noemb": 24452,
+        "lgbm_luis_only": 22715,
+        "tie": 4
+      }
+    }
+  },
+  "unstratified_tests_confounded_by_rank": {
+    "note": "These compare missed positives with all unconfirmed CVEs outside the top K. Misses sit closer to the cutoff than a typical unconfirmed CVE, so a difference here can be ensemble rank in disguise. The neighbor test is the rank-localized check.",
+    "percentile_range_missed_vs_outside_unconfirmed": {
+      "u": 1138556.0,
+      "p_value": 0.000991232881836876,
+      "n_left": 43,
+      "n_right": 74588
+    },
+    "upside_missed_vs_outside_unconfirmed": {
+      "u": 977204.0,
+      "p_value": 9.188262135767617e-06,
+      "n_left": 43,
+      "n_right": 74588
+    }
+  },
+  "neighbor_test": {
+    "definition": "For each missed positive, compare it with CVEs ranked within 250 places on either side, never crossing back into the original top K. The share is the fraction of those neighbors with a smaller value. A median share of 0.5 means the miss looks ordinary for its ensemble rank.",
+    "percentile_range": {
+      "statistic": 122.0,
+      "p_value": 2.251329015804776e-05,
+      "median_share": 0.712,
+      "n": 43
+    },
+    "upside_gap": {
+      "statistic": 152.5,
+      "p_value": 0.00010877819914116879,
+      "median_share": 0.72,
+      "n": 43
+    },
+    "best_voter_percentile": {
+      "statistic": 143.5,
+      "p_value": 6.926234280810656e-05,
+      "median_share": 0.718,
+      "n": 43
+    }
+  },
+  "outside_rank_correlations": {
+    "spearman_rank_vs_percentile_range": {
+      "rho": -0.022688148042607582,
+      "p_value": 5.689692609818137e-10
+    },
+    "spearman_rank_vs_upside": {
+      "rho": 0.04717264523180289,
+      "p_value": 4.871426517692799e-38
+    }
+  },
+  "single_model_top_k": {
+    "logistic_regression": {
+      "column": "lr_full_llmx_noemb",
+      "positives_inside_own_top_k": 26,
+      "misses_with_this_model_inside_top_k": 2
+    },
+    "granite_lora": {
+      "column": "lora_control",
+      "positives_inside_own_top_k": 25,
+      "misses_with_this_model_inside_top_k": 2
+    },
+    "lightgbm": {
+      "column": "lgbm_luis_only",
+      "positives_inside_own_top_k": 24,
+      "misses_with_this_model_inside_top_k": 5
+    }
+  },
+  "miss_bands": [
+    {
+      "miss_band": "deep_miss_over_5000",
+      "n": 17,
+      "n_best_rank_inside_top_k": 1,
+      "n_best_rank_at_most_2k": 1,
+      "n_dilution_at_least_1000_places": 15,
+      "median_percentile_range": 0.41923936764784164,
+      "median_upside": 0.14721837795638837,
+      "median_best_rank": 8279.0,
+      "median_ensemble_rank": 16261.0,
+      "best_model_counts": {
+        "lr_full_llmx_noemb": 9,
+        "lora_control": 4,
+        "lgbm_luis_only": 4
+      }
+    },
+    {
+      "miss_band": "mid_miss_1001_to_5000",
+      "n": 19,
+      "n_best_rank_inside_top_k": 5,
+      "n_best_rank_at_most_2k": 8,
+      "n_dilution_at_least_1000_places": 17,
+      "median_percentile_range": 0.13217251290786192,
+      "median_upside": 0.06435301006014793,
+      "median_best_rank": 1283.0,
+      "median_ensemble_rank": 2708.0,
+      "best_model_counts": {
+        "lgbm_luis_only": 9,
+        "lora_control": 6,
+        "lr_full_llmx_noemb": 4
+      }
+    },
+    {
+      "miss_band": "near_miss_518_to_1000",
+      "n": 7,
+      "n_best_rank_inside_top_k": 3,
+      "n_best_rank_at_most_2k": 7,
+      "n_dilution_at_least_1000_places": 0,
+      "median_percentile_range": 0.055823175600149044,
+      "median_upside": 0.023229715583470756,
+      "median_best_rank": 531.0,
+      "median_ensemble_rank": 755.0,
+      "best_model_counts": {
+        "lgbm_luis_only": 4,
+        "lora_control": 2,
+        "lr_full_llmx_noemb": 1
+      }
+    }
+  ],
+  "missed_best_model_counts_excluding_ties": {
+    "lightgbm": 17,
+    "logistic_regression": 14,
+    "granite_lora": 12
+  },
+  "missed_best_model_ties": 0,
+  "n_missed_best_rank_inside_top_k": 9,
+  "n_outside_unconfirmed_best_rank_inside_top_k": 712,
+  "n_missed_dilution_at_least_1000_places": 32,
+  "signal_patterns": {
+    "epss_v4_assumption": "EPSS v4 replaced v3 on 17 March 2025. Snapshot months through 2025-02 are treated as v3. Snapshot month 2025-03 and later are treated as v4 because the monthly file is a month-end view and the cutover was 17 March. Raw EPSS is not compared across this boundary. Within-month percentiles are the EPSS summary used in every pooled comparison.",
+    "by_cohort": {
+      "caught_positive": {
+        "n": 32,
+        "signal_row_present": 32,
+        "signal_row_absent": 0,
+        "any_recorded_code_flag": 27,
+        "record_present_all_flags_zero": 5,
+        "share_any_recorded_code_flag": 0.84375,
+        "epss_present": 32,
+        "median_epss_when_present": 0.00266,
+        "share_epss_exactly_zero_when_present": 0.0,
+        "median_within_month_epss_percentile": 55.175
+      },
+      "missed_positive": {
+        "n": 43,
+        "signal_row_present": 36,
+        "signal_row_absent": 7,
+        "any_recorded_code_flag": 4,
+        "record_present_all_flags_zero": 32,
+        "share_any_recorded_code_flag": 0.09302325581395349,
+        "epss_present": 36,
+        "median_epss_when_present": 0.000445,
+        "share_epss_exactly_zero_when_present": 0.0,
+        "median_within_month_epss_percentile": 13.28
+      },
+      "not_confirmed_by_cutoff": {
+        "n": 75073,
+        "signal_row_present": 70180,
+        "signal_row_absent": 4893,
+        "any_recorded_code_flag": 1596,
+        "record_present_all_flags_zero": 68584,
+        "share_any_recorded_code_flag": 0.021259307607262266,
+        "epss_present": 70149,
+        "median_epss_when_present": 0.00043,
+        "share_epss_exactly_zero_when_present": 0.0,
+        "median_within_month_epss_percentile": 11.61
+      },
+      "top_k_all_labels": {
+        "n": 517,
+        "signal_row_present": 497,
+        "signal_row_absent": 20,
+        "any_recorded_code_flag": 289,
+        "record_present_all_flags_zero": 208,
+        "share_any_recorded_code_flag": 0.5589941972920697,
+        "epss_present": 496,
+        "median_epss_when_present": 0.00096,
+        "share_epss_exactly_zero_when_present": 0.0,
+        "median_within_month_epss_percentile": 33.525
+      },
+      "outside_top_k_all_labels": {
+        "n": 74631,
+        "signal_row_present": 69751,
+        "signal_row_absent": 4880,
+        "any_recorded_code_flag": 1338,
+        "record_present_all_flags_zero": 68413,
+        "share_any_recorded_code_flag": 0.017928206777344535,
+        "epss_present": 69721,
+        "median_epss_when_present": 0.00043,
+        "share_epss_exactly_zero_when_present": 0.0,
+        "median_within_month_epss_percentile": 11.61
+      },
+      "full_population": {
+        "n": 75148,
+        "signal_row_present": 70248,
+        "signal_row_absent": 4900,
+        "any_recorded_code_flag": 1627,
+        "record_present_all_flags_zero": 68621,
+        "share_any_recorded_code_flag": 0.02165060946399106,
+        "epss_present": 70217,
+        "median_epss_when_present": 0.00043,
+        "share_epss_exactly_zero_when_present": 0.0,
+        "median_within_month_epss_percentile": 11.61
+      }
+    },
+    "by_era_and_cohort": {
+      "epss_v3": {
+        "caught_positive": {
+          "n": 15,
+          "signal_row_present": 15,
+          "signal_row_absent": 0,
+          "any_recorded_code_flag": 11,
+          "record_present_all_flags_zero": 4,
+          "share_any_recorded_code_flag": 0.7333333333333333,
+          "epss_present": 15,
+          "median_epss_when_present": 0.00044,
+          "share_epss_exactly_zero_when_present": 0.0,
+          "median_within_month_epss_percentile": 13.52
+        },
+        "missed_positive": {
+          "n": 24,
+          "signal_row_present": 19,
+          "signal_row_absent": 5,
+          "any_recorded_code_flag": 2,
+          "record_present_all_flags_zero": 17,
+          "share_any_recorded_code_flag": 0.08333333333333333,
+          "epss_present": 19,
+          "median_epss_when_present": 0.00044,
+          "share_epss_exactly_zero_when_present": 0.0,
+          "median_within_month_epss_percentile": 11.61
+        },
+        "not_confirmed_by_cutoff": {
+          "n": 47760,
+          "signal_row_present": 43564,
+          "signal_row_absent": 4196,
+          "any_recorded_code_flag": 989,
+          "record_present_all_flags_zero": 42575,
+          "share_any_recorded_code_flag": 0.020707705192629815,
+          "epss_present": 43533,
+          "median_epss_when_present": 0.00044,
+          "share_epss_exactly_zero_when_present": 0.0,
+          "median_within_month_epss_percentile": 12.8
+        },
+        "full_population": {
+          "n": 47799,
+          "signal_row_present": 43598,
+          "signal_row_absent": 4201,
+          "any_recorded_code_flag": 1002,
+          "record_present_all_flags_zero": 42596,
+          "share_any_recorded_code_flag": 0.020962781648151636,
+          "epss_present": 43567,
+          "median_epss_when_present": 0.00044,
+          "share_epss_exactly_zero_when_present": 0.0,
+          "median_within_month_epss_percentile": 12.8
+        }
+      },
+      "epss_v4": {
+        "caught_positive": {
+          "n": 17,
+          "signal_row_present": 17,
+          "signal_row_absent": 0,
+          "any_recorded_code_flag": 16,
+          "record_present_all_flags_zero": 1,
+          "share_any_recorded_code_flag": 0.9411764705882353,
+          "epss_present": 17,
+          "median_epss_when_present": 0.00644,
+          "share_epss_exactly_zero_when_present": 0.0,
+          "median_within_month_epss_percentile": 69.74
+        },
+        "missed_positive": {
+          "n": 19,
+          "signal_row_present": 17,
+          "signal_row_absent": 2,
+          "any_recorded_code_flag": 2,
+          "record_present_all_flags_zero": 15,
+          "share_any_recorded_code_flag": 0.10526315789473684,
+          "epss_present": 17,
+          "median_epss_when_present": 0.0007,
+          "share_epss_exactly_zero_when_present": 0.0,
+          "median_within_month_epss_percentile": 22.29
+        },
+        "not_confirmed_by_cutoff": {
+          "n": 27313,
+          "signal_row_present": 26616,
+          "signal_row_absent": 697,
+          "any_recorded_code_flag": 607,
+          "record_present_all_flags_zero": 26009,
+          "share_any_recorded_code_flag": 0.02222384944898034,
+          "epss_present": 26616,
+          "median_epss_when_present": 0.00034,
+          "share_epss_exactly_zero_when_present": 0.0,
+          "median_within_month_epss_percentile": 8.31
+        },
+        "full_population": {
+          "n": 27349,
+          "signal_row_present": 26650,
+          "signal_row_absent": 699,
+          "any_recorded_code_flag": 625,
+          "record_present_all_flags_zero": 26025,
+          "share_any_recorded_code_flag": 0.02285275512815825,
+          "epss_present": 26650,
+          "median_epss_when_present": 0.00034,
+          "share_epss_exactly_zero_when_present": 0.0,
+          "median_within_month_epss_percentile": 8.31
+        }
+      }
+    },
+    "disagreement_by_signal_state": {
+      "note": "Exploratory, not a pre-specified test. Signal states are mutually exclusive: monthly row absent (flags and EPSS unknown), row present with all four code flags zero, or at least one recorded flag. The dissent pool is CVEs outside the ensemble top K that at least one model ranked inside its own top K. Positive rates are counts against the November 4 label, not exploitation probabilities.",
+      "states": {
+        "monthly_row_absent": {
+          "missed_positive": {
+            "n": 7,
+            "median_percentile_range": 0.13838026294778294,
+            "median_upside_gap": 0.0697290679725342,
+            "n_best_rank_inside_top_k": 1
+          },
+          "outside_top_k_not_confirmed": {
+            "n": 4873,
+            "median_percentile_range": 0.3352717304519083,
+            "median_upside_gap": 0.15723638686325658,
+            "n_best_rank_inside_top_k": 53
+          },
+          "outside_top_k_dissent_pool": {
+            "n": 54,
+            "positives": 1,
+            "positive_rate": 0.018518518518518517
+          },
+          "outside_top_k_all": {
+            "n": 4880,
+            "positives": 7,
+            "positive_rate": 0.0014344262295081967
+          }
+        },
+        "recorded_code_flag": {
+          "caught_positive": {
+            "n": 27,
+            "median_percentile_range": 0.006826528982807334,
+            "median_upside_gap": 0.002812228313905041,
+            "n_best_rank_inside_top_k": 27
+          },
+          "missed_positive": {
+            "n": 4,
+            "median_percentile_range": 0.16168427636131366,
+            "median_upside_gap": 0.06092089388052019,
+            "n_best_rank_inside_top_k": 1
+          },
+          "outside_top_k_not_confirmed": {
+            "n": 1334,
+            "median_percentile_range": 0.19206432639591214,
+            "median_upside_gap": 0.08369040648675502,
+            "n_best_rank_inside_top_k": 178
+          },
+          "outside_top_k_dissent_pool": {
+            "n": 179,
+            "positives": 1,
+            "positive_rate": 0.00558659217877095
+          },
+          "outside_top_k_all": {
+            "n": 1338,
+            "positives": 4,
+            "positive_rate": 0.0029895366218236174
+          }
+        },
+        "row_present_all_flags_zero": {
+          "caught_positive": {
+            "n": 5,
+            "median_percentile_range": 0.014398254111885778,
+            "median_upside_gap": 0.00907986018700857,
+            "n_best_rank_inside_top_k": 2
+          },
+          "missed_positive": {
+            "n": 32,
+            "median_percentile_range": 0.18732368126896265,
+            "median_upside_gap": 0.08152135341814382,
+            "n_best_rank_inside_top_k": 7
+          },
+          "outside_top_k_not_confirmed": {
+            "n": 68381,
+            "median_percentile_range": 0.2832676851013999,
+            "median_upside_gap": 0.13575433367044587,
+            "n_best_rank_inside_top_k": 481
+          },
+          "outside_top_k_dissent_pool": {
+            "n": 488,
+            "positives": 7,
+            "positive_rate": 0.014344262295081968
+          },
+          "outside_top_k_all": {
+            "n": 68413,
+            "positives": 32,
+            "positive_rate": 0.00046774735795828277
+          }
+        }
+      }
+    },
+    "missed_without_recorded_code": {
+      "n": 39,
+      "n_signal_row_absent": 7,
+      "n_best_rank_inside_top_k": 8,
+      "median_best_rank": 1549.0,
+      "best_model_counts": {
+        "lightgbm": 16,
+        "logistic_regression": 14,
+        "granite_lora": 9
+      }
+    },
+    "missed_with_recorded_code": {
+      "n": 4,
+      "cve_ids": [
+        "CVE-2022-2586",
+        "CVE-2025-48384",
+        "CVE-2025-47827",
+        "CVE-2024-32113"
+      ],
+      "n_best_rank_inside_top_k": 1,
+      "median_ensemble_rank": 2865.0
+    }
+  },
+  "block_sensitivity": {
+    "summed": [
+      {
+        "additional_budget_target": 50,
+        "actual_extra_cves_summed_across_blocks": 50,
+        "budgets_matched_between_strategies": true,
+        "expanded_ensemble_additional_positives": 1,
+        "primary_additional_positives": 0,
+        "note": "Extra slots are split across publish-date blocks in proportion to how many of the block's CVEs sit outside the original global top 517. The original 32 are not recounted. This is a sensitivity, not a new selected model."
+      },
+      {
+        "additional_budget_target": 100,
+        "actual_extra_cves_summed_across_blocks": 100,
+        "budgets_matched_between_strategies": true,
+        "expanded_ensemble_additional_positives": 1,
+        "primary_additional_positives": 0,
+        "note": "Extra slots are split across publish-date blocks in proportion to how many of the block's CVEs sit outside the original global top 517. The original 32 are not recounted. This is a sensitivity, not a new selected model."
+      },
+      {
+        "additional_budget_target": 250,
+        "actual_extra_cves_summed_across_blocks": 250,
+        "budgets_matched_between_strategies": true,
+        "expanded_ensemble_additional_positives": 2,
+        "primary_additional_positives": 1,
+        "note": "Extra slots are split across publish-date blocks in proportion to how many of the block's CVEs sit outside the original global top 517. The original 32 are not recounted. This is a sensitivity, not a new selected model."
+      },
+      {
+        "additional_budget_target": 500,
+        "actual_extra_cves_summed_across_blocks": 500,
+        "budgets_matched_between_strategies": true,
+        "expanded_ensemble_additional_positives": 7,
+        "primary_additional_positives": 6,
+        "note": "Extra slots are split across publish-date blocks in proportion to how many of the block's CVEs sit outside the original global top 517. The original 32 are not recounted. This is a sensitivity, not a new selected model."
+      }
+    ],
+    "by_fold": [
+      {
+        "fold": 0,
+        "budget_B_global": 50,
+        "block_extra": 10,
+        "block_outside_n": 14976,
+        "expanded_ensemble_additional_positives": 1,
+        "expanded_ensemble_ids": "CVE-2022-2586",
+        "single_model_dissent_additional_positives": 0,
+        "single_model_dissent_ids": ""
+      },
+      {
+        "fold": 1,
+        "budget_B_global": 50,
+        "block_extra": 10,
+        "block_outside_n": 14929,
+        "expanded_ensemble_additional_positives": 0,
+        "expanded_ensemble_ids": "",
+        "single_model_dissent_additional_positives": 0,
+        "single_model_dissent_ids": ""
+      },
+      {
+        "fold": 2,
+        "budget_B_global": 50,
+        "block_extra": 10,
+        "block_outside_n": 14960,
+        "expanded_ensemble_additional_positives": 0,
+        "expanded_ensemble_ids": "",
+        "single_model_dissent_additional_positives": 0,
+        "single_model_dissent_ids": ""
+      },
+      {
+        "fold": 3,
+        "budget_B_global": 50,
+        "block_extra": 10,
+        "block_outside_n": 14909,
+        "expanded_ensemble_additional_positives": 0,
+        "expanded_ensemble_ids": "",
+        "single_model_dissent_additional_positives": 0,
+        "single_model_dissent_ids": ""
+      },
+      {
+        "fold": 4,
+        "budget_B_global": 50,
+        "block_extra": 10,
+        "block_outside_n": 14857,
+        "expanded_ensemble_additional_positives": 0,
+        "expanded_ensemble_ids": "",
+        "single_model_dissent_additional_positives": 0,
+        "single_model_dissent_ids": ""
+      },
+      {
+        "fold": 0,
+        "budget_B_global": 100,
+        "block_extra": 20,
+        "block_outside_n": 14976,
+        "expanded_ensemble_additional_positives": 1,
+        "expanded_ensemble_ids": "CVE-2022-2586",
+        "single_model_dissent_additional_positives": 0,
+        "single_model_dissent_ids": ""
+      },
+      {
+        "fold": 1,
+        "budget_B_global": 100,
+        "block_extra": 20,
+        "block_outside_n": 14929,
+        "expanded_ensemble_additional_positives": 0,
+        "expanded_ensemble_ids": "",
+        "single_model_dissent_additional_positives": 0,
+        "single_model_dissent_ids": ""
+      },
+      {
+        "fold": 2,
+        "budget_B_global": 100,
+        "block_extra": 20,
+        "block_outside_n": 14960,
+        "expanded_ensemble_additional_positives": 0,
+        "expanded_ensemble_ids": "",
+        "single_model_dissent_additional_positives": 0,
+        "single_model_dissent_ids": ""
+      },
+      {
+        "fold": 3,
+        "budget_B_global": 100,
+        "block_extra": 20,
+        "block_outside_n": 14909,
+        "expanded_ensemble_additional_positives": 0,
+        "expanded_ensemble_ids": "",
+        "single_model_dissent_additional_positives": 0,
+        "single_model_dissent_ids": ""
+      },
+      {
+        "fold": 4,
+        "budget_B_global": 100,
+        "block_extra": 20,
+        "block_outside_n": 14857,
+        "expanded_ensemble_additional_positives": 0,
+        "expanded_ensemble_ids": "",
+        "single_model_dissent_additional_positives": 0,
+        "single_model_dissent_ids": ""
+      },
+      {
+        "fold": 0,
+        "budget_B_global": 250,
+        "block_extra": 50,
+        "block_outside_n": 14976,
+        "expanded_ensemble_additional_positives": 1,
+        "expanded_ensemble_ids": "CVE-2022-2586",
+        "single_model_dissent_additional_positives": 1,
+        "single_model_dissent_ids": "CVE-2024-27348"
+      },
+      {
+        "fold": 1,
+        "budget_B_global": 250,
+        "block_extra": 50,
+        "block_outside_n": 14929,
+        "expanded_ensemble_additional_positives": 0,
+        "expanded_ensemble_ids": "",
+        "single_model_dissent_additional_positives": 0,
+        "single_model_dissent_ids": ""
+      },
+      {
+        "fold": 2,
+        "budget_B_global": 250,
+        "block_extra": 50,
+        "block_outside_n": 14960,
+        "expanded_ensemble_additional_positives": 0,
+        "expanded_ensemble_ids": "",
+        "single_model_dissent_additional_positives": 0,
+        "single_model_dissent_ids": ""
+      },
+      {
+        "fold": 3,
+        "budget_B_global": 250,
+        "block_extra": 50,
+        "block_outside_n": 14909,
+        "expanded_ensemble_additional_positives": 0,
+        "expanded_ensemble_ids": "",
+        "single_model_dissent_additional_positives": 0,
+        "single_model_dissent_ids": ""
+      },
+      {
+        "fold": 4,
+        "budget_B_global": 250,
+        "block_extra": 50,
+        "block_outside_n": 14857,
+        "expanded_ensemble_additional_positives": 1,
+        "expanded_ensemble_ids": "CVE-2025-9377",
+        "single_model_dissent_additional_positives": 0,
+        "single_model_dissent_ids": ""
+      },
+      {
+        "fold": 0,
+        "budget_B_global": 500,
+        "block_extra": 100,
+        "block_outside_n": 14976,
+        "expanded_ensemble_additional_positives": 2,
+        "expanded_ensemble_ids": "CVE-2022-2586;CVE-2024-23113",
+        "single_model_dissent_additional_positives": 2,
+        "single_model_dissent_ids": "CVE-2024-27348;CVE-2024-32113"
+      },
+      {
+        "fold": 1,
+        "budget_B_global": 500,
+        "block_extra": 100,
+        "block_outside_n": 14929,
+        "expanded_ensemble_additional_positives": 1,
+        "expanded_ensemble_ids": "CVE-2024-40766",
+        "single_model_dissent_additional_positives": 2,
+        "single_model_dissent_ids": "CVE-2024-28987;CVE-2024-23692"
+      },
+      {
+        "fold": 2,
+        "budget_B_global": 500,
+        "block_extra": 100,
+        "block_outside_n": 14960,
+        "expanded_ensemble_additional_positives": 0,
+        "expanded_ensemble_ids": "",
+        "single_model_dissent_additional_positives": 0,
+        "single_model_dissent_ids": ""
+      },
+      {
+        "fold": 3,
+        "budget_B_global": 500,
+        "block_extra": 100,
+        "block_outside_n": 14909,
+        "expanded_ensemble_additional_positives": 3,
+        "expanded_ensemble_ids": "CVE-2024-58136;CVE-2025-2746;CVE-2025-48927",
+        "single_model_dissent_additional_positives": 1,
+        "single_model_dissent_ids": "CVE-2025-3935"
+      },
+      {
+        "fold": 4,
+        "budget_B_global": 500,
+        "block_extra": 100,
+        "block_outside_n": 14857,
+        "expanded_ensemble_additional_positives": 1,
+        "expanded_ensemble_ids": "CVE-2025-9377",
+        "single_model_dissent_additional_positives": 1,
+        "single_model_dissent_ids": "CVE-2025-55177"
+      }
+    ]
+  },
+  "primary_versus_expanded_ensemble": {
+    "primary_strategy": "single_model_dissent",
+    "deltas_primary_minus_expanded": {
+      "50": -1,
+      "100": 0,
+      "250": -2,
+      "500": -1
+    },
+    "code": "does_not_beat_ensemble",
+    "other_rules_minus_expanded_not_confirmatory": {
+      "best_voter_percentile": {
+        "50": 0,
+        "100": 0,
+        "250": 0,
+        "500": -1
+      },
+      "upside_gap": {
+        "50": -1,
+        "100": -1,
+        "250": -4,
+        "500": -7
+      },
+      "percentile_range": {
+        "50": -1,
+        "100": -1,
+        "250": -4,
+        "500": -7
+      }
+    }
+  },
+  "exploratory_full_dissent_pool_check": {
+    "status": "exploratory_post_hoc",
+    "why_post_hoc": "Noticed after the pre-specified budgets were scored: the upside-gap ordering placed most pool positives late. Comparing the whole pool with an equal-size ensemble extension was not planned.",
+    "pool_size": 721,
+    "pool_positives": 9,
+    "expanded_same_size_positives": 7,
+    "expanded_same_size_last_rank": 1238,
+    "shared_positive_ids": [
+      "CVE-2024-58136",
+      "CVE-2025-2746",
+      "CVE-2025-9377"
+    ],
+    "only_pool_positive_ids": [
+      "CVE-2024-23692",
+      "CVE-2024-27348",
+      "CVE-2024-28987",
+      "CVE-2024-32113",
+      "CVE-2025-3935",
+      "CVE-2025-55177"
+    ],
+    "only_expanded_positive_ids": [
+      "CVE-2022-2586",
+      "CVE-2024-40766",
+      "CVE-2025-2747",
+      "CVE-2025-48927"
+    ],
+    "mcnemar_exact_p": 0.75390625,
+    "candidate_overlap": 256,
+    "pool_by_fold": {
+      "0": {
+        "pool_n": 136,
+        "pool_positives": 2
+      },
+      "1": {
+        "pool_n": 124,
+        "pool_positives": 2
+      },
+      "2": {
+        "pool_n": 158,
+        "pool_positives": 0
+      },
+      "3": {
+        "pool_n": 126,
+        "pool_positives": 3
+      },
+      "4": {
+        "pool_n": 177,
+        "pool_positives": 2
+      }
+    }
+  },
+  "notable_observations": [
+    "After conditioning on ensemble rank, missed positives tend to have a larger upside gap than their neighbors. The watchlist table is the check on whether that shift is large enough to spend review budget on.",
+    "At every pre-specified extra budget, ordering by the best individual percentile recovered no more historical positives than continuing in ensemble order.",
+    "9 missed positives were inside at least one model's own top 517, alongside 712 unconfirmed CVEs.",
+    "Recorded exploit-code flags occur for 9.3% of misses and 2.2% of all historical CVEs."
+  ],
+  "missed_cases": [
+    {
+      "cve_id": "CVE-2022-2586",
+      "fold": 0,
+      "kev_group": "linux-nftables",
+      "published": "2024-01-08",
+      "snapshot_month": "2024-01",
+      "epss_era": "epss_v3",
+      "kev_date_added": "2024-06-26",
+      "ensemble_rank": 532,
+      "ensemble_score": 0.9789859122442824,
+      "places_outside_cutoff": 15,
+      "individual_ranks": {
+        "logistic_regression": {
+          "column": "lr_full_llmx_noemb",
+          "rank": 2278,
+          "percentile_rank": 0.969699792409645,
+          "inside_original_top_k": false
+        },
+        "granite_lora": {
+          "column": "lora_control",
+          "rank": 910,
+          "percentile_rank": 0.9878772555490499,
+          "inside_original_top_k": false
+        },
+        "lightgbm": {
+          "column": "lgbm_luis_only",
+          "rank": 1550,
+          "percentile_rank": 0.9793806887741523,
+          "inside_original_top_k": false
+        }
+      },
+      "best_model": "granite_lora",
+      "best_rank": 910,
+      "percentile_range": 0.018177463139404937,
+      "percentile_std": 0.007426166706428846,
+      "upside_gap": 0.008891343304767485,
+      "review_position_if_extra_slots_follow": {
+        "expanded_ensemble": 15,
+        "best_voter_percentile": 1534,
+        "individual_logistic_regression": 1795,
+        "individual_granite_lora": 537,
+        "individual_lightgbm": 1138,
+        "upside_gap": 74262,
+        "percentile_range": 74290
+      },
+      "signal_record_present": true,
+      "epss": 0.00044,
+      "epss_percentile_within_month": 10.91,
+      "any_recorded_code_flag": true,
+      "code_flags": {
+        "exploitdb": 0,
+        "metasploit": 0,
+        "nuclei": 0,
+        "poc_github": 1
+      },
+      "neighbor_range_share_lower": 0.12878787878787878,
+      "neighbor_upside_share_lower": 0.15151515151515152
+    },
+    {
+      "cve_id": "CVE-2025-9377",
+      "fold": 4,
+      "kev_group": "tplink-wr841n",
+      "published": "2025-08-29",
+      "snapshot_month": "2025-08",
+      "epss_era": "epss_v4",
+      "kev_date_added": "2025-09-03",
+      "ensemble_rank": 619,
+      "ensemble_score": 0.9760783165664201,
+      "places_outside_cutoff": 102,
+      "individual_ranks": {
+        "logistic_regression": {
+          "column": "lr_full_llmx_noemb",
+          "rank": 623,
+          "percentile_rank": 0.9917229999467717,
+          "inside_original_top_k": false
+        },
+        "granite_lora": {
+          "column": "lora_control",
+          "rank": 4718,
+          "percentile_rank": 0.9372039176025976,
+          "inside_original_top_k": false
+        },
+        "lightgbm": {
+          "column": "lgbm_luis_only",
+          "rank": 53,
+          "percentile_rank": 0.9993080321498908,
+          "inside_original_top_k": true
+        }
+      },
+      "best_model": "lightgbm",
+      "best_rank": 53,
+      "percentile_range": 0.062104114547293254,
+      "percentile_std": 0.027662216704130556,
+      "upside_gap": 0.023229715583470756,
+      "review_position_if_extra_slots_follow": {
+        "expanded_ensemble": 102,
+        "single_model_dissent": 642,
+        "best_voter_percentile": 41,
+        "individual_logistic_regression": 328,
+        "individual_granite_lora": 4201,
+        "individual_lightgbm": 14,
+        "upside_gap": 72125,
+        "percentile_range": 70788,
+        "sparse_or_missing_best_voter": 34,
+        "recorded_zero_flags_best_voter": 32
+      },
+      "signal_record_present": true,
+      "epss": 0.00452,
+      "epss_percentile_within_month": 62.83,
+      "any_recorded_code_flag": false,
+      "code_flags": {
+        "exploitdb": 0,
+        "metasploit": 0,
+        "nuclei": 0,
+        "poc_github": 0
+      },
+      "neighbor_range_share_lower": 0.8888888888888888,
+      "neighbor_upside_share_lower": 0.7891737891737892
+    },
+    {
+      "cve_id": "CVE-2024-58136",
+      "fold": 3,
+      "kev_group": null,
+      "published": "2025-04-10",
+      "snapshot_month": "2025-04",
+      "epss_era": "epss_v4",
+      "kev_date_added": "2025-05-02",
+      "ensemble_rank": 714,
+      "ensemble_score": 0.9726628342293431,
+      "places_outside_cutoff": 197,
+      "individual_ranks": {
+        "logistic_regression": {
+          "column": "lr_full_llmx_noemb",
+          "rank": 4336,
+          "percentile_rank": 0.9423138340341726,
+          "inside_original_top_k": false
+        },
+        "granite_lora": {
+          "column": "lora_control",
+          "rank": 141,
+          "percentile_rank": 0.9981370096343216,
+          "inside_original_top_k": true
+        },
+        "lightgbm": {
+          "column": "lgbm_luis_only",
+          "rank": 1689,
+          "percentile_rank": 0.9775376590195348,
+          "inside_original_top_k": false
+        }
+      },
+      "best_model": "granite_lora",
+      "best_rank": 141,
+      "percentile_range": 0.055823175600149044,
+      "percentile_std": 0.023048928696327305,
+      "upside_gap": 0.02547417540497854,
+      "review_position_if_extra_slots_follow": {
+        "expanded_ensemble": 197,
+        "single_model_dissent": 611,
+        "best_voter_percentile": 133,
+        "individual_logistic_regression": 3819,
+        "individual_granite_lora": 55,
+        "individual_lightgbm": 1265,
+        "upside_gap": 71657,
+        "percentile_range": 71476,
+        "sparse_or_missing_best_voter": 102,
+        "recorded_zero_flags_best_voter": 92
+      },
+      "signal_record_present": true,
+      "epss": 0.0007,
+      "epss_percentile_within_month": 22.29,
+      "any_recorded_code_flag": false,
+      "code_flags": {
+        "exploitdb": 0,
+        "metasploit": 0,
+        "nuclei": 0,
+        "poc_github": 0
+      },
+      "neighbor_range_share_lower": 0.7443946188340808,
+      "neighbor_upside_share_lower": 0.8161434977578476
+    },
+    {
+      "cve_id": "CVE-2025-2746",
+      "fold": 3,
+      "kev_group": "kentico-xperience",
+      "published": "2025-03-24",
+      "snapshot_month": "2025-03",
+      "epss_era": "epss_v4",
+      "kev_date_added": "2025-10-20",
+      "ensemble_rank": 755,
+      "ensemble_score": 0.9711946203935345,
+      "places_outside_cutoff": 238,
+      "individual_ranks": {
+        "logistic_regression": {
+          "column": "lr_full_llmx_noemb",
+          "rank": 3442,
+          "percentile_rank": 0.9542103582264332,
+          "inside_original_top_k": false
+        },
+        "granite_lora": {
+          "column": "lora_control",
+          "rank": 2563,
+          "percentile_rank": 0.9658806621600042,
+          "inside_original_top_k": false
+        },
+        "lightgbm": {
+          "column": "lgbm_luis_only",
+          "rank": 490,
+          "percentile_rank": 0.9934928407941662,
+          "inside_original_top_k": true
+        }
+      },
+      "best_model": "lightgbm",
+      "best_rank": 490,
+      "percentile_range": 0.039282482567733035,
+      "percentile_std": 0.016471328083508038,
+      "upside_gap": 0.022298220400631674,
+      "review_position_if_extra_slots_follow": {
+        "expanded_ensemble": 238,
+        "single_model_dissent": 653,
+        "best_voter_percentile": 669,
+        "individual_logistic_regression": 2930,
+        "individual_granite_lora": 2068,
+        "individual_lightgbm": 251,
+        "upside_gap": 72304,
+        "percentile_range": 73068,
+        "sparse_or_missing_best_voter": 500,
+        "recorded_zero_flags_best_voter": 451
+      },
+      "signal_record_present": true,
+      "epss": 0.00118,
+      "epss_percentile_within_month": 27.56,
+      "any_recorded_code_flag": false,
+      "code_flags": {
+        "exploitdb": 0,
+        "metasploit": 0,
+        "nuclei": 0,
+        "poc_github": 0
+      },
+      "neighbor_range_share_lower": 0.4209445585215606,
+      "neighbor_upside_share_lower": 0.6611909650924025
+    },
+    {
+      "cve_id": "CVE-2024-40766",
+      "fold": 1,
+      "kev_group": "sonicos",
+      "published": "2024-08-23",
+      "snapshot_month": "2024-08",
+      "epss_era": "epss_v3",
+      "kev_date_added": "2024-09-09",
+      "ensemble_rank": 796,
+      "ensemble_score": 0.9702342932169407,
+      "places_outside_cutoff": 279,
+      "individual_ranks": {
+        "logistic_regression": {
+          "column": "lr_full_llmx_noemb",
+          "rank": 1063,
+          "percentile_rank": 0.9858678873689253,
+          "inside_original_top_k": false
+        },
+        "granite_lora": {
+          "column": "lora_control",
+          "rank": 4951,
+          "percentile_rank": 0.9341233299622079,
+          "inside_original_top_k": false
+        },
+        "lightgbm": {
+          "column": "lgbm_luis_only",
+          "rank": 699,
+          "percentile_rank": 0.9907116623196891,
+          "inside_original_top_k": false
+        }
+      },
+      "best_model": "lightgbm",
+      "best_rank": 699,
+      "percentile_range": 0.056588332357481175,
+      "percentile_std": 0.02561076322345628,
+      "upside_gap": 0.020477369102748444,
+      "review_position_if_extra_slots_follow": {
+        "expanded_ensemble": 279,
+        "best_voter_percentile": 1082,
+        "individual_logistic_regression": 687,
+        "individual_granite_lora": 4434,
+        "individual_lightgbm": 415,
+        "upside_gap": 72663,
+        "percentile_range": 71388,
+        "sparse_or_missing_best_voter": 837,
+        "recorded_zero_flags_best_voter": 756
+      },
+      "signal_record_present": true,
+      "epss": 0.00043,
+      "epss_percentile_within_month": 10.41,
+      "any_recorded_code_flag": false,
+      "code_flags": {
+        "exploitdb": 0,
+        "metasploit": 0,
+        "nuclei": 0,
+        "poc_github": 0
+      },
+      "neighbor_range_share_lower": 0.722,
+      "neighbor_upside_share_lower": 0.508
+    },
+    {
+      "cve_id": "CVE-2025-48927",
+      "fold": 3,
+      "kev_group": "telemessage",
+      "published": "2025-05-28",
+      "snapshot_month": "2025-05",
+      "epss_era": "epss_v4",
+      "kev_date_added": "2025-07-01",
+      "ensemble_rank": 810,
+      "ensemble_score": 0.9697175351750325,
+      "places_outside_cutoff": 293,
+      "individual_ranks": {
+        "logistic_regression": {
+          "column": "lr_full_llmx_noemb",
+          "rank": 531,
+          "percentile_rank": 0.9929472507585032,
+          "inside_original_top_k": false
+        },
+        "granite_lora": {
+          "column": "lora_control",
+          "rank": 580,
+          "percentile_rank": 0.9922818970564752,
+          "inside_original_top_k": false
+        },
+        "lightgbm": {
+          "column": "lgbm_luis_only",
+          "rank": 5718,
+          "percentile_rank": 0.9239234577101187,
+          "inside_original_top_k": false
+        }
+      },
+      "best_model": "logistic_regression",
+      "best_rank": 531,
+      "percentile_range": 0.06902379304838446,
+      "percentile_std": 0.032382441971270826,
+      "upside_gap": 0.023229715583470756,
+      "review_position_if_extra_slots_follow": {
+        "expanded_ensemble": 293,
+        "best_voter_percentile": 745,
+        "individual_logistic_regression": 260,
+        "individual_granite_lora": 285,
+        "individual_lightgbm": 5201,
+        "upside_gap": 72126,
+        "percentile_range": 70006,
+        "sparse_or_missing_best_voter": 563,
+        "recorded_zero_flags_best_voter": 507
+      },
+      "signal_record_present": true,
+      "epss": 0.00028,
+      "epss_percentile_within_month": 6.36,
+      "any_recorded_code_flag": false,
+      "code_flags": {
+        "exploitdb": 0,
+        "metasploit": 0,
+        "nuclei": 0,
+        "poc_github": 0
+      },
+      "neighbor_range_share_lower": 0.876,
+      "neighbor_upside_share_lower": 0.646
+    },
+    {
+      "cve_id": "CVE-2025-2747",
+      "fold": 3,
+      "kev_group": "kentico-xperience",
+      "published": "2025-03-24",
+      "snapshot_month": "2025-03",
+      "epss_era": "epss_v4",
+      "kev_date_added": "2025-10-20",
+      "ensemble_rank": 919,
+      "ensemble_score": 0.9659849009066553,
+      "places_outside_cutoff": 402,
+      "individual_ranks": {
+        "logistic_regression": {
+          "column": "lr_full_llmx_noemb",
+          "rank": 4465,
+          "percentile_rank": 0.9405972214829403,
+          "inside_original_top_k": false
+        },
+        "granite_lora": {
+          "column": "lora_control",
+          "rank": 2610,
+          "percentile_rank": 0.9652352690690371,
+          "inside_original_top_k": false
+        },
+        "lightgbm": {
+          "column": "lgbm_luis_only",
+          "rank": 593,
+          "percentile_rank": 0.9921222121679885,
+          "inside_original_top_k": false
+        }
+      },
+      "best_model": "lightgbm",
+      "best_rank": 593,
+      "percentile_range": 0.05152499068504812,
+      "percentile_std": 0.021041667031433165,
+      "upside_gap": 0.026137311261333118,
+      "review_position_if_extra_slots_follow": {
+        "expanded_ensemble": 402,
+        "best_voter_percentile": 872,
+        "individual_logistic_regression": 3948,
+        "individual_granite_lora": 2114,
+        "individual_lightgbm": 332,
+        "upside_gap": 71511,
+        "percentile_range": 71913,
+        "sparse_or_missing_best_voter": 665,
+        "recorded_zero_flags_best_voter": 600
+      },
+      "signal_record_present": true,
+      "epss": 0.00118,
+      "epss_percentile_within_month": 27.56,
+      "any_recorded_code_flag": false,
+      "code_flags": {
+        "exploitdb": 0,
+        "metasploit": 0,
+        "nuclei": 0,
+        "poc_github": 0
+      },
+      "neighbor_range_share_lower": 0.508,
+      "neighbor_upside_share_lower": 0.642
+    },
+    {
+      "cve_id": "CVE-2024-23113",
+      "fold": 0,
+      "kev_group": "fortios",
+      "published": "2024-02-15",
+      "snapshot_month": "2024-02",
+      "epss_era": "epss_v3",
+      "kev_date_added": "2024-10-09",
+      "ensemble_rank": 1421,
+      "ensemble_score": 0.950342435371977,
+      "places_outside_cutoff": 904,
+      "individual_ranks": {
+        "logistic_regression": {
+          "column": "lr_full_llmx_noemb",
+          "rank": 3072,
+          "percentile_rank": 0.9591339756214403,
+          "inside_original_top_k": false
+        },
+        "granite_lora": {
+          "column": "lora_control",
+          "rank": 6293,
+          "percentile_rank": 0.9162585830627562,
+          "inside_original_top_k": false
+        },
+        "lightgbm": {
+          "column": "lgbm_luis_only",
+          "rank": 1832,
+          "percentile_rank": 0.9756347474317347,
+          "inside_original_top_k": false
+        }
+      },
+      "best_model": "lightgbm",
+      "best_rank": 1832,
+      "percentile_range": 0.05937616436897852,
+      "percentile_std": 0.02502466261859072,
+      "upside_gap": 0.025292312059757682,
+      "review_position_if_extra_slots_follow": {
+        "expanded_ensemble": 904,
+        "best_voter_percentile": 3481,
+        "individual_logistic_regression": 2570,
+        "individual_granite_lora": 5776,
+        "individual_lightgbm": 1390,
+        "upside_gap": 71700,
+        "percentile_range": 71085,
+        "sparse_or_missing_best_voter": 2926,
+        "recorded_zero_flags_best_voter": 2538
+      },
+      "signal_record_present": true,
+      "epss": 0.00091,
+      "epss_percentile_within_month": 37.75,
+      "any_recorded_code_flag": false,
+      "code_flags": {
+        "exploitdb": 0,
+        "metasploit": 0,
+        "nuclei": 0,
+        "poc_github": 0
+      },
+      "neighbor_range_share_lower": 0.326,
+      "neighbor_upside_share_lower": 0.256
+    },
+    {
+      "cve_id": "CVE-2024-23692",
+      "fold": 1,
+      "kev_group": null,
+      "published": "2024-05-31",
+      "snapshot_month": "2024-05",
+      "epss_era": "epss_v3",
+      "kev_date_added": "2024-07-09",
+      "ensemble_rank": 1469,
+      "ensemble_score": 0.9490316885789819,
+      "places_outside_cutoff": 952,
+      "individual_ranks": {
+        "logistic_regression": {
+          "column": "lr_full_llmx_noemb",
+          "rank": 349,
+          "percentile_rank": 0.9953691382338852,
+          "inside_original_top_k": true
+        },
+        "granite_lora": {
+          "column": "lora_control",
+          "rank": 10281,
+          "percentile_rank": 0.8631966253260233,
+          "inside_original_top_k": false
+        },
+        "lightgbm": {
+          "column": "lgbm_luis_only",
+          "rank": 863,
+          "percentile_rank": 0.9885293021770373,
+          "inside_original_top_k": false
+        }
+      },
+      "best_model": "logistic_regression",
+      "best_rank": 349,
+      "percentile_range": 0.13217251290786192,
+      "percentile_std": 0.060758754661643606,
+      "upside_gap": 0.04633744965490327,
+      "review_position_if_extra_slots_follow": {
+        "expanded_ensemble": 952,
+        "single_model_dissent": 418,
+        "best_voter_percentile": 417,
+        "individual_logistic_regression": 136,
+        "individual_granite_lora": 9764,
+        "individual_lightgbm": 551,
+        "upside_gap": 66375,
+        "percentile_range": 61684,
+        "sparse_or_missing_best_voter": 320
+      },
+      "signal_record_present": false,
+      "epss": null,
+      "epss_percentile_within_month": null,
+      "any_recorded_code_flag": false,
+      "code_flags": {
+        "exploitdb": null,
+        "metasploit": null,
+        "nuclei": null,
+        "poc_github": null
+      },
+      "neighbor_range_share_lower": 0.95,
+      "neighbor_upside_share_lower": 0.868
+    },
+    {
+      "cve_id": "CVE-2025-55177",
+      "fold": 4,
+      "kev_group": null,
+      "published": "2025-08-29",
+      "snapshot_month": "2025-08",
+      "epss_era": "epss_v4",
+      "kev_date_added": "2025-09-02",
+      "ensemble_rank": 1523,
+      "ensemble_score": 0.9475412962864392,
+      "places_outside_cutoff": 1006,
+      "individual_ranks": {
+        "logistic_regression": {
+          "column": "lr_full_llmx_noemb",
+          "rank": 8011,
+          "percentile_rank": 0.8934103369351147,
+          "inside_original_top_k": false
+        },
+        "granite_lora": {
+          "column": "lora_control",
+          "rank": 279,
+          "percentile_rank": 0.996293979879704,
+          "inside_original_top_k": true
+        },
+        "lightgbm": {
+          "column": "lgbm_luis_only",
+          "rank": 3539,
+          "percentile_rank": 0.9529195720444988,
+          "inside_original_top_k": false
+        }
+      },
+      "best_model": "granite_lora",
+      "best_rank": 279,
+      "percentile_range": 0.10288364294458929,
+      "percentile_std": 0.04217388910992782,
+      "upside_gap": 0.04875268359326479,
+      "review_position_if_extra_slots_follow": {
+        "expanded_ensemble": 1006,
+        "single_model_dissent": 387,
+        "best_voter_percentile": 311,
+        "individual_logistic_regression": 7494,
+        "individual_granite_lora": 113,
+        "individual_lightgbm": 3028,
+        "upside_gap": 65706,
+        "percentile_range": 65827,
+        "sparse_or_missing_best_voter": 240,
+        "recorded_zero_flags_best_voter": 220
+      },
+      "signal_record_present": true,
+      "epss": 0.0003,
+      "epss_percentile_within_month": 6.96,
+      "any_recorded_code_flag": false,
+      "code_flags": {
+        "exploitdb": 0,
+        "metasploit": 0,
+        "nuclei": 0,
+        "poc_github": 0
+      },
+      "neighbor_range_share_lower": 0.736,
+      "neighbor_upside_share_lower": 0.92
+    },
+    {
+      "cve_id": "CVE-2024-28987",
+      "fold": 1,
+      "kev_group": null,
+      "published": "2024-08-21",
+      "snapshot_month": "2024-08",
+      "epss_era": "epss_v3",
+      "kev_date_added": "2024-10-15",
+      "ensemble_rank": 1609,
+      "ensemble_score": 0.9454121644399497,
+      "places_outside_cutoff": 1092,
+      "individual_ranks": {
+        "logistic_regression": {
+          "column": "lr_full_llmx_noemb",
+          "rank": 474,
+          "percentile_rank": 0.9937057539788151,
+          "inside_original_top_k": true
+        },
+        "granite_lora": {
+          "column": "lora_control",
+          "rank": 9389,
+          "percentile_rank": 0.8750665353702028,
+          "inside_original_top_k": false
+        },
+        "lightgbm": {
+          "column": "lgbm_luis_only",
+          "rank": 2446,
+          "percentile_rank": 0.9674642039708309,
+          "inside_original_top_k": false
+        }
+      },
+      "best_model": "logistic_regression",
+      "best_rank": 474,
+      "percentile_range": 0.11863921860861226,
+      "percentile_std": 0.05088244873312857,
+      "upside_gap": 0.04829358953886542,
+      "review_position_if_extra_slots_follow": {
+        "expanded_ensemble": 1092,
+        "single_model_dissent": 394,
+        "best_voter_percentile": 640,
+        "individual_logistic_regression": 219,
+        "individual_granite_lora": 8872,
+        "individual_lightgbm": 1963,
+        "upside_gap": 65851,
+        "percentile_range": 63574,
+        "sparse_or_missing_best_voter": 479,
+        "recorded_zero_flags_best_voter": 434
+      },
+      "signal_record_present": true,
+      "epss": 0.00091,
+      "epss_percentile_within_month": 39.88,
+      "any_recorded_code_flag": false,
+      "code_flags": {
+        "exploitdb": 0,
+        "metasploit": 0,
+        "nuclei": 0,
+        "poc_github": 0
+      },
+      "neighbor_range_share_lower": 0.85,
+      "neighbor_upside_share_lower": 0.856
+    },
+    {
+      "cve_id": "CVE-2025-3935",
+      "fold": 3,
+      "kev_group": null,
+      "published": "2025-04-25",
+      "snapshot_month": "2025-04",
+      "epss_era": "epss_v4",
+      "kev_date_added": "2025-06-02",
+      "ensemble_rank": 1622,
+      "ensemble_score": 0.9449308919288161,
+      "places_outside_cutoff": 1105,
+      "individual_ranks": {
+        "logistic_regression": {
+          "column": "lr_full_llmx_noemb",
+          "rank": 3651,
+          "percentile_rank": 0.9514291797519562,
+          "inside_original_top_k": false
+        },
+        "granite_lora": {
+          "column": "lora_control",
+          "rank": 8550,
+          "percentile_rank": 0.8862112098791718,
+          "inside_original_top_k": false
+        },
+        "lightgbm": {
+          "column": "lgbm_luis_only",
+          "rank": 215,
+          "percentile_rank": 0.9971522861553201,
+          "inside_original_top_k": true
+        }
+      },
+      "best_model": "lightgbm",
+      "best_rank": 215,
+      "percentile_range": 0.11094107627614835,
+      "percentile_std": 0.0455239966742949,
+      "upside_gap": 0.05222139422650407,
+      "review_position_if_extra_slots_follow": {
+        "expanded_ensemble": 1105,
+        "single_model_dissent": 363,
+        "best_voter_percentile": 223,
+        "individual_logistic_regression": 3138,
+        "individual_granite_lora": 8033,
+        "individual_lightgbm": 88,
+        "upside_gap": 64719,
+        "percentile_range": 64700,
+        "sparse_or_missing_best_voter": 173,
+        "recorded_zero_flags_best_voter": 157
+      },
+      "signal_record_present": true,
+      "epss": 0.00195,
+      "epss_percentile_within_month": 42.03,
+      "any_recorded_code_flag": false,
+      "code_flags": {
+        "exploitdb": 0,
+        "metasploit": 0,
+        "nuclei": 0,
+        "poc_github": 0
+      },
+      "neighbor_range_share_lower": 0.78,
+      "neighbor_upside_share_lower": 0.932
+    },
+    {
+      "cve_id": "CVE-2024-36971",
+      "fold": 1,
+      "kev_group": null,
+      "published": "2024-06-10",
+      "snapshot_month": "2024-06",
+      "epss_era": "epss_v3",
+      "kev_date_added": "2024-08-07",
+      "ensemble_rank": 1899,
+      "ensemble_score": 0.9377384184098934,
+      "places_outside_cutoff": 1382,
+      "individual_ranks": {
+        "logistic_regression": {
+          "column": "lr_full_llmx_noemb",
+          "rank": 3509,
+          "percentile_rank": 0.9533187842657157,
+          "inside_original_top_k": false
+        },
+        "granite_lora": {
+          "column": "lora_control",
+          "rank": 9226,
+          "percentile_rank": 0.8772355884388141,
+          "inside_original_top_k": false
+        },
+        "lightgbm": {
+          "column": "lgbm_luis_only",
+          "rank": 1304,
+          "percentile_rank": 0.9826608825251504,
+          "inside_original_top_k": false
+        }
+      },
+      "best_model": "lightgbm",
+      "best_rank": 1304,
+      "percentile_range": 0.10542529408633627,
+      "percentile_std": 0.0444273489977257,
+      "upside_gap": 0.04492246411525702,
+      "review_position_if_extra_slots_follow": {
+        "expanded_ensemble": 1382,
+        "best_voter_percentile": 2359,
+        "individual_logistic_regression": 2996,
+        "individual_granite_lora": 8709,
+        "individual_lightgbm": 920,
+        "upside_gap": 66756,
+        "percentile_range": 65474,
+        "sparse_or_missing_best_voter": 1903,
+        "recorded_zero_flags_best_voter": 1674
+      },
+      "signal_record_present": true,
+      "epss": 0.00042,
+      "epss_percentile_within_month": 5.22,
+      "any_recorded_code_flag": false,
+      "code_flags": {
+        "exploitdb": 0,
+        "metasploit": 0,
+        "nuclei": 0,
+        "poc_github": 0
+      },
+      "neighbor_range_share_lower": 0.66,
+      "neighbor_upside_share_lower": 0.62
+    },
+    {
+      "cve_id": "CVE-2025-6554",
+      "fold": 4,
+      "kev_group": null,
+      "published": "2025-06-30",
+      "snapshot_month": "2025-06",
+      "epss_era": "epss_v4",
+      "kev_date_added": "2025-07-02",
+      "ensemble_rank": 1930,
+      "ensemble_score": 0.937028707794397,
+      "places_outside_cutoff": 1413,
+      "individual_ranks": {
+        "logistic_regression": {
+          "column": "lr_full_llmx_noemb",
+          "rank": 629,
+          "percentile_rank": 0.9916431575025283,
+          "inside_original_top_k": false
+        },
+        "granite_lora": {
+          "column": "lora_control",
+          "rank": 6299,
+          "percentile_rank": 0.916158780007452,
+          "inside_original_top_k": false
+        },
+        "lightgbm": {
+          "column": "lgbm_luis_only",
+          "rank": 7269,
+          "percentile_rank": 0.9032841858732102,
+          "inside_original_top_k": false
+        }
+      },
+      "best_model": "logistic_regression",
+      "best_rank": 629,
+      "percentile_range": 0.08835897162931805,
+      "percentile_std": 0.038974285379139224,
+      "upside_gap": 0.05461444970813134,
+      "review_position_if_extra_slots_follow": {
+        "expanded_ensemble": 1413,
+        "best_voter_percentile": 942,
+        "individual_logistic_regression": 333,
+        "individual_granite_lora": 5782,
+        "individual_lightgbm": 6752,
+        "upside_gap": 64029,
+        "percentile_range": 67661,
+        "sparse_or_missing_best_voter": 721
+      },
+      "signal_record_present": false,
+      "epss": null,
+      "epss_percentile_within_month": null,
+      "any_recorded_code_flag": false,
+      "code_flags": {
+        "exploitdb": null,
+        "metasploit": null,
+        "nuclei": null,
+        "poc_github": null
+      },
+      "neighbor_range_share_lower": 0.506,
+      "neighbor_upside_share_lower": 0.832
+    },
+    {
+      "cve_id": "CVE-2025-48928",
+      "fold": 3,
+      "kev_group": "telemessage",
+      "published": "2025-05-28",
+      "snapshot_month": "2025-05",
+      "epss_era": "epss_v4",
+      "kev_date_added": "2025-07-01",
+      "ensemble_rank": 2291,
+      "ensemble_score": 0.928181721403098,
+      "places_outside_cutoff": 1774,
+      "individual_ranks": {
+        "logistic_regression": {
+          "column": "lr_full_llmx_noemb",
+          "rank": 8437,
+          "percentile_rank": 0.8877415233938362,
+          "inside_original_top_k": false
+        },
+        "granite_lora": {
+          "column": "lora_control",
+          "rank": 562,
+          "percentile_rank": 0.9925347314632459,
+          "inside_original_top_k": false
+        },
+        "lightgbm": {
+          "column": "lgbm_luis_only",
+          "rank": 7195,
+          "percentile_rank": 0.9042689093522116,
+          "inside_original_top_k": false
+        }
+      },
+      "best_model": "granite_lora",
+      "best_rank": 562,
+      "percentile_range": 0.10479320806940973,
+      "percentile_std": 0.046001964084920036,
+      "upside_gap": 0.06435301006014793,
+      "review_position_if_extra_slots_follow": {
+        "expanded_ensemble": 1774,
+        "best_voter_percentile": 806,
+        "individual_logistic_regression": 7920,
+        "individual_granite_lora": 269,
+        "individual_lightgbm": 6678,
+        "upside_gap": 61195,
+        "percentile_range": 65562,
+        "sparse_or_missing_best_voter": 614,
+        "recorded_zero_flags_best_voter": 554
+      },
+      "signal_record_present": true,
+      "epss": 0.00012,
+      "epss_percentile_within_month": 1.24,
+      "any_recorded_code_flag": false,
+      "code_flags": {
+        "exploitdb": 0,
+        "metasploit": 0,
+        "nuclei": 0,
+        "poc_github": 0
+      },
+      "neighbor_range_share_lower": 0.576,
+      "neighbor_upside_share_lower": 0.91
+    },
+    {
+      "cve_id": "CVE-2025-48384",
+      "fold": 4,
+      "kev_group": null,
+      "published": "2025-07-08",
+      "snapshot_month": "2025-07",
+      "epss_era": "epss_v4",
+      "kev_date_added": "2025-08-25",
+      "ensemble_rank": 2497,
+      "ensemble_score": 0.9235153741062083,
+      "places_outside_cutoff": 1980,
+      "individual_ranks": {
+        "logistic_regression": {
+          "column": "lr_full_llmx_noemb",
+          "rank": 12135,
+          "percentile_rank": 0.8385319635918455,
+          "inside_original_top_k": false
+        },
+        "granite_lora": {
+          "column": "lora_control",
+          "rank": 1457,
+          "percentile_rank": 0.9806249001969447,
+          "inside_original_top_k": false
+        },
+        "lightgbm": {
+          "column": "lgbm_luis_only",
+          "rank": 3654,
+          "percentile_rank": 0.9513892585298345,
+          "inside_original_top_k": false
+        }
+      },
+      "best_model": "granite_lora",
+      "best_rank": 1457,
+      "percentile_range": 0.14209293660509925,
+      "percentile_std": 0.06126617192171356,
+      "upside_gap": 0.057109526090736384,
+      "review_position_if_extra_slots_follow": {
+        "expanded_ensemble": 1980,
+        "best_voter_percentile": 2700,
+        "individual_logistic_regression": 11618,
+        "individual_granite_lora": 1021,
+        "individual_lightgbm": 3140,
+        "upside_gap": 63304,
+        "percentile_range": 60221
+      },
+      "signal_record_present": true,
+      "epss": 0.00016,
+      "epss_percentile_within_month": 2.33,
+      "any_recorded_code_flag": true,
+      "code_flags": {
+        "exploitdb": 0,
+        "metasploit": 0,
+        "nuclei": 0,
+        "poc_github": 1
+      },
+      "neighbor_range_share_lower": 0.802,
+      "neighbor_upside_share_lower": 0.68
+    },
+    {
+      "cve_id": "CVE-2024-8957",
+      "fold": 1,
+      "kev_group": "ptzoptics",
+      "published": "2024-09-17",
+      "snapshot_month": "2024-09",
+      "epss_era": "epss_v3",
+      "kev_date_added": "2024-11-04",
+      "ensemble_rank": 2708,
+      "ensemble_score": 0.9191883571973527,
+      "places_outside_cutoff": 2191,
+      "individual_ranks": {
+        "logistic_regression": {
+          "column": "lr_full_llmx_noemb",
+          "rank": 9472,
+          "percentile_rank": 0.8739687017618566,
+          "inside_original_top_k": false
+        },
+        "granite_lora": {
+          "column": "lora_control",
+          "rank": 7924,
+          "percentile_rank": 0.8945613988396232,
+          "inside_original_top_k": false
+        },
+        "lightgbm": {
+          "column": "lgbm_luis_only",
+          "rank": 825,
+          "percentile_rank": 0.9890349709905786,
+          "inside_original_top_k": false
+        }
+      },
+      "best_model": "lightgbm",
+      "best_rank": 825,
+      "percentile_range": 0.11506626922872198,
+      "percentile_std": 0.050099413749192676,
+      "upside_gap": 0.06984661379322588,
+      "review_position_if_extra_slots_follow": {
+        "expanded_ensemble": 2191,
+        "best_voter_percentile": 1349,
+        "individual_logistic_regression": 8955,
+        "individual_granite_lora": 7407,
+        "individual_lightgbm": 522,
+        "upside_gap": 59505,
+        "percentile_range": 64070,
+        "sparse_or_missing_best_voter": 1050,
+        "recorded_zero_flags_best_voter": 954
+      },
+      "signal_record_present": true,
+      "epss": 0.00043,
+      "epss_percentile_within_month": 10.46,
+      "any_recorded_code_flag": false,
+      "code_flags": {
+        "exploitdb": 0,
+        "metasploit": 0,
+        "nuclei": 0,
+        "poc_github": 0
+      },
+      "neighbor_range_share_lower": 0.562,
+      "neighbor_upside_share_lower": 0.848
+    },
+    {
+      "cve_id": "CVE-2024-29824",
+      "fold": 1,
+      "kev_group": "ivanti-epm",
+      "published": "2024-05-31",
+      "snapshot_month": "2024-05",
+      "epss_era": "epss_v3",
+      "kev_date_added": "2024-10-02",
+      "ensemble_rank": 2849,
+      "ensemble_score": 0.9160057486559855,
+      "places_outside_cutoff": 2332,
+      "individual_ranks": {
+        "logistic_regression": {
+          "column": "lr_full_llmx_noemb",
+          "rank": 3270,
+          "percentile_rank": 0.9564991749614095,
+          "inside_original_top_k": false
+        },
+        "granite_lora": {
+          "column": "lora_control",
+          "rank": 1070,
+          "percentile_rank": 0.9857348166285197,
+          "inside_original_top_k": false
+        },
+        "lightgbm": {
+          "column": "lgbm_luis_only",
+          "rank": 14596,
+          "percentile_rank": 0.8057832543780273,
+          "inside_original_top_k": false
+        }
+      },
+      "best_model": "granite_lora",
+      "best_rank": 1070,
+      "percentile_range": 0.17995156225049236,
+      "percentile_std": 0.07884765635731902,
+      "upside_gap": 0.0697290679725342,
+      "review_position_if_extra_slots_follow": {
+        "expanded_ensemble": 2332,
+        "best_voter_percentile": 1878,
+        "individual_logistic_regression": 2762,
+        "individual_granite_lora": 677,
+        "individual_lightgbm": 14079,
+        "upside_gap": 59533,
+        "percentile_range": 54689,
+        "sparse_or_missing_best_voter": 1483
+      },
+      "signal_record_present": false,
+      "epss": null,
+      "epss_percentile_within_month": null,
+      "any_recorded_code_flag": false,
+      "code_flags": {
+        "exploitdb": null,
+        "metasploit": null,
+        "nuclei": null,
+        "poc_github": null
+      },
+      "neighbor_range_share_lower": 0.866,
+      "neighbor_upside_share_lower": 0.79
+    },
+    {
+      "cve_id": "CVE-2025-32463",
+      "fold": 4,
+      "kev_group": null,
+      "published": "2025-06-30",
+      "snapshot_month": "2025-06",
+      "epss_era": "epss_v4",
+      "kev_date_added": "2025-09-29",
+      "ensemble_rank": 3184,
+      "ensemble_score": 0.9090173169390181,
+      "places_outside_cutoff": 2667,
+      "individual_ranks": {
+        "logistic_regression": {
+          "column": "lr_full_llmx_noemb",
+          "rank": 6361,
+          "percentile_rank": 0.9153670091020386,
+          "inside_original_top_k": false
+        },
+        "granite_lora": {
+          "column": "lora_control",
+          "rank": 2143,
+          "percentile_rank": 0.9714895938681003,
+          "inside_original_top_k": false
+        },
+        "lightgbm": {
+          "column": "lgbm_luis_only",
+          "rank": 12010,
+          "percentile_rank": 0.8401953478469154,
+          "inside_original_top_k": false
+        }
+      },
+      "best_model": "granite_lora",
+      "best_rank": 2143,
+      "percentile_range": 0.1312942460211849,
+      "percentile_std": 0.053788373604287995,
+      "upside_gap": 0.06247227692908219,
+      "review_position_if_extra_slots_follow": {
+        "expanded_ensemble": 2667,
+        "best_voter_percentile": 4138,
+        "individual_logistic_regression": 5844,
+        "individual_granite_lora": 1663,
+        "individual_lightgbm": 11493,
+        "upside_gap": 61742,
+        "percentile_range": 61814,
+        "sparse_or_missing_best_voter": 3532
+      },
+      "signal_record_present": false,
+      "epss": null,
+      "epss_percentile_within_month": null,
+      "any_recorded_code_flag": false,
+      "code_flags": {
+        "exploitdb": null,
+        "metasploit": null,
+        "nuclei": null,
+        "poc_github": null
+      },
+      "neighbor_range_share_lower": 0.544,
+      "neighbor_upside_share_lower": 0.546
+    },
+    {
+      "cve_id": "CVE-2025-47827",
+      "fold": 4,
+      "kev_group": null,
+      "published": "2025-06-05",
+      "snapshot_month": "2025-06",
+      "epss_era": "epss_v4",
+      "kev_date_added": "2025-10-14",
+      "ensemble_rank": 3233,
+      "ensemble_score": 0.9080680789907914,
+      "places_outside_cutoff": 2716,
+      "individual_ranks": {
+        "logistic_regression": {
+          "column": "lr_full_llmx_noemb",
+          "rank": 3016,
+          "percentile_rank": 0.9598791717677118,
+          "inside_original_top_k": false
+        },
+        "granite_lora": {
+          "column": "lora_control",
+          "rank": 2045,
+          "percentile_rank": 0.9728003406610954,
+          "inside_original_top_k": false
+        },
+        "lightgbm": {
+          "column": "lgbm_luis_only",
+          "rank": 15667,
+          "percentile_rank": 0.7915247245435674,
+          "inside_original_top_k": false
+        }
+      },
+      "best_model": "granite_lora",
+      "best_rank": 2045,
+      "percentile_range": 0.18127561611752807,
+      "percentile_std": 0.082577253731486,
+      "upside_gap": 0.06473226167030399,
+      "review_position_if_extra_slots_follow": {
+        "expanded_ensemble": 2716,
+        "best_voter_percentile": 3918,
+        "individual_logistic_regression": 2514,
+        "individual_granite_lora": 1570,
+        "individual_lightgbm": 15150,
+        "upside_gap": 61077,
+        "percentile_range": 54501
+      },
+      "signal_record_present": true,
+      "epss": 5e-05,
+      "epss_percentile_within_month": 0.23,
+      "any_recorded_code_flag": true,
+      "code_flags": {
+        "exploitdb": 0,
+        "metasploit": 0,
+        "nuclei": 0,
+        "poc_github": 1
+      },
+      "neighbor_range_share_lower": 0.812,
+      "neighbor_upside_share_lower": 0.594
+    },
+    {
+      "cve_id": "CVE-2025-0411",
+      "fold": 2,
+      "kev_group": null,
+      "published": "2025-01-25",
+      "snapshot_month": "2025-01",
+      "epss_era": "epss_v3",
+      "kev_date_added": "2025-02-06",
+      "ensemble_rank": 3532,
+      "ensemble_score": 0.9024192260605738,
+      "places_outside_cutoff": 3015,
+      "individual_ranks": {
+        "logistic_regression": {
+          "column": "lr_full_llmx_noemb",
+          "rank": 8159,
+          "percentile_rank": 0.8914408899771118,
+          "inside_original_top_k": false
+        },
+        "granite_lora": {
+          "column": "lora_control",
+          "rank": 12117,
+          "percentile_rank": 0.8387182626284133,
+          "inside_original_top_k": false
+        },
+        "lightgbm": {
+          "column": "lgbm_luis_only",
+          "rank": 1722,
+          "percentile_rank": 0.9770985255761963,
+          "inside_original_top_k": false
+        }
+      },
+      "best_model": "lightgbm",
+      "best_rank": 1722,
+      "percentile_range": 0.13838026294778294,
+      "percentile_std": 0.057024364329325464,
+      "upside_gap": 0.07467929951562247,
+      "review_position_if_extra_slots_follow": {
+        "expanded_ensemble": 3015,
+        "best_voter_percentile": 3263,
+        "individual_logistic_regression": 7642,
+        "individual_granite_lora": 11601,
+        "individual_lightgbm": 1298,
+        "upside_gap": 57911,
+        "percentile_range": 60772,
+        "sparse_or_missing_best_voter": 2731
+      },
+      "signal_record_present": false,
+      "epss": null,
+      "epss_percentile_within_month": null,
+      "any_recorded_code_flag": false,
+      "code_flags": {
+        "exploitdb": null,
+        "metasploit": null,
+        "nuclei": null,
+        "poc_github": null
+      },
+      "neighbor_range_share_lower": 0.586,
+      "neighbor_upside_share_lower": 0.732
+    },
+    {
+      "cve_id": "CVE-2024-7262",
+      "fold": 1,
+      "kev_group": null,
+      "published": "2024-08-15",
+      "snapshot_month": "2024-08",
+      "epss_era": "epss_v3",
+      "kev_date_added": "2024-09-03",
+      "ensemble_rank": 4040,
+      "ensemble_score": 0.892611912492681,
+      "places_outside_cutoff": 3523,
+      "individual_ranks": {
+        "logistic_regression": {
+          "column": "lr_full_llmx_noemb",
+          "rank": 18790,
+          "percentile_rank": 0.7499733858519189,
+          "inside_original_top_k": false
+        },
+        "granite_lora": {
+          "column": "lora_control",
+          "rank": 3609,
+          "percentile_rank": 0.9519747697876191,
+          "inside_original_top_k": false
+        },
+        "lightgbm": {
+          "column": "lgbm_luis_only",
+          "rank": 1813,
+          "percentile_rank": 0.9758875818385053,
+          "inside_original_top_k": false
+        }
+      },
+      "best_model": "lightgbm",
+      "best_rank": 1813,
+      "percentile_range": 0.22591419598658646,
+      "percentile_std": 0.10133202062767337,
+      "upside_gap": 0.08327566934582431,
+      "review_position_if_extra_slots_follow": {
+        "expanded_ensemble": 3523,
+        "best_voter_percentile": 3446,
+        "individual_logistic_regression": 18273,
+        "individual_granite_lora": 3099,
+        "individual_lightgbm": 1375,
+        "upside_gap": 55127,
+        "percentile_range": 47170,
+        "sparse_or_missing_best_voter": 2893,
+        "recorded_zero_flags_best_voter": 2508
+      },
+      "signal_record_present": true,
+      "epss": 0.00055,
+      "epss_percentile_within_month": 23.77,
+      "any_recorded_code_flag": false,
+      "code_flags": {
+        "exploitdb": 0,
+        "metasploit": 0,
+        "nuclei": 0,
+        "poc_github": 0
+      },
+      "neighbor_range_share_lower": 0.85,
+      "neighbor_upside_share_lower": 0.72
+    },
+    {
+      "cve_id": "CVE-2024-8956",
+      "fold": 1,
+      "kev_group": "ptzoptics",
+      "published": "2024-09-17",
+      "snapshot_month": "2024-09",
+      "epss_era": "epss_v3",
+      "kev_date_added": "2024-11-04",
+      "ensemble_rank": 4052,
+      "ensemble_score": 0.8924256134561133,
+      "places_outside_cutoff": 3535,
+      "individual_ranks": {
+        "logistic_regression": {
+          "column": "lr_full_llmx_noemb",
+          "rank": 10073,
+          "percentile_rank": 0.86597115026348,
+          "inside_original_top_k": false
+        },
+        "granite_lora": {
+          "column": "lora_control",
+          "rank": 12892,
+          "percentile_rank": 0.8284585085431415,
+          "inside_original_top_k": false
+        },
+        "lightgbm": {
+          "column": "lgbm_luis_only",
+          "rank": 1290,
+          "percentile_rank": 0.9828471815617182,
+          "inside_original_top_k": false
+        }
+      },
+      "best_model": "lightgbm",
+      "best_rank": 1290,
+      "percentile_range": 0.15438867301857673,
+      "percentile_std": 0.06574620169620468,
+      "upside_gap": 0.09042156810560498,
+      "review_position_if_extra_slots_follow": {
+        "expanded_ensemble": 3535,
+        "best_voter_percentile": 2328,
+        "individual_logistic_regression": 9556,
+        "individual_granite_lora": 12375,
+        "individual_lightgbm": 907,
+        "upside_gap": 52754,
+        "percentile_range": 58381,
+        "sparse_or_missing_best_voter": 1876,
+        "recorded_zero_flags_best_voter": 1653
+      },
+      "signal_record_present": true,
+      "epss": 0.00043,
+      "epss_percentile_within_month": 10.46,
+      "any_recorded_code_flag": false,
+      "code_flags": {
+        "exploitdb": 0,
+        "metasploit": 0,
+        "nuclei": 0,
+        "poc_github": 0
+      },
+      "neighbor_range_share_lower": 0.552,
+      "neighbor_upside_share_lower": 0.82
+    },
+    {
+      "cve_id": "CVE-2024-32113",
+      "fold": 0,
+      "kev_group": "apache-ofbiz",
+      "published": "2024-05-08",
+      "snapshot_month": "2024-05",
+      "epss_era": "epss_v3",
+      "kev_date_added": "2024-08-07",
+      "ensemble_rank": 4319,
+      "ensemble_score": 0.8874997782154326,
+      "places_outside_cutoff": 3802,
+      "individual_ranks": {
+        "logistic_regression": {
+          "column": "lr_full_llmx_noemb",
+          "rank": 1166,
+          "percentile_rank": 0.9844972587427476,
+          "inside_original_top_k": false
+        },
+        "granite_lora": {
+          "column": "lora_control",
+          "rank": 24047,
+          "percentile_rank": 0.6799715228615532,
+          "inside_original_top_k": false
+        },
+        "lightgbm": {
+          "column": "lgbm_luis_only",
+          "rank": 149,
+          "percentile_rank": 0.9980305530419972,
+          "inside_original_top_k": true
+        }
+      },
+      "best_model": "lightgbm",
+      "best_rank": 149,
+      "percentile_range": 0.318059030180444,
+      "percentile_std": 0.14684860705573907,
+      "upside_gap": 0.11053077482656459,
+      "review_position_if_extra_slots_follow": {
+        "expanded_ensemble": 3802,
+        "single_model_dissent": 173,
+        "best_voter_percentile": 144,
+        "individual_logistic_regression": 775,
+        "individual_granite_lora": 23530,
+        "individual_lightgbm": 57,
+        "upside_gap": 46061,
+        "percentile_range": 32173
+      },
+      "signal_record_present": true,
+      "epss": 0.00115,
+      "epss_percentile_within_month": 45.23,
+      "any_recorded_code_flag": true,
+      "code_flags": {
+        "exploitdb": 1,
+        "metasploit": 0,
+        "nuclei": 0,
+        "poc_github": 0
+      },
+      "neighbor_range_share_lower": 1.0,
+      "neighbor_upside_share_lower": 0.992
+    },
+    {
+      "cve_id": "CVE-2024-1086",
+      "fold": 0,
+      "kev_group": "linux-nftables",
+      "published": "2024-01-31",
+      "snapshot_month": "2024-01",
+      "epss_era": "epss_v3",
+      "kev_date_added": "2024-05-30",
+      "ensemble_rank": 4391,
+      "ensemble_score": 0.8859140185589326,
+      "places_outside_cutoff": 3874,
+      "individual_ranks": {
+        "logistic_regression": {
+          "column": "lr_full_llmx_noemb",
+          "rank": 4750,
+          "percentile_rank": 0.9368047053813807,
+          "inside_original_top_k": false
+        },
+        "granite_lora": {
+          "column": "lora_control",
+          "rank": 19690,
+          "percentile_rank": 0.7379970192154149,
+          "inside_original_top_k": false
+        },
+        "lightgbm": {
+          "column": "lgbm_luis_only",
+          "rank": 1283,
+          "percentile_rank": 0.9829403310800021,
+          "inside_original_top_k": false
+        }
+      },
+      "best_model": "lightgbm",
+      "best_rank": 1283,
+      "percentile_range": 0.24494331186458718,
+      "percentile_std": 0.10627543777293501,
+      "upside_gap": 0.09702631252106952,
+      "review_position_if_extra_slots_follow": {
+        "expanded_ensemble": 3874,
+        "best_voter_percentile": 2312,
+        "individual_logistic_regression": 4233,
+        "individual_granite_lora": 19173,
+        "individual_lightgbm": 901,
+        "upside_gap": 50607,
+        "percentile_range": 43845,
+        "sparse_or_missing_best_voter": 1865
+      },
+      "signal_record_present": false,
+      "epss": null,
+      "epss_percentile_within_month": null,
+      "any_recorded_code_flag": false,
+      "code_flags": {
+        "exploitdb": null,
+        "metasploit": null,
+        "nuclei": null,
+        "poc_github": null
+      },
+      "neighbor_range_share_lower": 0.854,
+      "neighbor_upside_share_lower": 0.846
+    },
+    {
+      "cve_id": "CVE-2024-38094",
+      "fold": 1,
+      "kev_group": null,
+      "published": "2024-07-09",
+      "snapshot_month": "2024-07",
+      "epss_era": "epss_v3",
+      "kev_date_added": "2024-10-22",
+      "ensemble_rank": 4625,
+      "ensemble_score": 0.88157591242171,
+      "places_outside_cutoff": 4108,
+      "individual_ranks": {
+        "logistic_regression": {
+          "column": "lr_full_llmx_noemb",
+          "rank": 1386,
+          "percentile_rank": 0.9815697024538245,
+          "inside_original_top_k": false
+        },
+        "granite_lora": {
+          "column": "lora_control",
+          "rank": 1529,
+          "percentile_rank": 0.9796401767179432,
+          "inside_original_top_k": false
+        },
+        "lightgbm": {
+          "column": "lgbm_luis_only",
+          "rank": 23784,
+          "percentile_rank": 0.6835178580933624,
+          "inside_original_top_k": false
+        }
+      },
+      "best_model": "logistic_regression",
+      "best_rank": 1386,
+      "percentile_range": 0.29805184436046206,
+      "percentile_std": 0.1400504086168962,
+      "upside_gap": 0.0999937900321145,
+      "review_position_if_extra_slots_follow": {
+        "expanded_ensemble": 4108,
+        "best_voter_percentile": 2540,
+        "individual_logistic_regression": 965,
+        "individual_granite_lora": 1089,
+        "individual_lightgbm": 23267,
+        "upside_gap": 49590,
+        "percentile_range": 35227,
+        "sparse_or_missing_best_voter": 2068,
+        "recorded_zero_flags_best_voter": 1805
+      },
+      "signal_record_present": true,
+      "epss": 0.00092,
+      "epss_percentile_within_month": 39.94,
+      "any_recorded_code_flag": false,
+      "code_flags": {
+        "exploitdb": 0,
+        "metasploit": 0,
+        "nuclei": 0,
+        "poc_github": 0
+      },
+      "neighbor_range_share_lower": 0.972,
+      "neighbor_upside_share_lower": 0.832
+    },
+    {
+      "cve_id": "CVE-2025-38352",
+      "fold": 4,
+      "kev_group": null,
+      "published": "2025-07-22",
+      "snapshot_month": "2025-07",
+      "epss_era": "epss_v4",
+      "kev_date_added": "2025-09-04",
+      "ensemble_rank": 5578,
+      "ensemble_score": 0.8655675023509164,
+      "places_outside_cutoff": 5061,
+      "individual_ranks": {
+        "logistic_regression": {
+          "column": "lr_full_llmx_noemb",
+          "rank": 5540,
+          "percentile_rank": 0.9262921168893383,
+          "inside_original_top_k": false
+        },
+        "granite_lora": {
+          "column": "lora_control",
+          "rank": 4108,
+          "percentile_rank": 0.9453345398413797,
+          "inside_original_top_k": false
+        },
+        "lightgbm": {
+          "column": "lgbm_luis_only",
+          "rank": 20661,
+          "percentile_rank": 0.7250758503220311,
+          "inside_original_top_k": false
+        }
+      },
+      "best_model": "granite_lora",
+      "best_rank": 4108,
+      "percentile_range": 0.22025868951934857,
+      "percentile_std": 0.09964631348031276,
+      "upside_gap": 0.07976703749046332,
+      "review_position_if_extra_slots_follow": {
+        "expanded_ensemble": 5061,
+        "best_voter_percentile": 8105,
+        "individual_logistic_regression": 5023,
+        "individual_granite_lora": 3593,
+        "individual_lightgbm": 20144,
+        "upside_gap": 56272,
+        "percentile_range": 48153,
+        "sparse_or_missing_best_voter": 7275,
+        "recorded_zero_flags_best_voter": 6564
+      },
+      "signal_record_present": true,
+      "epss": 0.00032,
+      "epss_percentile_within_month": 7.57,
+      "any_recorded_code_flag": false,
+      "code_flags": {
+        "exploitdb": 0,
+        "metasploit": 0,
+        "nuclei": 0,
+        "poc_github": 0
+      },
+      "neighbor_range_share_lower": 0.676,
+      "neighbor_upside_share_lower": 0.43
+    },
+    {
+      "cve_id": "CVE-2025-23209",
+      "fold": 2,
+      "kev_group": "craft-cms",
+      "published": "2025-01-18",
+      "snapshot_month": "2025-01",
+      "epss_era": "epss_v3",
+      "kev_date_added": "2025-02-20",
+      "ensemble_rank": 5828,
+      "ensemble_score": 0.861282624509856,
+      "places_outside_cutoff": 5311,
+      "individual_ranks": {
+        "logistic_regression": {
+          "column": "lr_full_llmx_noemb",
+          "rank": 5579,
+          "percentile_rank": 0.9257731410017566,
+          "inside_original_top_k": false
+        },
+        "granite_lora": {
+          "column": "lora_control",
+          "rank": 23979,
+          "percentile_rank": 0.6809096715814127,
+          "inside_original_top_k": false
+        },
+        "lightgbm": {
+          "column": "lgbm_luis_only",
+          "rank": 1717,
+          "percentile_rank": 0.9771650609463991,
+          "inside_original_top_k": false
+        }
+      },
+      "best_model": "lightgbm",
+      "best_rank": 1717,
+      "percentile_range": 0.2962553893649864,
+      "percentile_std": 0.12925706678293966,
+      "upside_gap": 0.11588243643654306,
+      "review_position_if_extra_slots_follow": {
+        "expanded_ensemble": 5311,
+        "best_voter_percentile": 3254,
+        "individual_logistic_regression": 5062,
+        "individual_granite_lora": 23462,
+        "individual_lightgbm": 1293,
+        "upside_gap": 44250,
+        "percentile_range": 35492,
+        "sparse_or_missing_best_voter": 2722
+      },
+      "signal_record_present": false,
+      "epss": null,
+      "epss_percentile_within_month": null,
+      "any_recorded_code_flag": false,
+      "code_flags": {
+        "exploitdb": null,
+        "metasploit": null,
+        "nuclei": null,
+        "poc_github": null
+      },
+      "neighbor_range_share_lower": 0.888,
+      "neighbor_upside_share_lower": 0.826
+    },
+    {
+      "cve_id": "CVE-2025-21043",
+      "fold": 4,
+      "kev_group": "samsung-quram",
+      "published": "2025-09-12",
+      "snapshot_month": "2025-09",
+      "epss_era": "epss_v4",
+      "kev_date_added": "2025-10-02",
+      "ensemble_rank": 6179,
+      "ensemble_score": 0.855771278011391,
+      "places_outside_cutoff": 5662,
+      "individual_ranks": {
+        "logistic_regression": {
+          "column": "lr_full_llmx_noemb",
+          "rank": 20371,
+          "percentile_rank": 0.7289349017937936,
+          "inside_original_top_k": false
+        },
+        "granite_lora": {
+          "column": "lora_control",
+          "rank": 3612,
+          "percentile_rank": 0.951901580880396,
+          "inside_original_top_k": false
+        },
+        "lightgbm": {
+          "column": "lgbm_luis_only",
+          "rank": 8532,
+          "percentile_rank": 0.886477351359983,
+          "inside_original_top_k": false
+        }
+      },
+      "best_model": "granite_lora",
+      "best_rank": 3612,
+      "percentile_range": 0.2229666790866024,
+      "percentile_std": 0.09357949277163177,
+      "upside_gap": 0.09613030286900504,
+      "review_position_if_extra_slots_follow": {
+        "expanded_ensemble": 5662,
+        "best_voter_percentile": 7142,
+        "individual_logistic_regression": 19854,
+        "individual_granite_lora": 3105,
+        "individual_lightgbm": 8015,
+        "upside_gap": 50898,
+        "percentile_range": 47681,
+        "sparse_or_missing_best_voter": 6363,
+        "recorded_zero_flags_best_voter": 5721
+      },
+      "signal_record_present": true,
+      "epss": 0.00137,
+      "epss_percentile_within_month": 34.45,
+      "any_recorded_code_flag": false,
+      "code_flags": {
+        "exploitdb": 0,
+        "metasploit": 0,
+        "nuclei": 0,
+        "poc_github": 0
+      },
+      "neighbor_range_share_lower": 0.632,
+      "neighbor_upside_share_lower": 0.568
+    },
+    {
+      "cve_id": "CVE-2024-27348",
+      "fold": 0,
+      "kev_group": null,
+      "published": "2024-04-22",
+      "snapshot_month": "2024-04",
+      "epss_era": "epss_v3",
+      "kev_date_added": "2024-09-18",
+      "ensemble_rank": 7734,
+      "ensemble_score": 0.8313128759248416,
+      "places_outside_cutoff": 7217,
+      "individual_ranks": {
+        "logistic_regression": {
+          "column": "lr_full_llmx_noemb",
+          "rank": 1601,
+          "percentile_rank": 0.978708681535104,
+          "inside_original_top_k": false
+        },
+        "granite_lora": {
+          "column": "lora_control",
+          "rank": 35959,
+          "percentile_rank": 0.5215042316495448,
+          "inside_original_top_k": false
+        },
+        "lightgbm": {
+          "column": "lgbm_luis_only",
+          "rank": 472,
+          "percentile_rank": 0.993725714589876,
+          "inside_original_top_k": true
+        }
+      },
+      "best_model": "lightgbm",
+      "best_rank": 472,
+      "percentile_range": 0.47222148294033117,
+      "percentile_std": 0.21915356088249333,
+      "upside_gap": 0.16241283866503442,
+      "review_position_if_extra_slots_follow": {
+        "expanded_ensemble": 7217,
+        "single_model_dissent": 80,
+        "best_voter_percentile": 639,
+        "individual_logistic_regression": 1159,
+        "individual_granite_lora": 35442,
+        "individual_lightgbm": 237,
+        "upside_gap": 29343,
+        "percentile_range": 14639,
+        "sparse_or_missing_best_voter": 478,
+        "recorded_zero_flags_best_voter": 433
+      },
+      "signal_record_present": true,
+      "epss": 0.00043,
+      "epss_percentile_within_month": 9.15,
+      "any_recorded_code_flag": false,
+      "code_flags": {
+        "exploitdb": 0,
+        "metasploit": 0,
+        "nuclei": 0,
+        "poc_github": 0
+      },
+      "neighbor_range_share_lower": 0.988,
+      "neighbor_upside_share_lower": 0.986
+    },
+    {
+      "cve_id": "CVE-2024-26169",
+      "fold": 0,
+      "kev_group": null,
+      "published": "2024-03-12",
+      "snapshot_month": "2024-03",
+      "epss_era": "epss_v3",
+      "kev_date_added": "2024-06-13",
+      "ensemble_rank": 7810,
+      "ensemble_score": 0.8302993204520855,
+      "places_outside_cutoff": 7293,
+      "individual_ranks": {
+        "logistic_regression": {
+          "column": "lr_full_llmx_noemb",
+          "rank": 2263,
+          "percentile_rank": 0.9698993985202534,
+          "inside_original_top_k": false
+        },
+        "granite_lora": {
+          "column": "lora_control",
+          "rank": 30577,
+          "percentile_rank": 0.5931229041358386,
+          "inside_original_top_k": false
+        },
+        "lightgbm": {
+          "column": "lgbm_luis_only",
+          "rank": 5421,
+          "percentile_rank": 0.927875658700165,
+          "inside_original_top_k": false
+        }
+      },
+      "best_model": "logistic_regression",
+      "best_rank": 2263,
+      "percentile_range": 0.37677649438441485,
+      "percentile_std": 0.16858427767653766,
+      "upside_gap": 0.13960007806816788,
+      "review_position_if_extra_slots_follow": {
+        "expanded_ensemble": 7293,
+        "best_voter_percentile": 4385,
+        "individual_logistic_regression": 1781,
+        "individual_granite_lora": 30060,
+        "individual_lightgbm": 4904,
+        "upside_gap": 36211,
+        "percentile_range": 24422,
+        "sparse_or_missing_best_voter": 3759,
+        "recorded_zero_flags_best_voter": 3310
+      },
+      "signal_record_present": true,
+      "epss": 0.00043,
+      "epss_percentile_within_month": 8.46,
+      "any_recorded_code_flag": false,
+      "code_flags": {
+        "exploitdb": 0,
+        "metasploit": 0,
+        "nuclei": 0,
+        "poc_github": 0
+      },
+      "neighbor_range_share_lower": 0.88,
+      "neighbor_upside_share_lower": 0.81
+    },
+    {
+      "cve_id": "CVE-2025-6204",
+      "fold": 4,
+      "kev_group": "delmia-apriso",
+      "published": "2025-08-04",
+      "snapshot_month": "2025-08",
+      "epss_era": "epss_v4",
+      "kev_date_added": "2025-10-28",
+      "ensemble_rank": 8278,
+      "ensemble_score": 0.8236480012774793,
+      "places_outside_cutoff": 7761,
+      "individual_ranks": {
+        "logistic_regression": {
+          "column": "lr_full_llmx_noemb",
+          "rank": 13925,
+          "percentile_rank": 0.8147123010592431,
+          "inside_original_top_k": false
+        },
+        "granite_lora": {
+          "column": "lora_control",
+          "rank": 12227,
+          "percentile_rank": 0.8372944057060734,
+          "inside_original_top_k": false
+        },
+        "lightgbm": {
+          "column": "lgbm_luis_only",
+          "rank": 13607,
+          "percentile_rank": 0.8189372970671209,
+          "inside_original_top_k": false
+        }
+      },
+      "best_model": "granite_lora",
+      "best_rank": 12227,
+      "percentile_range": 0.022582104646830303,
+      "percentile_std": 0.009802411716450653,
+      "upside_gap": 0.013646404428594106,
+      "review_position_if_extra_slots_follow": {
+        "expanded_ensemble": 7761,
+        "best_voter_percentile": 21921,
+        "individual_logistic_regression": 13408,
+        "individual_granite_lora": 11710,
+        "individual_lightgbm": 13090,
+        "upside_gap": 73755,
+        "percentile_range": 74105,
+        "sparse_or_missing_best_voter": 20759,
+        "recorded_zero_flags_best_voter": 19308
+      },
+      "signal_record_present": true,
+      "epss": 0.00095,
+      "epss_percentile_within_month": 27.42,
+      "any_recorded_code_flag": false,
+      "code_flags": {
+        "exploitdb": 0,
+        "metasploit": 0,
+        "nuclei": 0,
+        "poc_github": 0
+      },
+      "neighbor_range_share_lower": 0.002,
+      "neighbor_upside_share_lower": 0.002
+    },
+    {
+      "cve_id": "CVE-2024-21338",
+      "fold": 0,
+      "kev_group": "windows-kernel-eop",
+      "published": "2024-02-13",
+      "snapshot_month": "2024-02",
+      "epss_era": "epss_v3",
+      "kev_date_added": "2024-03-04",
+      "ensemble_rank": 9185,
+      "ensemble_score": 0.810318748780185,
+      "places_outside_cutoff": 8668,
+      "individual_ranks": {
+        "logistic_regression": {
+          "column": "lr_full_llmx_noemb",
+          "rank": 8279,
+          "percentile_rank": 0.8898440410922447,
+          "inside_original_top_k": false
+        },
+        "granite_lora": {
+          "column": "lora_control",
+          "rank": 15841,
+          "percentile_rank": 0.7891959865864694,
+          "inside_original_top_k": false
+        },
+        "lightgbm": {
+          "column": "lgbm_luis_only",
+          "rank": 18644,
+          "percentile_rank": 0.7519162186618407,
+          "inside_original_top_k": false
+        }
+      },
+      "best_model": "logistic_regression",
+      "best_rank": 8279,
+      "percentile_range": 0.13792782243040402,
+      "percentile_std": 0.05825604038562559,
+      "upside_gap": 0.07952529231205974,
+      "review_position_if_extra_slots_follow": {
+        "expanded_ensemble": 8668,
+        "best_voter_percentile": 15613,
+        "individual_logistic_regression": 7762,
+        "individual_granite_lora": 15325,
+        "individual_lightgbm": 18127,
+        "upside_gap": 56353,
+        "percentile_range": 60836,
+        "sparse_or_missing_best_voter": 14579,
+        "recorded_zero_flags_best_voter": 13448
+      },
+      "signal_record_present": true,
+      "epss": 0.00048,
+      "epss_percentile_within_month": 14.95,
+      "any_recorded_code_flag": false,
+      "code_flags": {
+        "exploitdb": 0,
+        "metasploit": 0,
+        "nuclei": 0,
+        "poc_github": 0
+      },
+      "neighbor_range_share_lower": 0.198,
+      "neighbor_upside_share_lower": 0.278
+    },
+    {
+      "cve_id": "CVE-2025-24054",
+      "fold": 3,
+      "kev_group": null,
+      "published": "2025-03-11",
+      "snapshot_month": "2025-03",
+      "epss_era": "epss_v4",
+      "kev_date_added": "2025-04-17",
+      "ensemble_rank": 11284,
+      "ensemble_score": 0.781225049236174,
+      "places_outside_cutoff": 10767,
+      "individual_ranks": {
+        "logistic_regression": {
+          "column": "lr_full_llmx_noemb",
+          "rank": 8379,
+          "percentile_rank": 0.8885133336881886,
+          "inside_original_top_k": false
+        },
+        "granite_lora": {
+          "column": "lora_control",
+          "rank": 31710,
+          "percentile_rank": 0.5780393357108639,
+          "inside_original_top_k": false
+        },
+        "lightgbm": {
+          "column": "lgbm_luis_only",
+          "rank": 9235,
+          "percentile_rank": 0.8771224783094693,
+          "inside_original_top_k": false
+        }
+      },
+      "best_model": "logistic_regression",
+      "best_rank": 8379,
+      "percentile_range": 0.3104739979773248,
+      "percentile_std": 0.14374923427542552,
+      "upside_gap": 0.10728828445201466,
+      "review_position_if_extra_slots_follow": {
+        "expanded_ensemble": 10767,
+        "best_voter_percentile": 15792,
+        "individual_logistic_regression": 7862,
+        "individual_granite_lora": 31193,
+        "individual_lightgbm": 8718,
+        "upside_gap": 47177,
+        "percentile_range": 33378,
+        "sparse_or_missing_best_voter": 14752,
+        "recorded_zero_flags_best_voter": 13616
+      },
+      "signal_record_present": true,
+      "epss": 0.00123,
+      "epss_percentile_within_month": 28.36,
+      "any_recorded_code_flag": false,
+      "code_flags": {
+        "exploitdb": 0,
+        "metasploit": 0,
+        "nuclei": 0,
+        "poc_github": 0
+      },
+      "neighbor_range_share_lower": 0.588,
+      "neighbor_upside_share_lower": 0.366
+    },
+    {
+      "cve_id": "CVE-2024-13160",
+      "fold": 2,
+      "kev_group": "ivanti-epm",
+      "published": "2025-01-14",
+      "snapshot_month": "2025-01",
+      "epss_era": "epss_v3",
+      "kev_date_added": "2025-03-10",
+      "ensemble_rank": 16261,
+      "ensemble_score": 0.7196643068788702,
+      "places_outside_cutoff": 15744,
+      "individual_ranks": {
+        "logistic_regression": {
+          "column": "lr_full_llmx_noemb",
+          "rank": 10215,
+          "percentile_rank": 0.8640815457497205,
+          "inside_original_top_k": false
+        },
+        "granite_lora": {
+          "column": "lora_control",
+          "rank": 41875,
+          "percentile_rank": 0.44273966040347046,
+          "inside_original_top_k": false
+        },
+        "lightgbm": {
+          "column": "lgbm_luis_only",
+          "rank": 11110,
+          "percentile_rank": 0.8521717144834194,
+          "inside_original_top_k": false
+        }
+      },
+      "best_model": "logistic_regression",
+      "best_rank": 10215,
+      "percentile_range": 0.42134188534625006,
+      "percentile_std": 0.19587565084229971,
+      "upside_gap": 0.14441723887085034,
+      "review_position_if_extra_slots_follow": {
+        "expanded_ensemble": 15744,
+        "best_voter_percentile": 18737,
+        "individual_logistic_regression": 9698,
+        "individual_granite_lora": 41359,
+        "individual_lightgbm": 10593,
+        "upside_gap": 34710,
+        "percentile_range": 19601,
+        "sparse_or_missing_best_voter": 17635,
+        "recorded_zero_flags_best_voter": 16339
+      },
+      "signal_record_present": true,
+      "epss": 0.00043,
+      "epss_percentile_within_month": 11.61,
+      "any_recorded_code_flag": false,
+      "code_flags": {
+        "exploitdb": 0,
+        "metasploit": 0,
+        "nuclei": 0,
+        "poc_github": 0
+      },
+      "neighbor_range_share_lower": 0.664,
+      "neighbor_upside_share_lower": 0.4
+    },
+    {
+      "cve_id": "CVE-2024-13159",
+      "fold": 2,
+      "kev_group": "ivanti-epm",
+      "published": "2025-01-14",
+      "snapshot_month": "2025-01",
+      "epss_era": "epss_v3",
+      "kev_date_added": "2025-03-10",
+      "ensemble_rank": 16292,
+      "ensemble_score": 0.7193116694167953,
+      "places_outside_cutoff": 15775,
+      "individual_ranks": {
+        "logistic_regression": {
+          "column": "lr_full_llmx_noemb",
+          "rank": 10031,
+          "percentile_rank": 0.8665300473731836,
+          "inside_original_top_k": false
+        },
+        "granite_lora": {
+          "column": "lora_control",
+          "rank": 42324,
+          "percentile_rank": 0.43679805184436044,
+          "inside_original_top_k": false
+        },
+        "lightgbm": {
+          "column": "lgbm_luis_only",
+          "rank": 10927,
+          "percentile_rank": 0.8546069090328419,
+          "inside_original_top_k": false
+        }
+      },
+      "best_model": "logistic_regression",
+      "best_rank": 10031,
+      "percentile_range": 0.4297319955288232,
+      "percentile_std": 0.199826588808678,
+      "upside_gap": 0.14721837795638837,
+      "review_position_if_extra_slots_follow": {
+        "expanded_ensemble": 15775,
+        "best_voter_percentile": 18442,
+        "individual_logistic_regression": 9514,
+        "individual_granite_lora": 41807,
+        "individual_lightgbm": 10410,
+        "upside_gap": 33854,
+        "percentile_range": 18716,
+        "sparse_or_missing_best_voter": 17345,
+        "recorded_zero_flags_best_voter": 16061
+      },
+      "signal_record_present": true,
+      "epss": 0.00043,
+      "epss_percentile_within_month": 11.61,
+      "any_recorded_code_flag": false,
+      "code_flags": {
+        "exploitdb": 0,
+        "metasploit": 0,
+        "nuclei": 0,
+        "poc_github": 0
+      },
+      "neighbor_range_share_lower": 0.668,
+      "neighbor_upside_share_lower": 0.406
+    },
+    {
+      "cve_id": "CVE-2025-6205",
+      "fold": 4,
+      "kev_group": "delmia-apriso",
+      "published": "2025-08-04",
+      "snapshot_month": "2025-08",
+      "epss_era": "epss_v4",
+      "kev_date_added": "2025-10-28",
+      "ensemble_rank": 18450,
+      "ensemble_score": 0.6946580969109846,
+      "places_outside_cutoff": 17933,
+      "individual_ranks": {
+        "logistic_regression": {
+          "column": "lr_full_llmx_noemb",
+          "rank": 41554,
+          "percentile_rank": 0.4470511523926119,
+          "inside_original_top_k": false
+        },
+        "granite_lora": {
+          "column": "lora_control",
+          "rank": 1549,
+          "percentile_rank": 0.9793673817001117,
+          "inside_original_top_k": false
+        },
+        "lightgbm": {
+          "column": "lgbm_luis_only",
+          "rank": 25735,
+          "percentile_rank": 0.6575557566402299,
+          "inside_original_top_k": false
+        }
+      },
+      "best_model": "granite_lora",
+      "best_rank": 1549,
+      "percentile_range": 0.5323162293074999,
+      "percentile_std": 0.21889507339699513,
+      "upside_gap": 0.28470928478912716,
+      "review_position_if_extra_slots_follow": {
+        "expanded_ensemble": 17933,
+        "best_voter_percentile": 2907,
+        "individual_logistic_regression": 41037,
+        "individual_granite_lora": 1108,
+        "individual_lightgbm": 25218,
+        "upside_gap": 6996,
+        "percentile_range": 10172,
+        "sparse_or_missing_best_voter": 2405,
+        "recorded_zero_flags_best_voter": 2081
+      },
+      "signal_record_present": true,
+      "epss": 0.00039,
+      "epss_percentile_within_month": 10.83,
+      "any_recorded_code_flag": false,
+      "code_flags": {
+        "exploitdb": 0,
+        "metasploit": 0,
+        "nuclei": 0,
+        "poc_github": 0
+      },
+      "neighbor_range_share_lower": 0.848,
+      "neighbor_upside_share_lower": 0.992
+    },
+    {
+      "cve_id": "CVE-2024-13161",
+      "fold": 2,
+      "kev_group": "ivanti-epm",
+      "published": "2025-01-14",
+      "snapshot_month": "2025-01",
+      "epss_era": "epss_v3",
+      "kev_date_added": "2025-03-10",
+      "ensemble_rank": 19129,
+      "ensemble_score": 0.6868623693688898,
+      "places_outside_cutoff": 18612,
+      "individual_ranks": {
+        "logistic_regression": {
+          "column": "lr_full_llmx_noemb",
+          "rank": 10373,
+          "percentile_rank": 0.8619790280513121,
+          "inside_original_top_k": false
+        },
+        "granite_lora": {
+          "column": "lora_control",
+          "rank": 41875,
+          "percentile_rank": 0.44273966040347046,
+          "inside_original_top_k": false
+        },
+        "lightgbm": {
+          "column": "lgbm_luis_only",
+          "rank": 18347,
+          "percentile_rank": 0.7558684196518869,
+          "inside_original_top_k": false
+        }
+      },
+      "best_model": "logistic_regression",
+      "best_rank": 10373,
+      "percentile_range": 0.41923936764784164,
+      "percentile_std": 0.17797338392427328,
+      "upside_gap": 0.17511665868242232,
+      "review_position_if_extra_slots_follow": {
+        "expanded_ensemble": 18612,
+        "best_voter_percentile": 19001,
+        "individual_logistic_regression": 9856,
+        "individual_granite_lora": 41360,
+        "individual_lightgbm": 17830,
+        "upside_gap": 25859,
+        "percentile_range": 19792,
+        "sparse_or_missing_best_voter": 17890,
+        "recorded_zero_flags_best_voter": 16583
+      },
+      "signal_record_present": true,
+      "epss": 0.00043,
+      "epss_percentile_within_month": 11.61,
+      "any_recorded_code_flag": false,
+      "code_flags": {
+        "exploitdb": 0,
+        "metasploit": 0,
+        "nuclei": 0,
+        "poc_github": 0
+      },
+      "neighbor_range_share_lower": 0.702,
+      "neighbor_upside_share_lower": 0.608
+    },
+    {
+      "cve_id": "CVE-2025-35939",
+      "fold": 3,
+      "kev_group": "craft-cms",
+      "published": "2025-05-07",
+      "snapshot_month": "2025-05",
+      "epss_era": "epss_v4",
+      "kev_date_added": "2025-06-02",
+      "ensemble_rank": 19514,
+      "ensemble_score": 0.6823512712691401,
+      "places_outside_cutoff": 18997,
+      "individual_ranks": {
+        "logistic_regression": {
+          "column": "lr_full_llmx_noemb",
+          "rank": 7663,
+          "percentile_rank": 0.8980411987012296,
+          "inside_original_top_k": false
+        },
+        "granite_lora": {
+          "column": "lora_control",
+          "rank": 41626,
+          "percentile_rank": 0.44607973598765105,
+          "inside_original_top_k": false
+        },
+        "lightgbm": {
+          "column": "lgbm_luis_only",
+          "rank": 22325,
+          "percentile_rank": 0.7029328791185394,
+          "inside_original_top_k": false
+        }
+      },
+      "best_model": "logistic_regression",
+      "best_rank": 7663,
+      "percentile_range": 0.4519614627135785,
+      "percentile_std": 0.18508555297627313,
+      "upside_gap": 0.21568992743208948,
+      "review_position_if_extra_slots_follow": {
+        "expanded_ensemble": 18997,
+        "best_voter_percentile": 14578,
+        "individual_logistic_regression": 7146,
+        "individual_granite_lora": 41109,
+        "individual_lightgbm": 21808,
+        "upside_gap": 16588,
+        "percentile_range": 16489,
+        "sparse_or_missing_best_voter": 13565,
+        "recorded_zero_flags_best_voter": 12496
+      },
+      "signal_record_present": true,
+      "epss": 0.00146,
+      "epss_percentile_within_month": 36.2,
+      "any_recorded_code_flag": false,
+      "code_flags": {
+        "exploitdb": 0,
+        "metasploit": 0,
+        "nuclei": 0,
+        "poc_github": 0
+      },
+      "neighbor_range_share_lower": 0.712,
+      "neighbor_upside_share_lower": 0.728
+    },
+    {
+      "cve_id": "CVE-2025-25181",
+      "fold": 2,
+      "kev_group": "veracore",
+      "published": "2025-02-03",
+      "snapshot_month": "2025-02",
+      "epss_era": "epss_v3",
+      "kev_date_added": "2025-03-10",
+      "ensemble_rank": 24728,
+      "ensemble_score": 0.6271890136796722,
+      "places_outside_cutoff": 24211,
+      "individual_ranks": {
+        "logistic_regression": {
+          "column": "lr_full_llmx_noemb",
+          "rank": 7700,
+          "percentile_rank": 0.8975488369617288,
+          "inside_original_top_k": false
+        },
+        "granite_lora": {
+          "column": "lora_control",
+          "rank": 68965,
+          "percentile_rank": 0.0822909458668228,
+          "inside_original_top_k": false
+        },
+        "lightgbm": {
+          "column": "lgbm_luis_only",
+          "rank": 7386,
+          "percentile_rank": 0.9017272582104647,
+          "inside_original_top_k": false
+        }
+      },
+      "best_model": "lightgbm",
+      "best_rank": 7386,
+      "percentile_range": 0.8194363123436419,
+      "percentile_std": 0.3853048948825379,
+      "upside_gap": 0.27453824453079256,
+      "review_position_if_extra_slots_follow": {
+        "expanded_ensemble": 24211,
+        "best_voter_percentile": 14107,
+        "individual_logistic_regression": 7183,
+        "individual_granite_lora": 68448,
+        "individual_lightgbm": 6869,
+        "upside_gap": 8016,
+        "percentile_range": 522,
+        "sparse_or_missing_best_voter": 13102,
+        "recorded_zero_flags_best_voter": 12057
+      },
+      "signal_record_present": true,
+      "epss": 0.00045,
+      "epss_percentile_within_month": 18.77,
+      "any_recorded_code_flag": false,
+      "code_flags": {
+        "exploitdb": 0,
+        "metasploit": 0,
+        "nuclei": 0,
+        "poc_github": 0
+      },
+      "neighbor_range_share_lower": 0.984,
+      "neighbor_upside_share_lower": 0.866
+    },
+    {
+      "cve_id": "CVE-2025-27915",
+      "fold": 3,
+      "kev_group": "zimbra",
+      "published": "2025-03-12",
+      "snapshot_month": "2025-03",
+      "epss_era": "epss_v4",
+      "kev_date_added": "2025-10-07",
+      "ensemble_rank": 25696,
+      "ensemble_score": 0.6171443906247228,
+      "places_outside_cutoff": 25179,
+      "individual_ranks": {
+        "logistic_regression": {
+          "column": "lr_full_llmx_noemb",
+          "rank": 25024,
+          "percentile_rank": 0.6670170862830681,
+          "inside_original_top_k": false
+        },
+        "granite_lora": {
+          "column": "lora_control",
+          "rank": 44771,
+          "percentile_rank": 0.404182413370948,
+          "inside_original_top_k": false
+        },
+        "lightgbm": {
+          "column": "lgbm_luis_only",
+          "rank": 16516,
+          "percentile_rank": 0.7802336722201523,
+          "inside_original_top_k": false
+        }
+      },
+      "best_model": "lightgbm",
+      "best_rank": 16516,
+      "percentile_range": 0.37605125884920426,
+      "percentile_std": 0.15752058415688674,
+      "upside_gap": 0.16308928159542946,
+      "review_position_if_extra_slots_follow": {
+        "expanded_ensemble": 25179,
+        "best_voter_percentile": 28522,
+        "individual_logistic_regression": 24507,
+        "individual_granite_lora": 44254,
+        "individual_lightgbm": 15999,
+        "upside_gap": 29152,
+        "percentile_range": 24516,
+        "sparse_or_missing_best_voter": 27272,
+        "recorded_zero_flags_best_voter": 25474
+      },
+      "signal_record_present": true,
+      "epss": 0.00033,
+      "epss_percentile_within_month": 6.24,
+      "any_recorded_code_flag": false,
+      "code_flags": {
+        "exploitdb": 0,
+        "metasploit": 0,
+        "nuclei": 0,
+        "poc_github": 0
+      },
+      "neighbor_range_share_lower": 0.556,
+      "neighbor_upside_share_lower": 0.49
+    },
+    {
+      "cve_id": "CVE-2024-37383",
+      "fold": 1,
+      "kev_group": "roundcube",
+      "published": "2024-06-07",
+      "snapshot_month": "2024-06",
+      "epss_era": "epss_v3",
+      "kev_date_added": "2024-10-24",
+      "ensemble_rank": 27157,
+      "ensemble_score": 0.6030233672220152,
+      "places_outside_cutoff": 26640,
+      "individual_ranks": {
+        "logistic_regression": {
+          "column": "lr_full_llmx_noemb",
+          "rank": 13091,
+          "percentile_rank": 0.8258104008090701,
+          "inside_original_top_k": false
+        },
+        "granite_lora": {
+          "column": "lora_control",
+          "rank": 57158,
+          "percentile_rank": 0.23940756906371427,
+          "inside_original_top_k": false
+        },
+        "lightgbm": {
+          "column": "lgbm_luis_only",
+          "rank": 19250,
+          "percentile_rank": 0.7438521317932613,
+          "inside_original_top_k": false
+        }
+      },
+      "best_model": "logistic_regression",
+      "best_rank": 13091,
+      "percentile_range": 0.5864028317453558,
+      "percentile_std": 0.25928314763046284,
+      "upside_gap": 0.22278703358705487,
+      "review_position_if_extra_slots_follow": {
+        "expanded_ensemble": 26640,
+        "best_voter_percentile": 23238,
+        "individual_logistic_regression": 12574,
+        "individual_granite_lora": 56641,
+        "individual_lightgbm": 18733,
+        "upside_gap": 15296,
+        "percentile_range": 7170,
+        "sparse_or_missing_best_voter": 22059,
+        "recorded_zero_flags_best_voter": 20547
+      },
+      "signal_record_present": true,
+      "epss": 0.00045,
+      "epss_percentile_within_month": 16.12,
+      "any_recorded_code_flag": false,
+      "code_flags": {
+        "exploitdb": 0,
+        "metasploit": 0,
+        "nuclei": 0,
+        "poc_github": 0
+      },
+      "neighbor_range_share_lower": 0.814,
+      "neighbor_upside_share_lower": 0.674
+    },
+    {
+      "cve_id": "CVE-2024-57968",
+      "fold": 2,
+      "kev_group": "veracore",
+      "published": "2025-02-03",
+      "snapshot_month": "2025-02",
+      "epss_era": "epss_v3",
+      "kev_date_added": "2025-03-10",
+      "ensemble_rank": 48002,
+      "ensemble_score": 0.3996557903514842,
+      "places_outside_cutoff": 47485,
+      "individual_ranks": {
+        "logistic_regression": {
+          "column": "lr_full_llmx_noemb",
+          "rank": 28707,
+          "percentile_rank": 0.6180071325916857,
+          "inside_original_top_k": false
+        },
+        "granite_lora": {
+          "column": "lora_control",
+          "rank": 66031,
+          "percentile_rank": 0.12133390110182574,
+          "inside_original_top_k": false
+        },
+        "lightgbm": {
+          "column": "lgbm_luis_only",
+          "rank": 40609,
+          "percentile_rank": 0.45962633736094105,
+          "inside_original_top_k": false
+        }
+      },
+      "best_model": "logistic_regression",
+      "best_rank": 28707,
+      "percentile_range": 0.49667323148986,
+      "percentile_std": 0.20715280125405838,
+      "upside_gap": 0.21835134224020153,
+      "review_position_if_extra_slots_follow": {
+        "expanded_ensemble": 47485,
+        "best_voter_percentile": 44982,
+        "individual_logistic_regression": 28190,
+        "individual_granite_lora": 65514,
+        "individual_lightgbm": 40092,
+        "upside_gap": 16104,
+        "percentile_range": 12623,
+        "sparse_or_missing_best_voter": 43654,
+        "recorded_zero_flags_best_voter": 40457
+      },
+      "signal_record_present": true,
+      "epss": 0.00045,
+      "epss_percentile_within_month": 18.77,
+      "any_recorded_code_flag": false,
+      "code_flags": {
+        "exploitdb": 0,
+        "metasploit": 0,
+        "nuclei": 0,
+        "poc_github": 0
+      },
+      "neighbor_range_share_lower": 0.676,
+      "neighbor_upside_share_lower": 0.572
+    }
+  ]
+}

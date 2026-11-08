@@ -1,0 +1,741 @@
+{
+  "metadata": {
+    "selection": "Deterministic rules fixed in the script. Cases may carry more than one tag.",
+    "strongest_demonstration_ids": [
+      "CVE-2024-27348",
+      "CVE-2022-2586",
+      "CVE-2024-57968"
+    ],
+    "demonstration_rule": "The three demonstrations are the miss the single-model-dissent rule moves up the most (or the miss it reaches first, if it moves none up), the miss closest to the ensemble cutoff, and the consensus failure with the worst best-individual rank."
+  },
+  "cases": [
+    {
+      "cve_id": "CVE-2022-2586",
+      "demonstration_priority": 2,
+      "tags": [
+        "Closest missed positive to the original top-517 cutoff.",
+        "Missed positive that did have a recorded public exploit-code flag and was still outside the top 517."
+      ],
+      "ensemble_rank": 532,
+      "top_k": 517,
+      "individual_model_ranks": {
+        "logistic_regression": {
+          "column": "lr_full_llmx_noemb",
+          "rank": 2278,
+          "percentile_rank": 0.969699792409645,
+          "inside_original_top_k": false
+        },
+        "granite_lora": {
+          "column": "lora_control",
+          "rank": 910,
+          "percentile_rank": 0.9878772555490499,
+          "inside_original_top_k": false
+        },
+        "lightgbm": {
+          "column": "lgbm_luis_only",
+          "rank": 1550,
+          "percentile_rank": 0.9793806887741523,
+          "inside_original_top_k": false
+        }
+      },
+      "disagreement": {
+        "best_model": "granite_lora",
+        "best_rank": 910,
+        "percentile_range": 0.018177463139404937,
+        "percentile_std_ddof0": 0.007426166706428846,
+        "upside_gap": 0.008891343304767485,
+        "neighbor_share_with_smaller_range": 0.12878787878787878,
+        "neighbor_share_with_smaller_upside": 0.15151515151515152
+      },
+      "extra_review_positions": {
+        "expanded_ensemble": 15,
+        "best_voter_percentile": 1534,
+        "individual_logistic_regression": 1795,
+        "individual_granite_lora": 537,
+        "individual_lightgbm": 1138,
+        "upside_gap": 74262,
+        "percentile_range": 74290
+      },
+      "included_under_additional_budget": {
+        "50": {
+          "expanded_ensemble": true,
+          "best_voter_percentile": false,
+          "upside_gap": false,
+          "percentile_range": false,
+          "individual_logistic_regression": false,
+          "individual_granite_lora": false,
+          "individual_lightgbm": false
+        },
+        "100": {
+          "expanded_ensemble": true,
+          "best_voter_percentile": false,
+          "upside_gap": false,
+          "percentile_range": false,
+          "individual_logistic_regression": false,
+          "individual_granite_lora": false,
+          "individual_lightgbm": false
+        },
+        "250": {
+          "expanded_ensemble": true,
+          "best_voter_percentile": false,
+          "upside_gap": false,
+          "percentile_range": false,
+          "individual_logistic_regression": false,
+          "individual_granite_lora": false,
+          "individual_lightgbm": false
+        },
+        "500": {
+          "expanded_ensemble": true,
+          "best_voter_percentile": false,
+          "upside_gap": false,
+          "percentile_range": false,
+          "individual_logistic_regression": false,
+          "individual_granite_lora": false,
+          "individual_lightgbm": false
+        }
+      },
+      "snapshot_signals": {
+        "snapshot_month": "2024-01",
+        "epss_era": "epss_v3",
+        "record_present": true,
+        "epss": 0.00044,
+        "epss_percentile_within_observed_month": 10.91,
+        "code_flags": {
+          "exploitdb": 0,
+          "metasploit": 0,
+          "nuclei": 0,
+          "poc_github": 1
+        },
+        "any_recorded_code_flag": true,
+        "missingness_note": "Recorded signals as of month end; a zero flag means no code recorded in this source, not that exploitation was impossible."
+      },
+      "retrospective_nvd_context": {
+        "description": "It was discovered that a nft object or expression could reference a nft set on a different nft table, leading to a use-after-free once that table was deleted.",
+        "assigner": "security@ubuntu.com",
+        "cvss3_score": 7.8,
+        "cvss3_severity": "HIGH",
+        "cvss4_score": null,
+        "cwe_ids": "CWE-416",
+        "attack_vector": "LOCAL",
+        "attack_complexity": "LOW",
+        "privileges_required": "LOW",
+        "user_interaction": "NONE"
+      },
+      "retrospective_nvd_warning": "Current-version NIST data. Description, CVSS, CWE and attack fields may have been revised after the snapshot; do not claim they were known then.",
+      "confirmed_historical_outcome": {
+        "published": "2024-01-08",
+        "kev_added": "2024-06-26",
+        "days_published_to_kev": 170,
+        "catalog": {
+          "product": "Kernel",
+          "known_ransomware_use": "Unknown",
+          "vendor": "Linux",
+          "name": "Linux Kernel Use-After-Free Vulnerability"
+        },
+        "label": "Historical KEV addition under the November 4 publication-year cutoff. Not a 2026 outcome."
+      },
+      "fold": 0,
+      "kev_group": "linux-nftables",
+      "evidence_backed_notes": [
+        "Ensemble rank 532 is 15 places outside the top 517. Following the existing order would review it after 14 other extra CVEs.",
+        "Individual competition ranks, with rank 1 best: logistic_regression 2,278 (percentile 0.9697); granite_lora 910 (percentile 0.9879); lightgbm 1,550 (percentile 0.9794). Percentile range 0.0182; upside of the leading model over the mean 0.0089.",
+        "Not eligible for the single-model-dissent pool: no model ranked it inside its own top 517. Best-voter extra-review position 1,534. Upside-gap position 74,262. Percentile-range position 74,290.",
+        "Snapshot 2024-01 (epss_v3) has a monthly signal row. EPSS 0.00044; within-month EPSS percentile 10.91. Code flags: exploitdb=0, metasploit=0, nuclei=0, poc_github=1. A zero flag means that source had no recorded code, not that exploitation was impossible.",
+        "Historical KEV addition date 2024-06-26, 170 days after publication. That date is an outcome. It was not a model input.",
+        "This CVE is in hand-built related group 'linux-nftables'. Hits in the same group are not independent events."
+      ],
+      "uncertainties": [
+        "A rank gap is an observed difference among three scores. It does not identify which feature caused a model to score the CVE higher.",
+        "Current NIST description and CVSS fields may have been edited after the snapshot.",
+        "Absence of a monthly signal row, or a zero exploit-code flag, is not proof that no exploit existed.",
+        "Not being in KEV by the cutoff is not claimed for the comparison CVEs; this case is one of the 43 confirmed misses.",
+        "Whether a secondary rule would have queued this CVE is a historical recount, not a prospective trial."
+      ]
+    },
+    {
+      "cve_id": "CVE-2024-27348",
+      "demonstration_priority": 1,
+      "tags": [
+        "Missed positive that the pre-specified single-model-dissent rule would reach first.",
+        "Missed positive whose extra-review position improves the most under the single-model-dissent rule instead of the ensemble order."
+      ],
+      "ensemble_rank": 7734,
+      "top_k": 517,
+      "individual_model_ranks": {
+        "logistic_regression": {
+          "column": "lr_full_llmx_noemb",
+          "rank": 1601,
+          "percentile_rank": 0.978708681535104,
+          "inside_original_top_k": false
+        },
+        "granite_lora": {
+          "column": "lora_control",
+          "rank": 35959,
+          "percentile_rank": 0.5215042316495448,
+          "inside_original_top_k": false
+        },
+        "lightgbm": {
+          "column": "lgbm_luis_only",
+          "rank": 472,
+          "percentile_rank": 0.993725714589876,
+          "inside_original_top_k": true
+        }
+      },
+      "disagreement": {
+        "best_model": "lightgbm",
+        "best_rank": 472,
+        "percentile_range": 0.47222148294033117,
+        "percentile_std_ddof0": 0.21915356088249333,
+        "upside_gap": 0.16241283866503442,
+        "neighbor_share_with_smaller_range": 0.988,
+        "neighbor_share_with_smaller_upside": 0.986
+      },
+      "extra_review_positions": {
+        "expanded_ensemble": 7217,
+        "single_model_dissent": 80,
+        "best_voter_percentile": 639,
+        "individual_logistic_regression": 1159,
+        "individual_granite_lora": 35442,
+        "individual_lightgbm": 237,
+        "upside_gap": 29343,
+        "percentile_range": 14639,
+        "sparse_or_missing_best_voter": 478,
+        "recorded_zero_flags_best_voter": 433
+      },
+      "included_under_additional_budget": {
+        "50": {
+          "expanded_ensemble": false,
+          "single_model_dissent": false,
+          "best_voter_percentile": false,
+          "upside_gap": false,
+          "percentile_range": false,
+          "individual_logistic_regression": false,
+          "individual_granite_lora": false,
+          "individual_lightgbm": false
+        },
+        "100": {
+          "expanded_ensemble": false,
+          "single_model_dissent": true,
+          "best_voter_percentile": false,
+          "upside_gap": false,
+          "percentile_range": false,
+          "individual_logistic_regression": false,
+          "individual_granite_lora": false,
+          "individual_lightgbm": false
+        },
+        "250": {
+          "expanded_ensemble": false,
+          "single_model_dissent": true,
+          "best_voter_percentile": false,
+          "upside_gap": false,
+          "percentile_range": false,
+          "individual_logistic_regression": false,
+          "individual_granite_lora": false,
+          "individual_lightgbm": true
+        },
+        "500": {
+          "expanded_ensemble": false,
+          "single_model_dissent": true,
+          "best_voter_percentile": false,
+          "upside_gap": false,
+          "percentile_range": false,
+          "individual_logistic_regression": false,
+          "individual_granite_lora": false,
+          "individual_lightgbm": true
+        }
+      },
+      "snapshot_signals": {
+        "snapshot_month": "2024-04",
+        "epss_era": "epss_v3",
+        "record_present": true,
+        "epss": 0.00043,
+        "epss_percentile_within_observed_month": 9.15,
+        "code_flags": {
+          "exploitdb": 0,
+          "metasploit": 0,
+          "nuclei": 0,
+          "poc_github": 0
+        },
+        "any_recorded_code_flag": false,
+        "missingness_note": "Recorded signals as of month end; a zero flag means no code recorded in this source, not that exploitation was impossible."
+      },
+      "retrospective_nvd_context": {
+        "description": "RCE-Remote Command Execution vulnerability in Apache HugeGraph-Server.This issue affects Apache HugeGraph-Server: from 1.0.0 before 1.3.0 in Java8 & Java11 Users are recommended to upgrade to version 1.3.0 with Java11 & enable the Auth system, which fixes the issue.",
+        "assigner": "security@apache.org",
+        "cvss3_score": 9.8,
+        "cvss3_severity": "CRITICAL",
+        "cvss4_score": null,
+        "cwe_ids": "CWE-284",
+        "attack_vector": "NETWORK",
+        "attack_complexity": "LOW",
+        "privileges_required": "NONE",
+        "user_interaction": "NONE"
+      },
+      "retrospective_nvd_warning": "Current-version NIST data. Description, CVSS, CWE and attack fields may have been revised after the snapshot; do not claim they were known then.",
+      "confirmed_historical_outcome": {
+        "published": "2024-04-22",
+        "kev_added": "2024-09-18",
+        "days_published_to_kev": 149,
+        "catalog": {
+          "product": "HugeGraph-Server",
+          "known_ransomware_use": "Unknown",
+          "vendor": "Apache",
+          "name": "Apache HugeGraph-Server Improper Access Control Vulnerability"
+        },
+        "label": "Historical KEV addition under the November 4 publication-year cutoff. Not a 2026 outcome."
+      },
+      "fold": 0,
+      "kev_group": null,
+      "evidence_backed_notes": [
+        "Ensemble rank 7,734 is 7,217 places outside the top 517. Following the existing order would review it after 7,216 other extra CVEs.",
+        "Individual competition ranks, with rank 1 best: logistic_regression 1,601 (percentile 0.9787); granite_lora 35,959 (percentile 0.5215); lightgbm 472 (percentile 0.9937, inside top 517). Percentile range 0.4722; upside of the leading model over the mean 0.1624.",
+        "Single-model-dissent extra-review position 80. Best-voter extra-review position 639. Upside-gap position 29,343. Percentile-range position 14,639.",
+        "Snapshot 2024-04 (epss_v3) has a monthly signal row. EPSS 0.00043; within-month EPSS percentile 9.15. Code flags: exploitdb=0, metasploit=0, nuclei=0, poc_github=0. A zero flag means that source had no recorded code, not that exploitation was impossible.",
+        "Historical KEV addition date 2024-09-18, 149 days after publication. That date is an outcome. It was not a model input."
+      ],
+      "uncertainties": [
+        "A rank gap is an observed difference among three scores. It does not identify which feature caused a model to score the CVE higher.",
+        "Current NIST description and CVSS fields may have been edited after the snapshot.",
+        "Absence of a monthly signal row, or a zero exploit-code flag, is not proof that no exploit existed.",
+        "Not being in KEV by the cutoff is not claimed for the comparison CVEs; this case is one of the 43 confirmed misses.",
+        "Whether a secondary rule would have queued this CVE is a historical recount, not a prospective trial."
+      ]
+    },
+    {
+      "cve_id": "CVE-2024-57968",
+      "demonstration_priority": 3,
+      "tags": [
+        "Consensus failure: even the most favorable individual model ranked this missed positive poorly.",
+        "Deepest missed positive by ensemble rank."
+      ],
+      "ensemble_rank": 48002,
+      "top_k": 517,
+      "individual_model_ranks": {
+        "logistic_regression": {
+          "column": "lr_full_llmx_noemb",
+          "rank": 28707,
+          "percentile_rank": 0.6180071325916857,
+          "inside_original_top_k": false
+        },
+        "granite_lora": {
+          "column": "lora_control",
+          "rank": 66031,
+          "percentile_rank": 0.12133390110182574,
+          "inside_original_top_k": false
+        },
+        "lightgbm": {
+          "column": "lgbm_luis_only",
+          "rank": 40609,
+          "percentile_rank": 0.45962633736094105,
+          "inside_original_top_k": false
+        }
+      },
+      "disagreement": {
+        "best_model": "logistic_regression",
+        "best_rank": 28707,
+        "percentile_range": 0.49667323148986,
+        "percentile_std_ddof0": 0.20715280125405838,
+        "upside_gap": 0.21835134224020153,
+        "neighbor_share_with_smaller_range": 0.676,
+        "neighbor_share_with_smaller_upside": 0.572
+      },
+      "extra_review_positions": {
+        "expanded_ensemble": 47485,
+        "best_voter_percentile": 44982,
+        "individual_logistic_regression": 28190,
+        "individual_granite_lora": 65514,
+        "individual_lightgbm": 40092,
+        "upside_gap": 16104,
+        "percentile_range": 12623,
+        "sparse_or_missing_best_voter": 43654,
+        "recorded_zero_flags_best_voter": 40457
+      },
+      "included_under_additional_budget": {
+        "50": {
+          "expanded_ensemble": false,
+          "best_voter_percentile": false,
+          "upside_gap": false,
+          "percentile_range": false,
+          "individual_logistic_regression": false,
+          "individual_granite_lora": false,
+          "individual_lightgbm": false
+        },
+        "100": {
+          "expanded_ensemble": false,
+          "best_voter_percentile": false,
+          "upside_gap": false,
+          "percentile_range": false,
+          "individual_logistic_regression": false,
+          "individual_granite_lora": false,
+          "individual_lightgbm": false
+        },
+        "250": {
+          "expanded_ensemble": false,
+          "best_voter_percentile": false,
+          "upside_gap": false,
+          "percentile_range": false,
+          "individual_logistic_regression": false,
+          "individual_granite_lora": false,
+          "individual_lightgbm": false
+        },
+        "500": {
+          "expanded_ensemble": false,
+          "best_voter_percentile": false,
+          "upside_gap": false,
+          "percentile_range": false,
+          "individual_logistic_regression": false,
+          "individual_granite_lora": false,
+          "individual_lightgbm": false
+        }
+      },
+      "snapshot_signals": {
+        "snapshot_month": "2025-02",
+        "epss_era": "epss_v3",
+        "record_present": true,
+        "epss": 0.00045,
+        "epss_percentile_within_observed_month": 18.77,
+        "code_flags": {
+          "exploitdb": 0,
+          "metasploit": 0,
+          "nuclei": 0,
+          "poc_github": 0
+        },
+        "any_recorded_code_flag": false,
+        "missingness_note": "Recorded signals as of month end; a zero flag means no code recorded in this source, not that exploitation was impossible."
+      },
+      "retrospective_nvd_context": {
+        "description": "Advantive VeraCore before 2024.4.2.1 allows remote authenticated users to upload files to unintended folders (e.g., ones that are accessible during web browsing by other users). upload.aspx can be used for this.",
+        "assigner": "cve@mitre.org",
+        "cvss3_score": 8.8,
+        "cvss3_severity": "HIGH",
+        "cvss4_score": null,
+        "cwe_ids": "CWE-434",
+        "attack_vector": "NETWORK",
+        "attack_complexity": "LOW",
+        "privileges_required": "LOW",
+        "user_interaction": "NONE"
+      },
+      "retrospective_nvd_warning": "Current-version NIST data. Description, CVSS, CWE and attack fields may have been revised after the snapshot; do not claim they were known then.",
+      "confirmed_historical_outcome": {
+        "published": "2025-02-03",
+        "kev_added": "2025-03-10",
+        "days_published_to_kev": 35,
+        "catalog": {
+          "product": "VeraCore",
+          "known_ransomware_use": "Unknown",
+          "vendor": "Advantive",
+          "name": "Advantive VeraCore Unrestricted File Upload Vulnerability"
+        },
+        "label": "Historical KEV addition under the November 4 publication-year cutoff. Not a 2026 outcome."
+      },
+      "fold": 2,
+      "kev_group": "veracore",
+      "evidence_backed_notes": [
+        "Ensemble rank 48,002 is 47,485 places outside the top 517. Following the existing order would review it after 47,484 other extra CVEs.",
+        "Individual competition ranks, with rank 1 best: logistic_regression 28,707 (percentile 0.6180); granite_lora 66,031 (percentile 0.1213); lightgbm 40,609 (percentile 0.4596). Percentile range 0.4967; upside of the leading model over the mean 0.2184.",
+        "Not eligible for the single-model-dissent pool: no model ranked it inside its own top 517. Best-voter extra-review position 44,982. Upside-gap position 16,104. Percentile-range position 12,623.",
+        "Snapshot 2025-02 (epss_v3) has a monthly signal row. EPSS 0.00045; within-month EPSS percentile 18.77. Code flags: exploitdb=0, metasploit=0, nuclei=0, poc_github=0. A zero flag means that source had no recorded code, not that exploitation was impossible.",
+        "Historical KEV addition date 2025-03-10, 35 days after publication. That date is an outcome. It was not a model input.",
+        "This CVE is in hand-built related group 'veracore'. Hits in the same group are not independent events."
+      ],
+      "uncertainties": [
+        "A rank gap is an observed difference among three scores. It does not identify which feature caused a model to score the CVE higher.",
+        "Current NIST description and CVSS fields may have been edited after the snapshot.",
+        "Absence of a monthly signal row, or a zero exploit-code flag, is not proof that no exploit existed.",
+        "Not being in KEV by the cutoff is not claimed for the comparison CVEs; this case is one of the 43 confirmed misses.",
+        "Whether a secondary rule would have queued this CVE is a historical recount, not a prospective trial."
+      ]
+    },
+    {
+      "cve_id": "CVE-2025-6554",
+      "demonstration_priority": null,
+      "tags": [
+        "Motivating example supplied with the research question: one model is much closer to the cutoff than the ensemble."
+      ],
+      "ensemble_rank": 1930,
+      "top_k": 517,
+      "individual_model_ranks": {
+        "logistic_regression": {
+          "column": "lr_full_llmx_noemb",
+          "rank": 629,
+          "percentile_rank": 0.9916431575025283,
+          "inside_original_top_k": false
+        },
+        "granite_lora": {
+          "column": "lora_control",
+          "rank": 6299,
+          "percentile_rank": 0.916158780007452,
+          "inside_original_top_k": false
+        },
+        "lightgbm": {
+          "column": "lgbm_luis_only",
+          "rank": 7269,
+          "percentile_rank": 0.9032841858732102,
+          "inside_original_top_k": false
+        }
+      },
+      "disagreement": {
+        "best_model": "logistic_regression",
+        "best_rank": 629,
+        "percentile_range": 0.08835897162931805,
+        "percentile_std_ddof0": 0.038974285379139224,
+        "upside_gap": 0.05461444970813134,
+        "neighbor_share_with_smaller_range": 0.506,
+        "neighbor_share_with_smaller_upside": 0.832
+      },
+      "extra_review_positions": {
+        "expanded_ensemble": 1413,
+        "best_voter_percentile": 942,
+        "individual_logistic_regression": 333,
+        "individual_granite_lora": 5782,
+        "individual_lightgbm": 6752,
+        "upside_gap": 64029,
+        "percentile_range": 67661,
+        "sparse_or_missing_best_voter": 721
+      },
+      "included_under_additional_budget": {
+        "50": {
+          "expanded_ensemble": false,
+          "best_voter_percentile": false,
+          "upside_gap": false,
+          "percentile_range": false,
+          "individual_logistic_regression": false,
+          "individual_granite_lora": false,
+          "individual_lightgbm": false
+        },
+        "100": {
+          "expanded_ensemble": false,
+          "best_voter_percentile": false,
+          "upside_gap": false,
+          "percentile_range": false,
+          "individual_logistic_regression": false,
+          "individual_granite_lora": false,
+          "individual_lightgbm": false
+        },
+        "250": {
+          "expanded_ensemble": false,
+          "best_voter_percentile": false,
+          "upside_gap": false,
+          "percentile_range": false,
+          "individual_logistic_regression": false,
+          "individual_granite_lora": false,
+          "individual_lightgbm": false
+        },
+        "500": {
+          "expanded_ensemble": false,
+          "best_voter_percentile": false,
+          "upside_gap": false,
+          "percentile_range": false,
+          "individual_logistic_regression": true,
+          "individual_granite_lora": false,
+          "individual_lightgbm": false
+        }
+      },
+      "snapshot_signals": {
+        "snapshot_month": "2025-06",
+        "epss_era": "epss_v4",
+        "record_present": false,
+        "epss": null,
+        "epss_percentile_within_observed_month": null,
+        "code_flags": {
+          "exploitdb": 0,
+          "metasploit": 0,
+          "nuclei": 0,
+          "poc_github": 0
+        },
+        "any_recorded_code_flag": false,
+        "missingness_note": "No monthly record was present; score missing and flags default to zero. This is not proof of no public exploit or no attack."
+      },
+      "retrospective_nvd_context": {
+        "description": "Type confusion in V8 in Google Chrome prior to 138.0.7204.96 allowed a remote attacker to perform arbitrary read/write via a crafted HTML page. (Chromium security severity: High)",
+        "assigner": "chrome-cve-admin@google.com",
+        "cvss3_score": 8.1,
+        "cvss3_severity": "HIGH",
+        "cvss4_score": null,
+        "cwe_ids": "CWE-843",
+        "attack_vector": "NETWORK",
+        "attack_complexity": "LOW",
+        "privileges_required": "NONE",
+        "user_interaction": "REQUIRED"
+      },
+      "retrospective_nvd_warning": "Current-version NIST data. Description, CVSS, CWE and attack fields may have been revised after the snapshot; do not claim they were known then.",
+      "confirmed_historical_outcome": {
+        "published": "2025-06-30",
+        "kev_added": "2025-07-02",
+        "days_published_to_kev": 2,
+        "catalog": {
+          "product": "Chromium V8",
+          "known_ransomware_use": "Unknown",
+          "vendor": "Google",
+          "name": "Google Chromium V8 Type Confusion Vulnerability"
+        },
+        "label": "Historical KEV addition under the November 4 publication-year cutoff. Not a 2026 outcome."
+      },
+      "fold": 4,
+      "kev_group": null,
+      "evidence_backed_notes": [
+        "Ensemble rank 1,930 is 1,413 places outside the top 517. Following the existing order would review it after 1,412 other extra CVEs.",
+        "Individual competition ranks, with rank 1 best: logistic_regression 629 (percentile 0.9916); granite_lora 6,299 (percentile 0.9162); lightgbm 7,269 (percentile 0.9033). Percentile range 0.0884; upside of the leading model over the mean 0.0546.",
+        "Not eligible for the single-model-dissent pool: no model ranked it inside its own top 517. Best-voter extra-review position 942. Upside-gap position 64,029. Percentile-range position 67,661.",
+        "Snapshot 2025-06 (epss_v4) has no monthly signal row. EPSS and the code flags are missing. The benchmark convention stores flags as zero in that case; that default is not evidence that exploit code was absent.",
+        "Historical KEV addition date 2025-07-02, 2 days after publication. That date is an outcome. It was not a model input."
+      ],
+      "uncertainties": [
+        "A rank gap is an observed difference among three scores. It does not identify which feature caused a model to score the CVE higher.",
+        "Current NIST description and CVSS fields may have been edited after the snapshot.",
+        "Absence of a monthly signal row, or a zero exploit-code flag, is not proof that no exploit existed.",
+        "Not being in KEV by the cutoff is not claimed for the comparison CVEs; this case is one of the 43 confirmed misses.",
+        "Whether a secondary rule would have queued this CVE is a historical recount, not a prospective trial."
+      ]
+    },
+    {
+      "cve_id": "CVE-2025-9377",
+      "demonstration_priority": null,
+      "tags": [
+        "Missed positive with no recorded public exploit-code flag and the best individual rank in that sparse-signal group."
+      ],
+      "ensemble_rank": 619,
+      "top_k": 517,
+      "individual_model_ranks": {
+        "logistic_regression": {
+          "column": "lr_full_llmx_noemb",
+          "rank": 623,
+          "percentile_rank": 0.9917229999467717,
+          "inside_original_top_k": false
+        },
+        "granite_lora": {
+          "column": "lora_control",
+          "rank": 4718,
+          "percentile_rank": 0.9372039176025976,
+          "inside_original_top_k": false
+        },
+        "lightgbm": {
+          "column": "lgbm_luis_only",
+          "rank": 53,
+          "percentile_rank": 0.9993080321498908,
+          "inside_original_top_k": true
+        }
+      },
+      "disagreement": {
+        "best_model": "lightgbm",
+        "best_rank": 53,
+        "percentile_range": 0.062104114547293254,
+        "percentile_std_ddof0": 0.027662216704130556,
+        "upside_gap": 0.023229715583470756,
+        "neighbor_share_with_smaller_range": 0.8888888888888888,
+        "neighbor_share_with_smaller_upside": 0.7891737891737892
+      },
+      "extra_review_positions": {
+        "expanded_ensemble": 102,
+        "single_model_dissent": 642,
+        "best_voter_percentile": 41,
+        "individual_logistic_regression": 328,
+        "individual_granite_lora": 4201,
+        "individual_lightgbm": 14,
+        "upside_gap": 72125,
+        "percentile_range": 70788,
+        "sparse_or_missing_best_voter": 34,
+        "recorded_zero_flags_best_voter": 32
+      },
+      "included_under_additional_budget": {
+        "50": {
+          "expanded_ensemble": false,
+          "single_model_dissent": false,
+          "best_voter_percentile": true,
+          "upside_gap": false,
+          "percentile_range": false,
+          "individual_logistic_regression": false,
+          "individual_granite_lora": false,
+          "individual_lightgbm": true
+        },
+        "100": {
+          "expanded_ensemble": false,
+          "single_model_dissent": false,
+          "best_voter_percentile": true,
+          "upside_gap": false,
+          "percentile_range": false,
+          "individual_logistic_regression": false,
+          "individual_granite_lora": false,
+          "individual_lightgbm": true
+        },
+        "250": {
+          "expanded_ensemble": true,
+          "single_model_dissent": false,
+          "best_voter_percentile": true,
+          "upside_gap": false,
+          "percentile_range": false,
+          "individual_logistic_regression": false,
+          "individual_granite_lora": false,
+          "individual_lightgbm": true
+        },
+        "500": {
+          "expanded_ensemble": true,
+          "single_model_dissent": false,
+          "best_voter_percentile": true,
+          "upside_gap": false,
+          "percentile_range": false,
+          "individual_logistic_regression": true,
+          "individual_granite_lora": false,
+          "individual_lightgbm": true
+        }
+      },
+      "snapshot_signals": {
+        "snapshot_month": "2025-08",
+        "epss_era": "epss_v4",
+        "record_present": true,
+        "epss": 0.00452,
+        "epss_percentile_within_observed_month": 62.83,
+        "code_flags": {
+          "exploitdb": 0,
+          "metasploit": 0,
+          "nuclei": 0,
+          "poc_github": 0
+        },
+        "any_recorded_code_flag": false,
+        "missingness_note": "Recorded signals as of month end; a zero flag means no code recorded in this source, not that exploitation was impossible."
+      },
+      "retrospective_nvd_context": {
+        "description": "The authenticated remote command execution (RCE) vulnerability exists in the Parental Control page on TP-Link Archer C7(EU) V2 and TL-WR841N/ND(MS) V9. This issue affects Archer C7(EU) V2: before 241108 and TL-WR841N/ND(MS) V9: before 241108. Both products have reached the status of EOL (end-of-life). It's recommending to purchase the new product to ensure better performance and security. If replacement is not an option in the short term, please use the second reference link to download and install the patch(es).",
+        "assigner": "f23511db-6c3e-4e32-a477-6aa17d310630",
+        "cvss3_score": 7.2,
+        "cvss3_severity": "HIGH",
+        "cvss4_score": 8.6,
+        "cwe_ids": "CWE-78",
+        "attack_vector": "NETWORK",
+        "attack_complexity": "LOW",
+        "privileges_required": "HIGH",
+        "user_interaction": "NONE"
+      },
+      "retrospective_nvd_warning": "Current-version NIST data. Description, CVSS, CWE and attack fields may have been revised after the snapshot; do not claim they were known then.",
+      "confirmed_historical_outcome": {
+        "published": "2025-08-29",
+        "kev_added": "2025-09-03",
+        "days_published_to_kev": 5,
+        "catalog": {
+          "product": "Multiple Routers",
+          "known_ransomware_use": "Unknown",
+          "vendor": "TP-Link",
+          "name": "TP-Link Archer C7(EU) and TL-WR841N/ND(MS) OS Command Injection Vulnerability"
+        },
+        "label": "Historical KEV addition under the November 4 publication-year cutoff. Not a 2026 outcome."
+      },
+      "fold": 4,
+      "kev_group": "tplink-wr841n",
+      "evidence_backed_notes": [
+        "Ensemble rank 619 is 102 places outside the top 517. Following the existing order would review it after 101 other extra CVEs.",
+        "Individual competition ranks, with rank 1 best: logistic_regression 623 (percentile 0.9917); granite_lora 4,718 (percentile 0.9372); lightgbm 53 (percentile 0.9993, inside top 517). Percentile range 0.0621; upside of the leading model over the mean 0.0232.",
+        "Single-model-dissent extra-review position 642. Best-voter extra-review position 41. Upside-gap position 72,125. Percentile-range position 70,788.",
+        "Snapshot 2025-08 (epss_v4) has a monthly signal row. EPSS 0.00452; within-month EPSS percentile 62.83. Code flags: exploitdb=0, metasploit=0, nuclei=0, poc_github=0. A zero flag means that source had no recorded code, not that exploitation was impossible.",
+        "Historical KEV addition date 2025-09-03, 5 days after publication. That date is an outcome. It was not a model input.",
+        "This CVE is in hand-built related group 'tplink-wr841n'. Hits in the same group are not independent events."
+      ],
+      "uncertainties": [
+        "A rank gap is an observed difference among three scores. It does not identify which feature caused a model to score the CVE higher.",
+        "Current NIST description and CVSS fields may have been edited after the snapshot.",
+        "Absence of a monthly signal row, or a zero exploit-code flag, is not proof that no exploit existed.",
+        "Not being in KEV by the cutoff is not claimed for the comparison CVEs; this case is one of the 43 confirmed misses.",
+        "Whether a secondary rule would have queued this CVE is a historical recount, not a prospective trial."
+      ]
+    }
+  ]
+}

@@ -1,4 +1,4 @@
-"""One command to build the team's final 2026 ranking: luis/submissions/top500_final.csv.
+"""One command to build the team's final 2026 ranking: top500.csv.
 
 Voters (equal-weight rank average), chosen from the A/B results and the statistical review (context_Luis.md §14.8-14.13):
   tree    XGBoost big on Luis's features, 40 seeds averaged (8 GPU runs x 5 seeds) for a stable top-500 boundary
@@ -10,7 +10,8 @@ Then the 4 Granite-30B demotion filters (validated on training years; §14.10) a
 Optional inputs from Chen (columns exactly as listed; higher score = more likely to reach KEV):
   chen/submissions/lora8b_scoreboard_2026.parquet   cve_id, lora_score
   chen/submissions/lr_best_scoreboard_2026.parquet  cve_id, lr_score
-Outputs: derived/xgb_bag_2026.parquet (cache), derived/scored_2026_final.csv, submissions/top500_final.csv,
+  chen/submissions/lr_unified_scoreboard_2026.parquet  cve_id, lr_score   (if present: the ONLY linear voter; §14.16)
+Outputs: derived/xgb_bag_2026.parquet (cache), derived/scored_2026_final.csv, root top500.csv,
          reports/final_build_info.txt, reports/top500_final_explained.csv, site/top500.json (hub table)
 
 Usage:  python -E -P luis/analysis/final_build.py
@@ -57,9 +58,15 @@ s26["tree"] = rank01(s26.xgb_bag)
 v4 = pd.read_csv(os.path.join(DER, "scored_2026_v4.csv"), usecols=["cve_id", "lr_pct"])   # Luis's LR, same recipe as v4
 s26 = s26.merge(v4, on="cve_id", how="left")
 chen_lr_path = os.path.join(CHEN, "submissions", "lr_best_scoreboard_2026.parquet")
+unified_path = os.path.join(CHEN, "submissions", "lr_unified_scoreboard_2026.parquet")   # context_Luis.md §14.16
 lora_path = os.path.join(CHEN, "submissions", "lora8b_scoreboard_2026.parquet")
 used = ["tree: XGBoost big, 40 seeds averaged"]
-if os.path.exists(chen_lr_path):
+if os.path.exists(unified_path):   # Chen pushes it only if it passed the decision rule in §14.16
+    u = pd.read_parquet(unified_path)[["cve_id", "lr_score"]].rename(columns={"lr_score": "lr_unified"})
+    s26 = s26.merge(u, on="cve_id", how="left")
+    s26["linear"] = rank01(s26.lr_unified.fillna(s26.lr_unified.min()))
+    used.append(f"linear: one unified LR with Luis's and Chen's features ({u.lr_unified.notna().sum():,} scores)")
+elif os.path.exists(chen_lr_path):
     c = pd.read_parquet(chen_lr_path)[["cve_id", "lr_score"]]
     s26 = s26.merge(c, on="cve_id", how="left")
     s26["linear"] = (rank01(s26.lr_pct) + rank01(s26.lr_score.fillna(s26.lr_score.min()))) / 2
@@ -73,7 +80,7 @@ if os.path.exists(lora_path):
     s26 = s26.merge(lo, on="cve_id", how="left")
     s26["llm"] = rank01(s26.lora_score.fillna(s26.lora_score.min()))
     voters.append("llm")
-    used.append(f"LLM: Chen's Granite 4.2 8B LoRA ({lo.lora_score.notna().sum():,} scores)")
+    used.append(f"LLM: Chen's Granite 4.2 8B LoRA, average of 4 training seeds ({lo.lora_score.notna().sum():,} scores)")
 else:
     used.append("LLM: Chen's LoRA file not found, so not included yet")
 
@@ -89,9 +96,10 @@ s26["rank_final"] = np.arange(1, len(s26) + 1)
 s26[["rank_final", "cve_id", "score_final"] + voters + ["granite_demoted", "snapshot_month", "assigner", "epss", "any_flag"]] \
     .to_csv(os.path.join(DER, "scored_2026_final.csv"), index=False)
 top = s26.head(500)
-top[["cve_id"]].to_csv(os.path.join(SUB, "top500_final.csv"), index=False)
+top[["cve_id"]].to_csv(os.path.join(REP, "..", "..", "top500.csv"), index=False)
 
-v4f = set(pd.read_csv(os.path.join(SUB, "top500_v4f.csv")).cve_id)
+v4f_path = os.path.join(SUB, "top500_v4f.csv")
+v4f = set(pd.read_csv(v4f_path).cve_id) if os.path.exists(v4f_path) else set()
 mix = top.snapshot_month.value_counts().sort_index().to_dict()
 info = [f"top500_final built {time.strftime('%Y-%m-%d %H:%M')}", "voters (equal-weight rank average): " + ", ".join(voters)] + \
        [f"  - {u}" for u in used] + \

@@ -1,0 +1,6 @@
+{
+ "scoreboard_rows": 72670,
+ "dossier": 500,
+ "nvd_matched": 500,
+ "build_info": "top500_final built 2026-11-07 20:41\nvoters (equal-weight rank average): tree, linear, llm\n  - tree: XGBoost big, 40 seeds averaged\n  - linear: average of Luis's LR and Chen's best LR (72,670 scores)\n  - LLM: Chen's Granite 4.2 8B LoRA, average of 4 training seeds (72,670 scores)\nthen: 4 Granite-30B demotion filters (DoS only, unlikely target, low appeal, WordPress), cap 3 per assigner-month\nrows 500 | unique 500 | with exploit code 259 | Oracle 19 | Granite-demoted inside top 500 0 | assigners 116 | max per assigner-month 3\nmonth mix {'2026-01': 36, '2026-02': 31, '2026-03': 46, '2026-04': 51, '2026-05': 61, '2026-07': 113, '2026-08': 91, '2026-09': 71}\noverlap with top500_v4f.csv: 290\n"
+}

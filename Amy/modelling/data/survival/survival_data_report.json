@@ -1,0 +1,37 @@
+{
+  "training": {
+    "candidates": 28839,
+    "observed_kev_events_to_dec31": 33,
+    "censored": 28806,
+    "cutoff": "2024-12-31"
+  },
+  "validation": {
+    "candidates": 35280,
+    "observed_kev_events_to_nov04": 48,
+    "observed_kev_events_to_dec31": 52,
+    "cutoffs": [
+      "2025-11-04",
+      "2025-12-31"
+    ]
+  },
+  "scoreboard": {
+    "candidates": 72670,
+    "prediction_deadline": "2026-11-04",
+    "minimum_horizon_days": 35,
+    "maximum_horizon_days": 277
+  },
+  "source_features_only": [
+    "epss",
+    "exploitdb",
+    "metasploit",
+    "nuclei",
+    "poc_github"
+  ],
+  "notes": [
+    "2024 training data contains no KEV additions after 2024-12-31.",
+    "2025 holdout labels are never used as training features.",
+    "Right-censored means not observed in KEV by cutoff, NOT never exploited.",
+    "The end of snapshot_month is time zero; June 2026 CVEs use July snapshots.",
+    "Do not pass event/duration/label columns to predictive feature engineering."
+  ]
+}
