@@ -883,7 +883,10 @@ footer { border-top-color: var(--line); color: var(--muted); }
     botnets: "botnets", opportunistic_criminals: "opportunistic criminals", unlikely_target: "unlikely target" };
   var hum = function (s) { return HUMAN[s] || String(s || "").replace(/_/g, " "); };
   function cat(r, k, i) { var v = r[i]; return v >= 0 ? META.cats[k][v] : null; }
-  function toProb(score) { var t = META.top500_min_score / 100, k = Math.log(0.7) / Math.log(t); return Math.max(0, Math.min(1, Math.pow(Math.max(score, 0) / 100, k))); }
+  function toProb(score) {   /* percentile vs 2026 bugs -> 0..1 bands: 0.7+ = Top-500 level, 0.4 = top 10%, 0.1 = median */
+    var T = META.top500_min_score, s = Math.max(0, Math.min(100, score)), lin = function (a, b, c, d) { return c + (s - a) / (b - a) * (d - c); };
+    return s >= T ? lin(T, 100, 0.7, 1) : s >= 90 ? lin(90, T, 0.4, 0.7) : s >= 50 ? lin(50, 90, 0.1, 0.4) : lin(0, 50, 0, 0.1);
+  }
   function reasonFor(r) {
     var s = r[0] / 10, parts = [], code = [], imp = cat(r, "impact", 6), att = cat(r, "typical_attacker", 8), app = cat(r, "attacker_appeal", 9);
     parts.push((r[1] & 1 ? "Would make our 2026 Top 500: " : "") + "riskier than " + Math.floor(s) + "% of 2026's new bugs");
@@ -916,7 +919,7 @@ footer { border-top-color: var(--line); color: var(--muted); }
         ids.forEach(function (id) {
           var e = cves[id], pkgs = Object.keys(e.pk).map(function (k) { return e.pk[k]; }), r = rec(id), base = { cve_id: id, packages: pkgs, published: String(e.v.published).slice(0, 10), description: e.v.summary };
           if (r && (r[1] & 4)) { kev.push(base); return; }
-          if (!r || r[0] < 0) { unscored++; rows.push(Object.assign(base, { score: -1, probability: 0, epss: null, flags: {}, demoted: false, demoted_reason: "",
+          if (!r || r[0] < 0) { unscored++; rows.push(Object.assign(base, { score: -999, probability: 0, epss: null, flags: {}, demoted: false, demoted_reason: "",
             reason: META.missing ? "Model scores are still being published; check back shortly." : "Not in the IBM dataset (published after the snapshot), so the model has no score for it yet.", unscored: true })); return; }
           var p = toProb(r[0] / 10), dem = !!(r[1] & 2);
           rows.push(Object.assign(base, { score: r[0] / 10 - (dem ? 50 : 0), probability: dem ? Math.min(p, 0.05) : p, epss: r[2] >= 0 ? r[2] / 1000 : null,
