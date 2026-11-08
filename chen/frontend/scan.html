@@ -456,7 +456,7 @@ footer { border-top-color: var(--line); color: var(--muted); }
 .rp-cases button small { display: block; font-size: .7rem; color: var(--text-2); }
 .rp-cases button[aria-selected="true"] { background: var(--ink); color: var(--panel); border-color: var(--ink); }
 .rp-cases button[aria-selected="true"] small { color: color-mix(in srgb, var(--panel) 75%, transparent); }
-.rp-time { position: relative; height: 128px; margin: 6px 6px 8px; }
+.rp-time { position: relative; height: 150px; margin: 22px 6px 8px; }
 .rp-line { position: absolute; left: 0; right: 0; top: 58px; height: 4px; border-radius: 2px; background: var(--soft); }
 .rp-warn { position: absolute; top: 56px; height: 8px; border-radius: 4px; background: linear-gradient(90deg, var(--ibm), var(--alert)); width: 0; transition: width 1.4s cubic-bezier(.3,.7,.2,1); }
 .rp-pt { position: absolute; top: 50px; width: 20px; height: 20px; margin-left: -10px; border-radius: 50%; border: 3px solid var(--panel); box-shadow: 0 0 0 2px currentColor; background: currentColor; opacity: 0; transition: opacity .4s; }
@@ -464,7 +464,7 @@ footer { border-top-color: var(--line); color: var(--muted); }
 .rp-cap { position: absolute; width: 190px; font-size: .78rem; color: var(--text-2); opacity: 0; transition: opacity .4s; }
 .rp-cap.on { opacity: 1; }
 .rp-cap b { display: block; color: var(--text); font-size: .9rem; }
-.rp-cap.up { top: 0; } .rp-cap.down { top: 78px; }
+.rp-cap.up { bottom: calc(100% - 44px); width: 250px; } .rp-cap.down { top: 78px; }   /* up: grows upward, never into the line */
 .rp-cap.l { transform: none; } .rp-cap.r { transform: translateX(-100%); text-align: right; } .rp-cap.c { transform: translateX(-50%); text-align: center; }
 .rp-days { position: absolute; top: 20px; transform: translateX(-50%); font-family: var(--display); font-stretch: 80%; font-weight: 800; font-size: 1.6rem; color: var(--alert); white-space: nowrap; opacity: 0; transition: opacity .4s; }
 .rp-days.on { opacity: 1; }
@@ -473,9 +473,9 @@ footer { border-top-color: var(--line); color: var(--muted); }
 .rp-axis { position: relative; height: 26px; border-bottom: 1px solid var(--line); }
 .rp-axis i { position: absolute; bottom: 4px; width: 9px; height: 9px; margin-left: -4.5px; border-radius: 50%; background: var(--alert); opacity: .45; }
 .rp-axis i.sel { opacity: 1; box-shadow: 0 0 0 3px var(--alert-soft); width: 13px; height: 13px; margin-left: -6.5px; bottom: 2px; }
-.rp-lab { display: flex; justify-content: space-between; font-size: .72rem; color: var(--text-3); margin-top: 4px; }
+.rp-lab { display: flex; justify-content: space-between; gap: 10px; font-size: .72rem; color: var(--text-3); margin-top: 4px; }
 .rp-note { font-size: .75rem; color: var(--text-3); margin: 12px 0 0; }
-@media (max-width: 760px) { .rp-stats { grid-template-columns: repeat(2, 1fr); } .rp-cap { width: 120px; } }
+@media (max-width: 760px) { .rp-stats { grid-template-columns: repeat(2, 1fr); } .rp-cap { width: 130px; } .rp-cap.up { width: 170px; } .rp-time { height: 190px; margin-top: 64px; } .rp-days { top: -58px; left: 50% !important; } }
 </style>
 
 <div id="splash" aria-hidden="true"><div class="sp-in">
