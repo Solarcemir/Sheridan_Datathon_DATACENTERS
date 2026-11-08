@@ -89,7 +89,13 @@ def run_scan(filename, text):
     cve_to_pkgs = {}   # a CVE can affect more than one scanned dependency; keep every match
     for name, vulns in osv.items():
         for v in vulns:
-            cve_to_pkgs.setdefault(v["cve_id"], []).append({"package": name, "version": deps[name], "fixed_in": v.get("fixed_in")})
+            pkgs = cve_to_pkgs.setdefault(v["cve_id"], {})
+            key = (name, deps[name])
+            # OSV sometimes reports the same CVE under two advisory ids (e.g. a GHSA and a PYSEC entry that
+            # both alias it) -- same package+version would otherwise show up twice in one row.
+            if key not in pkgs or (not pkgs[key]["fixed_in"] and v.get("fixed_in")):
+                pkgs[key] = {"package": name, "version": deps[name], "fixed_in": v.get("fixed_in")}
+    cve_to_pkgs = {cve_id: list(pkgs.values()) for cve_id, pkgs in cve_to_pkgs.items()}
     cve_ids = list(cve_to_pkgs)
 
     def resolve_meta(cve_id):
