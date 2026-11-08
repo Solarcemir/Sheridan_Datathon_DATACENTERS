@@ -1,441 +1,475 @@
+<meta charset="utf-8">
 <title>Breach Radar</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap">
 <style>
-/* Layout: enterprise product shell (dark header, square tiles, 1px seams), a scroll story in seven chapters;
-   charts are HTML/CSS bars on one scale each, the pipeline is a layered SVG network. */
+/* Design: one dark command-deck scene. The pipeline network IS the home screen (no boxed panel around it) with a
+   CSS 3D tilt/parallax stage. Every chapter (weights, what worked, raw signal, output profile, the book) lives in a
+   full-viewport glass modal, opened by a circular-reveal animation from wherever was clicked - a node, or the dock.
+   Single committed dark theme (color-scheme: dark everywhere) - intentional, not the default system toggle. */
 :root {
-  --bg: #f4f4f4; --layer: #ffffff; --layer-2: #f4f4f4; --hover: #e8e8e8;
-  --border: #e0e0e0; --border-2: #c6c6c6;
-  --text: #161616; --text-2: #525252; --text-3: #6f6f6f;
-  --accent: #0f62fe; --accent-ink: #0f62fe; --on-accent: #ffffff; --focus: #0f62fe;
-  --shell: #161616; --shell-text: #f4f4f4; --shell-2: #c6c6c6; --shell-line: #393939;
-  --s1: #0f62fe; --s2: #009d9a; --s3: #8a3ffc; --s4: #d02670; --s0: #8d8d8d;
-  --track: #e8e8e8; --grid: #e0e0e0;
-  --good: #198038; --bad: #da1e28;
+  color-scheme: dark;
+  --bg: #050507; --bg-deep: #020203;
+  --surface: #121219; --surface-2: #181821; --surface-3: #20202c;
+  --text: #f2f2f7; --text-2: #b9b9c8; --text-3: #7c7c90;
+  --line: rgba(255,255,255,.09); --line-2: rgba(255,255,255,.18);
+  --s1: #4589ff; --s2: #009d9a; --s3: #a56eff; --s4: #ee5396; --s0: #8d8d8d;
+  --track: #2b2b36; --good: #42be65; --bad: #fa4d56;
+  --focus: #ffffff;
   --sans: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
   --mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  --step--1: 0.75rem; --step-0: 0.875rem; --step-1: 1rem; --step-2: 1.25rem; --step-3: 1.75rem; --step-4: clamp(2rem, 4.6vw, 3.5rem);
-}
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --bg: #161616; --layer: #262626; --layer-2: #1f1f1f; --hover: #333333;
-    --border: #393939; --border-2: #525252;
-    --text: #f4f4f4; --text-2: #c6c6c6; --text-3: #a8a8a8;
-    --accent: #0f62fe; --accent-ink: #78a9ff; --on-accent: #ffffff; --focus: #ffffff;
-    --shell: #161616; --shell-text: #f4f4f4; --shell-2: #c6c6c6; --shell-line: #393939;
-    --s1: #4589ff; --s2: #009d9a; --s3: #a56eff; --s4: #ee5396; --s0: #8d8d8d;
-    --track: #393939; --grid: #393939;
-    --good: #42be65; --bad: #fa4d56;
-    color-scheme: dark;
-  }
-}
-:root[data-theme="dark"] {
-  --bg: #161616; --layer: #262626; --layer-2: #1f1f1f; --hover: #333333;
-  --border: #393939; --border-2: #525252;
-  --text: #f4f4f4; --text-2: #c6c6c6; --text-3: #a8a8a8;
-  --accent: #0f62fe; --accent-ink: #78a9ff; --on-accent: #ffffff; --focus: #ffffff;
-  --shell: #161616; --shell-text: #f4f4f4; --shell-2: #c6c6c6; --shell-line: #393939;
-  --s1: #4589ff; --s2: #009d9a; --s3: #a56eff; --s4: #ee5396; --s0: #8d8d8d;
-  --track: #393939; --grid: #393939;
-  --good: #42be65; --bad: #fa4d56;
-  color-scheme: dark;
+  --step--1: 0.72rem; --step-0: 0.84rem; --step-1: 0.97rem; --step-2: 1.2rem; --step-3: 1.7rem;
 }
 * { box-sizing: border-box; }
-body { background: var(--bg); color: var(--text); font-family: var(--sans); font-size: var(--step-0); line-height: 1.5; -webkit-font-smoothing: antialiased; }
-body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--shell); }
-a { color: var(--accent-ink); }
-:focus-visible { outline: 2px solid var(--focus); outline-offset: 1px; }
-.wrap { max-width: 1312px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+html, body { height: 100%; }
+body {
+  margin: 0; background: var(--bg-deep); color: var(--text); font-family: var(--sans); font-size: var(--step-0);
+  line-height: 1.45; -webkit-font-smoothing: antialiased; overflow-x: hidden;
+}
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 60; background: var(--bg-deep); }
+a { color: #9cbcff; }
+:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; border-radius: 2px; }
 .mono { font-family: var(--mono); }
-.num { font-variant-numeric: tabular-nums; }
-h1, h2, h3 { text-wrap: balance; margin: 0; font-weight: 300; }
+h1, h2, h3 { text-wrap: balance; margin: 0; font-weight: 400; }
 p { margin: 0; }
+.vh { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; }
 
-/* ---- shell header */
-.shell { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 9; background: var(--shell); color: var(--shell-text); border-bottom: 1px solid var(--shell-line); }
-.shell .wrap { display: flex; align-items: center; gap: 24px; height: 48px; }
-.brand { display: flex; align-items: baseline; gap: 8px; white-space: nowrap; font-size: var(--step-0); }
-.brand b { font-weight: 600; letter-spacing: 0.01em; }
-.brand span { color: var(--shell-2); font-weight: 400; }
-.chapters { display: flex; gap: 0; overflow-x: auto; scrollbar-width: none; margin-left: auto; height: 100%; }
-.chapters::-webkit-scrollbar { display: none; }
-.chapters a { display: flex; align-items: center; padding: 0 14px; color: var(--shell-2); text-decoration: none; font-size: var(--step--1); white-space: nowrap; border-bottom: 2px solid transparent; }
-.chapters a:hover { color: var(--shell-text); background: #262626; }
-.chapters a.on { color: var(--shell-text); border-bottom-color: #4589ff; }
-@media (max-width: 720px) { .brand span { display: none; } .shell .wrap { gap: 8px; } }
+/* ---- the scene (everything but the modals) */
+#scene {
+  min-height: 100svh; display: flex; flex-direction: column;
+  padding: max(14px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) 96px max(16px, env(safe-area-inset-left));
+  position: relative; isolation: isolate;
+}
+#scene[inert] { pointer-events: none; }
+.scene-glow { position: fixed; inset: 0; z-index: -1; pointer-events: none;
+  background:
+    radial-gradient(900px 500px at 18% -8%, rgba(69,137,255,.16), transparent 60%),
+    radial-gradient(800px 460px at 88% 6%, rgba(165,110,255,.13), transparent 60%),
+    radial-gradient(1000px 700px at 50% 108%, rgba(0,157,154,.10), transparent 60%),
+    var(--bg-deep);
+}
 
-/* ---- sections */
-section { border-bottom: 1px solid var(--border); }
-section > .wrap { padding-block: 56px; display: grid; gap: 28px; }
-.band { background: var(--layer); }
-.eyebrow { font-family: var(--mono); font-size: var(--step--1); color: var(--text-3); letter-spacing: 0.06em; text-transform: uppercase; }
-.head { display: grid; gap: 10px; max-width: 74ch; }
-.head h2 { font-size: var(--step-3); line-height: 1.2; }
-.lede { color: var(--text-2); font-size: var(--step-1); max-width: 68ch; }
-.grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 520px), 1fr)); gap: 1px; background: var(--border); border: 1px solid var(--border); }
-.grid-2.stack { grid-template-columns: minmax(0, 1fr); }
-.grid-2.stack #ladder { max-width: 860px; }
-.grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 360px), 1fr)); gap: 1px; background: var(--border); border: 1px solid var(--border); }
-.tile { background: var(--layer); padding: 20px; display: grid; gap: 14px; align-content: start; min-width: 0; }
-.band .tile { background: var(--layer-2); }
-.tile h3 { font-size: var(--step-1); font-weight: 500; }
-.tile .sub { color: var(--text-2); font-size: var(--step--1); }
-.note { color: var(--text-3); font-size: var(--step--1); }
-.takeaway { border-left: 3px solid var(--accent); padding: 2px 0 2px 12px; color: var(--text); font-size: var(--step-0); }
+/* ---- header */
+.hud { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+.brand { display: flex; align-items: center; gap: 9px; }
+.brand .mk { width: 9px; height: 9px; background: var(--s1); border-radius: 2px; box-shadow: 0 0 14px 2px rgba(69,137,255,.75); flex: none; }
+.brand b { font-weight: 600; font-size: var(--step-1); letter-spacing: 0.02em; }
+.brand span { color: var(--text-3); font-size: var(--step--1); font-family: var(--mono); }
+.hud-readout { display: flex; gap: 20px; flex-wrap: wrap; text-align: right; }
+.hud-readout div { display: grid; gap: 1px; }
+.hud-readout b { font-family: var(--mono); font-size: 1.1rem; font-weight: 500; font-variant-numeric: tabular-nums;
+  color: var(--text); text-shadow: 0 0 20px rgba(69,137,255,.35); }
+.hud-readout i { font-style: normal; color: var(--text-3); font-size: 0.64rem; letter-spacing: 0.04em; text-transform: uppercase; }
+@media (max-width: 720px) { .brand span { display: none; } .hud-readout { display: none; } }
 
-/* ---- hero */
-.hero .wrap { padding-block: 64px 48px; }
-.hero h1 { font-size: var(--step-4); line-height: 1.08; letter-spacing: -0.01em; max-width: 18ch; }
-.kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr)); gap: 1px; background: var(--border); border: 1px solid var(--border); }
-.kpi { background: var(--layer); padding: 18px 20px 20px; display: grid; gap: 6px; }
-.kpi .v { font-size: 2.5rem; font-weight: 300; line-height: 1.1; }
-.kpi .l { color: var(--text-2); font-size: var(--step--1); max-width: 30ch; }
-.kpi.hl .v { color: var(--accent-ink); }
+/* ---- hero line */
+.hero { padding: 22px 2px 6px; max-width: 62ch; }
+.hero h1 { font-size: var(--step-3); font-weight: 300; letter-spacing: -0.01em; }
+.hero h1 b { font-weight: 500; color: #cfe0ff; }
+.hero p { color: var(--text-2); font-size: var(--step-0); margin-top: 6px; }
+.row-meta { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; padding: 10px 2px 0; }
+.legend { display: flex; flex-wrap: wrap; gap: 11px; color: var(--text-3); font-size: 0.68rem; font-family: var(--mono); letter-spacing: 0.02em; }
+.legend span { display: inline-flex; align-items: center; gap: 5px; }
+.legend i.sw { width: 7px; height: 7px; border-radius: 50%; display: inline-block; }
+.legend em { font-style: normal; color: var(--line-2); }
+.ghost-toggle { display: inline-flex; align-items: center; gap: 7px; cursor: pointer; color: var(--text-3); font-size: 0.68rem; font-family: var(--mono); letter-spacing: 0.02em; margin-left: auto; user-select: none; }
+.ghost-toggle input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.ghost-toggle .trk { width: 30px; height: 16px; border-radius: 999px; background: var(--track); border: 1px solid var(--line-2); position: relative; transition: background .15s; flex: none; }
+.ghost-toggle .trk::after { content: ""; position: absolute; width: 12px; height: 12px; border-radius: 50%; background: var(--text-2); top: 1px; left: 1px; transition: transform .15s, background .15s; }
+.ghost-toggle input:checked + .trk { background: rgba(165,110,255,.35); border-color: var(--s3); }
+.ghost-toggle input:checked + .trk::after { transform: translateX(14px); background: var(--s3); }
+.ghost-toggle input:focus-visible + .trk { outline: 2px solid var(--focus); outline-offset: 2px; }
 
-/* ---- controls */
-.seg { display: inline-flex; border: 1px solid var(--border-2); background: var(--layer); flex-wrap: wrap; }
-.seg button { font: inherit; font-size: var(--step--1); padding: 7px 14px; border: 0; background: transparent; color: var(--text-2); cursor: pointer; }
-.seg button + button { border-left: 1px solid var(--border-2); }
-.seg button[aria-pressed="true"] { background: var(--text); color: var(--bg); }
-.seg button:hover:not([aria-pressed="true"]) { background: var(--hover); }
+/* ---- the 3D stage */
+.stage-wrap { flex: 1 1 auto; min-height: 420px; display: flex; margin-top: 2px; perspective: 1700px; position: relative; }
+.stage-wrap::before { content: ""; position: absolute; inset: -6% -2%; z-index: -1; pointer-events: none;
+  background: radial-gradient(60% 65% at 50% 46%, rgba(120,160,255,.16), transparent 68%); filter: blur(6px); }
+.stage-scroll { flex: 1; overflow-x: auto; overflow-y: hidden; display: flex; align-items: center; scrollbar-width: thin; scrollbar-color: var(--line-2) transparent; }
+.stage-scroll::-webkit-scrollbar { height: 6px; }
+.stage-scroll::-webkit-scrollbar-thumb { background: var(--line-2); border-radius: 3px; }
+.tilt { flex: none; width: 100%; min-width: 1360px; height: clamp(440px, 60svh, 740px); position: relative; transform-style: preserve-3d; transition: transform .25s ease-out; transform: rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)); }
+.bg-plane { position: absolute; inset: -10%; transform: translateZ(-90px) scale(1.16); pointer-events: none;
+  background-image: radial-gradient(rgba(255,255,255,.14) 1px, transparent 1.4px); background-size: 26px 26px; opacity: .3;
+  animation: drift 50s linear infinite; mask-image: radial-gradient(60% 55% at 50% 50%, #000 55%, transparent 100%); }
+@keyframes drift { to { background-position: 520px 260px; } }
+.svg-plane { position: absolute; inset: 0; transform: translateZ(22px); }
+.svg-plane svg { width: 100%; height: 100%; display: block; overflow: visible; }
+
+/* ---- dock */
+.dock { position: fixed; left: 50%; bottom: max(16px, env(safe-area-inset-bottom)); transform: translateX(-50%); z-index: 20;
+  display: flex; gap: 3px; padding: 5px; border-radius: 16px; background: rgba(18,18,25,.72); backdrop-filter: blur(18px) saturate(150%);
+  -webkit-backdrop-filter: blur(18px) saturate(150%); border: 1px solid var(--line-2); box-shadow: 0 18px 50px rgba(0,0,0,.55), inset 0 1px 0 rgba(255,255,255,.06);
+  max-width: calc(100vw - 20px); overflow-x: auto; }
+.dock button { font: inherit; background: transparent; border: 0; border-radius: 11px; color: var(--text-2); cursor: pointer;
+  padding: 8px 14px 7px; display: grid; gap: 1px; justify-items: center; min-width: 76px; }
+.dock button:hover { background: rgba(255,255,255,.06); color: var(--text); }
+.dock button b { font-weight: 500; font-size: 0.74rem; white-space: nowrap; display: flex; align-items: center; gap: 6px; }
+.dock button b i.sw { width: 7px; height: 7px; border-radius: 50%; display: inline-block; }
+.dock button i.sub { font-style: normal; color: var(--text-3); font-size: 0.64rem; font-family: var(--mono); }
+.dock button:hover i.sub { color: var(--text-2); }
+
+/* ---- generic controls reused inside modals */
+.seg { display: inline-flex; border-radius: 9px; background: var(--surface-2); padding: 2px; border: 1px solid var(--line); }
+.seg button { font: inherit; font-size: 0.74rem; padding: 6px 11px; border: 0; border-radius: 7px; background: transparent; color: var(--text-2); cursor: pointer; }
+.seg button[aria-pressed="true"] { background: var(--surface-3); color: var(--text); box-shadow: inset 0 0 0 1px var(--line-2); }
+.seg button:hover:not([aria-pressed="true"]) { color: var(--text); }
 .chips { display: flex; flex-wrap: wrap; gap: 6px; }
-.chip { font: inherit; font-size: var(--step--1); padding: 4px 10px; border: 1px solid var(--border-2); background: var(--layer); color: var(--text-2); cursor: pointer; border-radius: 999px; display: inline-flex; gap: 6px; align-items: center; }
-.chip[aria-pressed="true"] { border-color: var(--text); color: var(--text); background: var(--hover); }
-.dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; flex: none; }
-.toolbar { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between; }
-.legend { display: flex; flex-wrap: wrap; gap: 14px; color: var(--text-2); font-size: var(--step--1); }
-.legend span { display: inline-flex; align-items: center; gap: 6px; }
-.sw { width: 12px; height: 12px; display: inline-block; border-radius: 2px; }
-input[type="search"], select { font: inherit; font-size: var(--step-0); padding: 8px 12px; background: var(--layer); color: var(--text); border: 0; border-bottom: 1px solid var(--border-2); min-width: 0; }
-.band input[type="search"], .band select { background: var(--layer-2); }
+.chip { font: inherit; font-size: 0.72rem; padding: 4px 11px; border-radius: 999px; border: 1px solid var(--line-2); background: var(--surface-2); color: var(--text-2); cursor: pointer; }
+.chip[aria-pressed="true"] { background: var(--surface-3); color: var(--text); border-color: var(--text-2); }
+.toolbar { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: space-between; }
+.swatch-legend { display: flex; flex-wrap: wrap; gap: 13px; color: var(--text-2); font-size: 0.72rem; }
+.swatch-legend span { display: inline-flex; align-items: center; gap: 6px; }
+.sw { width: 11px; height: 11px; display: inline-block; border-radius: 3px; }
+input[type="search"], select { font: inherit; font-size: var(--step--1); padding: 7px 11px; background: var(--surface-2); color: var(--text); border: 1px solid var(--line-2); border-radius: 8px; min-width: 0; }
+input[type="search"]::placeholder { color: var(--text-3); }
+.valnote { font-family: var(--mono); font-size: 0.66rem; letter-spacing: 0.03em; color: var(--text-3); display: flex; flex-wrap: wrap; gap: 4px 6px; }
+.valnote span { text-decoration: underline dotted; text-underline-offset: 3px; cursor: help; }
+.valnote em { font-style: normal; color: var(--line-2); }
+.note { color: var(--text-3); font-size: 0.72rem; }
+.takeaway { border-left: 2px solid var(--s1); padding: 2px 0 2px 10px; color: var(--text); font-size: var(--step--1); }
 
-/* ---- bars */
-.bars { display: grid; gap: 8px; --mark: none; }
-.bar-row { display: grid; grid-template-columns: minmax(7rem, 15rem) minmax(0, 1fr) 4.2rem; gap: 10px; align-items: center; }
-.bar-row .bl { font-size: var(--step--1); color: var(--text); overflow-wrap: anywhere; line-height: 1.3; }
+/* ---- glass cards used inside modal bodies */
+.grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 460px), 1fr)); gap: 12px; }
+.grid-2.stack { grid-template-columns: minmax(0, 1fr); }
+.grid-2.stack #ladder { max-width: 820px; }
+.grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); gap: 12px; }
+.tile { background: linear-gradient(165deg, rgba(255,255,255,.045), rgba(255,255,255,.012)), var(--surface);
+  border: 1px solid var(--line); border-radius: 12px; padding: 15px 16px; display: grid; gap: 10px; align-content: start; min-width: 0;
+  box-shadow: 0 1px 0 rgba(255,255,255,.04) inset, 0 10px 26px rgba(0,0,0,.35); }
+.tile h3 { font-size: var(--step-0); font-weight: 500; }
+.tile .sub { color: var(--text-2); font-size: 0.72rem; }
+
+/* ---- bars (same mark specs: thin, rounded data-end, 2px gaps) */
+.bars { display: grid; gap: 6px; --mark: none; }
+.bar-row { display: grid; grid-template-columns: minmax(6.5rem, 14rem) minmax(0, 1fr) 4rem; gap: 8px; align-items: center; }
+.bar-row .bl { font-size: 0.72rem; color: var(--text); overflow-wrap: anywhere; line-height: 1.25; }
 .bar-row .bl small { display: block; color: var(--text-3); }
-.bar-row .bv { font-size: var(--step--1); color: var(--text-2); text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
-.bt { position: relative; height: 18px; display: grid; align-content: center; gap: 2px; }
-.bf { height: 14px; border-radius: 0 4px 4px 0; transform-origin: left; min-width: 2px; }
-.bt.two .bf { height: 9px; }
-.bt::before { content: ""; position: absolute; left: 0; top: -2px; bottom: -2px; width: 1px; background: var(--border-2); }
-.bars.marked .bt::after { content: ""; position: absolute; left: var(--mark); top: -4px; bottom: -4px; width: 2px; background: var(--text); opacity: 0.55; }
-.bar-row.hl .bl { font-weight: 600; }
-.grow .bf { animation: grow 0.45s cubic-bezier(.2,.7,.2,1) both; }
+.bar-row .bv { font-size: 0.72rem; color: var(--text-2); text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.bt { position: relative; height: 15px; display: grid; align-content: center; gap: 2px; background: rgba(255,255,255,.04); border-radius: 4px; }
+.bf { height: 12px; margin: 0 1px; border-radius: 0 4px 4px 0; transform-origin: left; min-width: 2px;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.3), inset 0 -5px 8px rgba(0,0,0,.18); }
+.bt.two .bf { height: 7px; }
+.bt::before { content: ""; position: absolute; left: 0; top: -2px; bottom: -2px; width: 1px; background: var(--line-2); }
+.bars.marked .bt::after { content: ""; position: absolute; left: var(--mark); top: -4px; bottom: -4px; width: 2px; background: var(--text); opacity: .6; box-shadow: 0 0 8px rgba(255,255,255,.5); }
+.bar-row.hl .bl { font-weight: 600; color: #fff; }
+.grow .bf { animation: grow .4s cubic-bezier(.2,.8,.2,1) both; }
 @keyframes grow { from { transform: scaleX(0); } }
-.dv-row { display: grid; grid-template-columns: minmax(8rem, 15rem) minmax(0, 1fr) 3.4rem; gap: 10px; align-items: center; }
-.dv-track { position: relative; height: 16px; }
-.dv-track::before { content: ""; position: absolute; left: 50%; top: -3px; bottom: -3px; width: 1px; background: var(--border-2); }
-.dv-bar { position: absolute; top: 2px; height: 12px; }
+.dv-row { display: grid; grid-template-columns: minmax(7rem, 14rem) minmax(0, 1fr) 3.2rem; gap: 8px; align-items: center; }
+.dv-track { position: relative; height: 14px; background: rgba(255,255,255,.04); border-radius: 4px; }
+.dv-track::before { content: ""; position: absolute; left: 50%; top: -3px; bottom: -3px; width: 1px; background: var(--line-2); }
+.dv-bar { position: absolute; top: 2px; height: 10px; box-shadow: inset 0 1px 0 rgba(255,255,255,.3); }
 .dv-bar.pos { left: 50%; border-radius: 0 4px 4px 0; background: var(--s1); transform-origin: left; }
 .dv-bar.neg { right: 50%; border-radius: 4px 0 0 4px; background: var(--s4); transform-origin: right; }
-.grow .dv-bar { animation: grow 0.45s cubic-bezier(.2,.7,.2,1) both; }
-.dv-row .bl { font-family: var(--mono); font-size: 0.72rem; overflow-wrap: anywhere; line-height: 1.25; }
-.dv-row .bv { font-size: var(--step--1); color: var(--text-2); text-align: right; font-variant-numeric: tabular-nums; }
-.cols { display: flex; align-items: flex-end; gap: 10px; height: 180px; border-bottom: 1px solid var(--border-2); padding: 0 2px; }
+.grow .dv-bar { animation: grow .4s cubic-bezier(.2,.8,.2,1) both; }
+.dv-row .bl { font-family: var(--mono); font-size: 0.68rem; overflow-wrap: anywhere; line-height: 1.2; }
+.dv-row .bv { font-size: 0.7rem; color: var(--text-2); text-align: right; font-variant-numeric: tabular-nums; }
+.cols { display: flex; align-items: flex-end; gap: 8px; height: 130px; border-bottom: 1px solid var(--line-2); padding: 0 2px; }
 .col { flex: 1; display: flex; align-items: flex-end; justify-content: center; gap: 2px; height: 100%; min-width: 0; }
-.col .cb { width: min(18px, 40%); border-radius: 4px 4px 0 0; transform-origin: bottom; }
-.grow .col .cb { animation: growy 0.45s cubic-bezier(.2,.7,.2,1) both; }
+.col .cb { width: min(16px, 40%); border-radius: 4px 4px 0 0; transform-origin: bottom; box-shadow: inset 0 1px 0 rgba(255,255,255,.3); }
+.grow .col .cb { animation: growy .4s cubic-bezier(.2,.8,.2,1) both; }
 @keyframes growy { from { transform: scaleY(0); } }
-.col-labels { display: flex; gap: 10px; padding: 6px 2px 0; }
-.col-labels span { flex: 1; text-align: center; font-size: 0.7rem; color: var(--text-3); font-family: var(--mono); min-width: 0; }
+.col-labels { display: flex; gap: 8px; padding: 5px 2px 0; }
+.col-labels span { flex: 1; text-align: center; font-size: 0.65rem; color: var(--text-3); font-family: var(--mono); min-width: 0; }
 
-/* ---- pipeline */
-.pipe { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 1px; background: var(--border); border: 1px solid var(--border); }
-@media (max-width: 1080px) { .pipe { grid-template-columns: minmax(0, 1fr); } }
-.pipe-canvas { background: var(--layer); overflow-x: auto; min-width: 0; }
-.pipe-canvas svg { display: block; width: 100%; min-width: 980px; height: auto; }
-.pipe-side { background: var(--layer); padding: 20px; display: grid; gap: 14px; align-content: start; min-width: 0; }
-.pipe-side h3 { font-size: var(--step-2); font-weight: 400; }
-.kind { font-family: var(--mono); font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.06em; display: inline-flex; align-items: center; gap: 6px; color: var(--text-2); }
-.facts { display: grid; gap: 0; border-top: 1px solid var(--border); }
-.facts div { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 12px; padding: 8px 0; border-bottom: 1px solid var(--border); font-size: var(--step--1); }
-.facts dt { color: var(--text-2); }
-.facts dd { margin: 0; text-align: right; font-variant-numeric: tabular-nums; }
-.verdict { display: inline-flex; align-items: center; gap: 6px; font-size: var(--step--1); font-weight: 500; padding: 2px 8px; border: 1px solid currentColor; }
-.verdict.ok { color: var(--good); } .verdict.no { color: var(--bad); }
+/* ---- svg node/edge styling (the hero network) */
 svg text { font-family: var(--sans); }
-.n-title { font-size: 13px; font-weight: 500; fill: var(--text); }
-.n-sub { font-size: 11px; fill: var(--text-2); }
-.n-layer { font-family: var(--mono); font-size: 11px; letter-spacing: 0.08em; fill: var(--text-3); }
-.n-plate { fill: var(--layer); opacity: 0.9; }
+.n-title { font-size: 16px; font-weight: 500; fill: #f7f7fc; }
+.n-sub { font-size: 13px; fill: var(--text-2); }
+.n-layer { font-family: var(--mono); font-size: 13px; letter-spacing: 0.12em; fill: var(--text-3); }
+.n-plate { fill: rgba(10,10,16,.6); }
 .node { cursor: pointer; }
 .node:focus { outline: none; }
-.node:focus-visible .n-core { stroke: var(--focus); stroke-width: 3; }
-.node .n-core { stroke: var(--layer); stroke-width: 3; }
-.node.sel .n-halo { opacity: 1; }
-.n-halo { fill: none; stroke: var(--text); stroke-width: 1.5; opacity: 0; }
-.edge { fill: none; stroke: var(--border-2); }
-.flow { fill: none; stroke-dasharray: 3 11; animation: flow 1.6s linear infinite; opacity: 0.75; }
+.node:focus-visible .n-core { stroke: #fff; stroke-width: 3; }
+.node .n-core { stroke: rgba(255,255,255,.22); stroke-width: 1.6; }
+.node .n-glow { opacity: .62; transition: opacity .15s; }
+.node:hover .n-glow, .node:focus-visible .n-glow { opacity: 1; }
+.node:hover .n-core, .node:focus-visible .n-core { stroke: rgba(255,255,255,.55); }
+.edge { fill: none; stroke: rgba(255,255,255,.15); }
+.edge.spine { stroke: rgba(255,255,255,.26); }
+.flow { fill: none; stroke-dasharray: 3 11; animation: flow 1.6s linear infinite; opacity: .78; }
 .edge.explain, .flow.explain { stroke-dasharray: 2 5; }
 @keyframes flow { to { stroke-dashoffset: -28; } }
-.dim { opacity: 0.12; transition: opacity 0.2s; }
-.ghost .n-core { fill: var(--layer) !important; stroke: var(--text-3); stroke-dasharray: 3 3; stroke-width: 1.5; }
+.pkt { filter: drop-shadow(0 0 4px currentColor) drop-shadow(0 0 9px currentColor); }
+.dim { opacity: 0.1; transition: opacity 0.2s; }
+.ghost .n-core { fill: rgba(10,10,16,.4) !important; stroke: var(--text-3); stroke-dasharray: 3 3; stroke-width: 1.4; }
+.ghost .n-glow { display: none; }
 .ghost .n-title { fill: var(--text-3); text-decoration: line-through; }
-.checks { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr)); gap: 1px; background: var(--border); border: 1px solid var(--border); }
-.check { background: var(--layer); padding: 14px 16px; display: grid; gap: 4px; }
-.check b { font-weight: 500; }
-.check span { color: var(--text-2); font-size: var(--step--1); }
-.mini { display: grid; gap: 6px; }
+.mini { display: grid; gap: 5px; }
 
-/* ---- worked / didn't */
-.ledger { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr)); gap: 1px; background: var(--border); border: 1px solid var(--border); }
-.item { background: var(--layer); padding: 16px; display: grid; gap: 6px; align-content: start; }
-.item .tag { font-size: var(--step--1); font-weight: 500; display: inline-flex; gap: 6px; align-items: center; }
+/* ---- ledger (what worked) */
+.ledger { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 250px), 1fr)); gap: 10px; }
+.item { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 11px 13px; display: grid; gap: 4px; align-content: start; }
+.item .tag { font-size: 0.68rem; font-weight: 500; display: inline-flex; gap: 5px; align-items: center; }
 .item .tag.ok { color: var(--good); } .item .tag.no { color: var(--bad); }
-.item b { font-weight: 500; font-size: var(--step-0); }
-.item span.n { color: var(--text-2); font-size: var(--step--1); }
+.item b { font-weight: 500; font-size: 0.78rem; }
+.item span.n { color: var(--text-2); font-size: 0.72rem; }
 
-/* ---- table */
-.tbl-wrap { overflow-x: auto; border: 1px solid var(--border); background: var(--layer); }
-table { border-collapse: collapse; width: 100%; min-width: 880px; font-size: var(--step--1); }
-th { text-align: left; font-weight: 500; color: var(--text); background: var(--layer-2); padding: 10px 12px; border-bottom: 1px solid var(--border); white-space: nowrap; position: sticky; top: 0; }
+/* ---- table (the book) */
+.tbl-wrap { overflow: auto; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); max-height: min(58vh, 560px); }
+table { border-collapse: collapse; width: 100%; min-width: 820px; font-size: 0.72rem; }
+th { text-align: left; font-weight: 500; color: var(--text); background: var(--surface-2); padding: 8px 10px; border-bottom: 1px solid var(--line); white-space: nowrap; position: sticky; top: 0; z-index: 1; }
+th:first-child { border-top-left-radius: 11px; } th:last-child { border-top-right-radius: 11px; }
 th button { font: inherit; background: none; border: 0; color: inherit; cursor: pointer; padding: 0; }
-td { padding: 9px 12px; border-bottom: 1px solid var(--border); vertical-align: top; }
-td.mono { white-space: nowrap; }
+td { padding: 6px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+td.mono { white-space: nowrap; font-family: var(--mono); }
 tbody tr.row { cursor: pointer; }
-tbody tr.row:hover { background: var(--hover); }
-tr.detail td { background: var(--layer-2); color: var(--text-2); }
+tbody tr.row:hover { background: rgba(255,255,255,.045); }
+tr.detail td { background: rgba(255,255,255,.025); color: var(--text-2); }
 .flags { display: inline-flex; gap: 3px; }
-.flags i { width: 8px; height: 8px; border-radius: 50%; border: 1px solid var(--border-2); display: inline-block; }
+.flags i { width: 7px; height: 7px; border-radius: 50%; border: 1px solid var(--line-2); display: inline-block; }
 .flags i.on { background: var(--s1); border-color: var(--s1); }
-.vt { display: inline-grid; grid-template-columns: repeat(3, 22px); gap: 3px; align-items: end; height: 18px; }
+.vt { display: inline-grid; grid-template-columns: repeat(3, 20px); gap: 3px; align-items: end; height: 16px; }
 .vt i { display: block; border-radius: 2px 2px 0 0; min-height: 2px; }
-.pager { display: flex; gap: 8px; align-items: center; justify-content: flex-end; color: var(--text-2); font-size: var(--step--1); }
-.btn { font: inherit; font-size: var(--step--1); padding: 7px 14px; border: 1px solid var(--border-2); background: var(--layer); color: var(--text); cursor: pointer; }
+.pager { display: flex; gap: 8px; align-items: center; justify-content: flex-end; color: var(--text-2); font-size: 0.72rem; }
+.btn { font: inherit; font-size: 0.72rem; padding: 7px 13px; border: 1px solid var(--line-2); border-radius: 8px; background: var(--surface-2); color: var(--text); cursor: pointer; }
+.btn:hover:not(:disabled) { background: var(--surface-3); }
 .btn:disabled { opacity: 0.4; cursor: default; }
 .terms { display: flex; flex-wrap: wrap; gap: 6px; }
-.term { font-family: var(--mono); font-size: 0.72rem; padding: 4px 8px; background: var(--layer-2); border: 1px solid var(--border); display: inline-flex; gap: 8px; }
-.band .term { background: var(--layer); }
-.term em { font-style: normal; color: var(--accent-ink); }
-.cl { display: grid; gap: 0; border-top: 1px solid var(--border); }
-.cl > div { display: grid; grid-template-columns: 3.4rem minmax(0, 1fr) 4.5rem; gap: 12px; padding: 9px 0; border-bottom: 1px solid var(--border); font-size: var(--step--1); align-items: start; }
+.term { font-family: var(--mono); font-size: 0.68rem; padding: 4px 9px; background: var(--surface-2); border: 1px solid var(--line); border-radius: 7px; display: inline-flex; gap: 7px; }
+.term em { font-style: normal; color: #9cbcff; }
+.cl { display: grid; gap: 0; }
+.cl > div { display: grid; grid-template-columns: 3rem minmax(0, 1fr) 4rem; gap: 10px; padding: 7px 0; border-bottom: 1px solid var(--line); font-size: 0.72rem; align-items: start; }
+.cl > div:first-child { color: var(--text-3); font-family: var(--mono); font-size: 0.62rem; text-transform: uppercase; }
 .cl .r { font-variant-numeric: tabular-nums; color: var(--text); }
 .cl .t { color: var(--text-2); }
 .cl .t b { color: var(--text); font-weight: 500; }
-footer .wrap { padding-block: 32px 48px; color: var(--text-3); font-size: var(--step--1); display: grid; gap: 6px; }
-#tip { position: fixed; z-index: 20; pointer-events: none; background: var(--text); color: var(--bg); padding: 8px 10px; font-size: 0.75rem; max-width: 300px; line-height: 1.4; box-shadow: 0 2px 6px rgba(0,0,0,.3); }
-.status-loading { color: var(--text-3); font-size: var(--step--1); }
+.status-loading { color: var(--text-3); font-size: 0.72rem; }
+
+/* ---- modals: full-viewport, circular-reveal panels */
+.modal { position: fixed; inset: 0; z-index: 40; background: linear-gradient(180deg, var(--surface) 0%, var(--bg) 100%);
+  clip-path: circle(0px at 50% 50%); pointer-events: none; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+.modal.live { pointer-events: auto; }
+.modal-glow { position: sticky; top: 0; height: 3px; background: linear-gradient(90deg, transparent, var(--accent, var(--s1)), transparent); opacity: .8; z-index: 2; }
+.modal-head { position: sticky; top: 0; z-index: 1; display: flex; align-items: flex-start; justify-content: space-between; gap: 16px;
+  padding: max(18px, env(safe-area-inset-top)) max(20px, env(safe-area-inset-right)) 16px max(20px, env(safe-area-inset-left));
+  background: linear-gradient(180deg, var(--surface) 72%, transparent); margin-top: -3px; }
+.modal-head .ttl { max-width: 68ch; }
+.modal-eyebrow { font-family: var(--mono); font-size: 0.68rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent, var(--s1)); display: flex; align-items: center; gap: 7px; }
+.modal-eyebrow i.sw { width: 7px; height: 7px; border-radius: 50%; background: var(--accent, var(--s1)); box-shadow: 0 0 10px var(--accent, var(--s1)); }
+.modal-head h2 { font-size: 1.55rem; font-weight: 300; margin-top: 4px; }
+.modal-head .lede { color: var(--text-2); font-size: var(--step--1); max-width: 70ch; margin-top: 6px; }
+.modal-close { flex: none; width: 42px; height: 42px; border-radius: 50%; border: 1px solid var(--line-2); background: var(--surface-2);
+  color: var(--text); font-size: 1.1rem; cursor: pointer; display: grid; place-items: center; transition: background .15s, transform .15s; }
+.modal-close:hover { background: var(--surface-3); transform: scale(1.06); }
+.modal-body { padding: 4px max(20px, env(safe-area-inset-right)) 56px max(20px, env(safe-area-inset-left)); display: grid; gap: 14px; max-width: 1180px; margin: 0 auto; }
+
 @media (prefers-reduced-motion: reduce) {
-  .flow { animation: none; }
+  .flow, .pkt, .bg-plane { animation: none !important; }
   .grow .bf, .grow .dv-bar, .grow .col .cb { animation: none; }
+  .tilt { transition: none; transform: none !important; }
   * { scroll-behavior: auto !important; }
 }
+@media (max-width: 560px) {
+  .hero h1 { font-size: 1.4rem; }
+  .modal-head h2 { font-size: 1.25rem; }
+}
+#tip { position: fixed; z-index: 70; pointer-events: none; background: #fff; color: #111; padding: 7px 9px; font-size: 0.72rem; max-width: 300px; line-height: 1.4; border-radius: 6px; box-shadow: 0 6px 20px rgba(0,0,0,.4); }
 </style>
 
-<header class="shell">
-  <div class="wrap">
-    <div class="brand"><b>Breach Radar</b><span>Team DATACENTERS · Sheridan Datathon 2026</span></div>
-    <nav class="chapters" aria-label="Chapters">
-      <a href="#problem">Problem</a><a href="#pipeline">Pipeline</a><a href="#weights">Weights</a><a href="#results">What worked</a><a href="#before">Before the model</a><a href="#after">After the model</a><a href="#output">The list</a>
-    </nav>
+<div class="scene-glow" aria-hidden="true"></div>
+<div id="scene">
+  <header class="hud">
+    <div class="brand"><i class="mk" aria-hidden="true"></i><b>BREACH RADAR</b><span id="asof">loading snapshot…</span></div>
+    <div class="hud-readout">
+      <div><b data-count="72670">72,670</b><i>CVEs in scope</i></div>
+      <div><b>32/75</b><i>final, practice exam</i></div>
+      <div><b>≈12</b><i>projected 2026</i></div>
+    </div>
+  </header>
+
+  <section class="hero">
+    <h1>One pipeline turns <b>72,670</b> CVEs into the <b>500</b> we'd patch first.</h1>
+    <p>Click any node to open it full-screen — features, models, filters, and the list they produce. Or jump straight to a section below.</p>
+    <div class="row-meta">
+      <div class="legend" id="pipe-legend"></div>
+      <label class="ghost-toggle"><input type="checkbox" id="ghost-switch" role="switch" aria-checked="false"><span class="trk" aria-hidden="true"></span>Show dropped models</label>
+    </div>
+  </section>
+
+  <div class="stage-wrap">
+    <div class="stage-scroll" id="stage-scroll">
+      <div class="tilt" id="tilt">
+        <div class="bg-plane" aria-hidden="true"></div>
+        <div class="svg-plane" id="svg-plane"><svg id="pipe-svg" role="img" aria-label="Loading pipeline"></svg></div>
+      </div>
+    </div>
   </div>
-</header>
 
-<main>
-  <section id="problem" class="hero">
-    <div class="wrap">
-      <div class="eyebrow">Chapter 1 · The problem</div>
-      <h1>72,670 new CVEs. Patch these 500 first.</h1>
-      <p class="lede">We ranked every CVE published January to September 2026 by how likely CISA is to add it to the Known Exploited Vulnerabilities catalog by November 4. Most of the ones that end up exploited look ordinary on the day they're published, so the hard part is reading what's there.</p>
-      <div class="kpis">
-        <div class="kpi"><div class="v" data-count="72670">72,670</div><div class="l">CVEs in the 2026 scoreboard, one row each, signals frozen at the end of the publish month</div></div>
-        <div class="kpi"><div class="v" data-count="2.3" data-dec="1" data-suf="%">2.3%</div><div class="l">have any public exploit code. 96% have no code and an EPSS under 0.01</div></div>
-        <div class="kpi"><div class="v" data-count="58" data-suf="%">58%</div><div class="l">of past KEV additions had no public exploit signal when we would have ranked them</div></div>
-        <div class="kpi hl"><div class="v">≈ 12</div><div class="l">expected KEV additions in our 500 (80% range 7–22). The best single-rule baseline gets 8</div></div>
-      </div>
-    </div>
-  </section>
+  <nav class="dock" aria-label="Open a section">
+    <button type="button" data-open="raw"><b><i class="sw" style="background:var(--s0)"></i>Raw signal</b><i class="sub" id="dock-raw"></i></button>
+    <button type="button" data-open="weights"><b><i class="sw" style="background:var(--s2)"></i>Weights</b><i class="sub" id="dock-weights"></i></button>
+    <button type="button" data-open="worked"><b><i class="sw" style="background:var(--s3)"></i>What worked</b><i class="sub" id="dock-worked"></i></button>
+    <button type="button" data-open="output"><b><i class="sw" style="background:var(--s4)"></i>Output profile</b><i class="sub" id="dock-output"></i></button>
+    <button type="button" data-open="book"><b><i class="sw" style="background:var(--s1)"></i>The book</b><i class="sub" id="dock-book"></i></button>
+  </nav>
+</div>
 
-  <section id="pipeline" class="band">
-    <div class="wrap">
-      <div class="head">
-        <div class="eyebrow">Chapter 2 · The pipeline</div>
-        <h2>One table in, 500 CVEs out</h2>
-        <p class="lede">Each column is a layer. Edge thickness into the two logistic regressions is the share of that model's total weight carried by the feature group. Select a node for its numbers.</p>
-      </div>
-      <div class="toolbar">
-        <div class="legend" id="pipe-legend"></div>
-        <div class="seg" role="group" aria-label="Show tested models">
-          <button type="button" id="ghost-off" aria-pressed="true">Final pipeline</button>
-          <button type="button" id="ghost-on" aria-pressed="false">Include what we dropped</button>
-        </div>
-      </div>
-      <div class="pipe">
-        <div class="pipe-canvas" id="pipe-canvas"><p class="status-loading" style="padding:20px">Loading pipeline…</p></div>
-        <aside class="pipe-side" id="pipe-side" aria-live="polite"></aside>
-      </div>
-      <div class="checks">
-        <div class="check"><b>A/B forward test</b><span>Rebuilt the exam on 2024 and 2025: train on one year, test on the other. 75 exploited CVEs, top 441 of 64,120, the same selection rate as 500 of 72,670.</span></div>
-        <div class="check"><b>5-fold purged CV</b><span>75,148 CVEs in time blocks. Exploit chains never split across train and test. Run on Chen's 4× H100 box.</span></div>
-        <div class="check"><b>Paired bootstrap + Holm</b><span>With 75 positives, gaps under about 5 hits are noise. We stopped tuning when results stopped clearing that bar.</span></div>
-      </div>
-    </div>
-  </section>
+<!-- ============================================================ modals (full-screen, circular reveal) ============================================================ -->
 
-  <section id="weights">
-    <div class="wrap">
-      <div class="head">
-        <div class="eyebrow">Chapter 3 · The weights</div>
-        <h2>What moves the score</h2>
-        <p class="lede">Coefficients per standard deviation in the two logistic regressions. Blue pushes a CVE toward KEV, magenta pushes it away. Hover a bar for the definition.</p>
-      </div>
-      <div class="toolbar">
-        <div class="seg" role="group" aria-label="Model">
-          <button type="button" data-lr="Luis" aria-pressed="true">LR A · 56 features</button>
-          <button type="button" data-lr="Chen" aria-pressed="false">LR B · 100 features</button>
-        </div>
-        <div class="seg" role="group" aria-label="How many">
-          <button type="button" data-n="20" aria-pressed="true">Top 20</button>
-          <button type="button" data-n="999" aria-pressed="false">All</button>
-        </div>
-      </div>
-      <div class="chips" id="w-groups" role="group" aria-label="Feature group"></div>
-      <div class="grid-2">
-        <div class="tile">
-          <div class="legend"><span><i class="sw" style="background:var(--s1)"></i>Raises KEV odds</span><span><i class="sw" style="background:var(--s4)"></i>Lowers KEV odds</span></div>
-          <div id="w-bars" class="mini"></div>
-        </div>
-        <div class="tile">
-          <h3>Signal strength on its own</h3>
-          <p class="sub">Univariate AUC on the training years (0.5 = random). The text model trained on past KEV descriptions beats every exploit flag.</p>
-          <div id="w-auc"></div>
-          <p class="takeaway" id="w-take"></p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <section id="results" class="band">
-    <div class="wrap">
-      <div class="head">
-        <div class="eyebrow">Chapter 4 · What worked</div>
-        <h2>What helped and what didn't</h2>
-        <p class="lede">Exploited CVEs found on the practice exam (75 possible). Each step adds one idea to the one above. The line marks 35: the most that any model we built ever reached.</p>
-      </div>
-      <div class="grid-2 stack">
-        <div class="tile">
-          <h3>Results ladder</h3>
-          <div id="ladder"></div>
-          <p class="note">Final row uses Chen's out-of-fold LoRA scores, so it's an estimate. Random picks would find 0.5.</p>
-        </div>
-        <div class="tile">
-          <div class="toolbar"><h3>Every experiment</h3>
-            <div class="seg" role="group" aria-label="Filter experiments">
-              <button type="button" data-x="all" aria-pressed="true">All</button>
-              <button type="button" data-x="ok" aria-pressed="false">Helped</button>
-              <button type="button" data-x="no" aria-pressed="false">Didn't</button>
-            </div>
-          </div>
-          <div class="ledger" id="ledger"></div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <section id="before">
-    <div class="wrap">
-      <div class="head">
-        <div class="eyebrow">Chapter 5 · Before the model</div>
-        <h2>The data is mostly text</h2>
-        <p class="lede">Exploit telemetry is thin: a handful of 0/1 flags and an EPSS score that is near zero for almost everything. The description, the vendor and the release pattern carry most of what can be known.</p>
-      </div>
-      <div class="grid-3">
-        <div class="tile"><h3>Exploit telemetry in 2026</h3><p class="sub">CVEs with each public exploit source, out of 72,670.</p><div id="pre-flags"></div></div>
-        <div class="tile"><h3>Where the signal lives</h3><p class="sub">Best single-feature AUC per feature group.</p><div id="pre-groups"></div></div>
-        <div class="tile"><h3>The leak trap</h3><p class="sub">NVD status and reference counts are filled in after the fact. Alone they find almost nothing.</p><div id="pre-leak"></div><p class="takeaway">Not-yet-analyzed CVEs reach KEV at 0.000%, so NVD status removes a quarter of the haystack. That makes it a filter. It doesn't rank. We left it out.</p></div>
-      </div>
-      <div class="grid-2">
-        <div class="tile"><h3>Where exploitation concentrates</h3><p class="sub">Granite Embedding clusters of past descriptions, ranked by KEV rate. Count = 2026 CVEs that land in the cluster.</p><div class="cl" id="pre-clusters"></div></div>
-        <div class="tile">
-          <h3>Who has been exploited</h3><p class="sub" id="kev-sub"></p><div id="pre-kev"></div>
-          <h3>When CVEs arrive</h3><p class="sub">2026 CVEs per snapshot month. June CVEs are scored in July's snapshot, and Oracle released 1,097 in one day.</p><div id="pre-months"></div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <section id="after" class="band">
-    <div class="wrap">
-      <div class="head">
-        <div class="eyebrow">Chapter 6 · After the model</div>
-        <h2>What the top 500 looks like</h2>
-        <p class="lede">The list leans hard toward enterprise servers, remote code execution and products ransomware crews already use. Post-processing then spreads it across vendors.</p>
-      </div>
-      <div class="kpis" id="post-kpis"></div>
-      <div class="grid-2">
-        <div class="tile">
-          <div class="toolbar"><h3>Our picks vs all 2026 CVEs</h3>
-            <div class="seg" role="group" aria-label="Breakdown">
-              <button type="button" data-b="product_type" aria-pressed="true">Product type</button>
-              <button type="button" data-b="impact" aria-pressed="false">Impact</button>
-              <button type="button" data-b="typical_attacker" aria-pressed="false">Attacker</button>
-            </div>
-          </div>
-          <div class="legend"><span><i class="sw" style="background:var(--s1)"></i>Our top 500</span><span><i class="sw" style="background:var(--s0)"></i>All 2026 CVEs</span></div>
-          <div id="post-break"></div>
-          <p class="note">Categories come from Granite 4.2 30B reading each description. Value = share of each group; the end label is the lift.</p>
-        </div>
-        <div class="tile">
-          <h3>Who voted for each pick</h3>
-          <p class="sub">Each model's own top 500 over the whole scoreboard. Picks in no single top 500 are consensus picks: good on all three, first on none.</p>
-          <div id="post-voters"></div>
-          <p class="takeaway" id="voters-take"></p>
-        </div>
-        <div class="tile">
-          <h3>Vendors in the list</h3>
-          <p class="sub">Vendor as Granite 30B named it. The cap keeps any one vendor from filling a month.</p>
-          <div id="post-vendors"></div>
-          <div class="mini" id="cap-batches"></div>
-        </div>
-        <div class="tile">
-          <h3>Words the list over-represents</h3>
-          <p class="sub">Description word pairs in our 500 vs the whole scoreboard. Number = times more common.</p>
-          <div class="terms" id="post-terms"></div>
-          <h3>EPSS of our picks</h3>
-          <div class="legend"><span><i class="sw" style="background:var(--s1)"></i>Our top 500</span><span><i class="sw" style="background:var(--s0)"></i>All 2026 CVEs</span></div>
-          <div id="post-epss"></div>
-          <p class="note">Most of our picks have a modest EPSS. The models rank on text, vendor and release pattern, not on EPSS alone.</p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <section id="output">
-    <div class="wrap">
-      <div class="head">
-        <div class="eyebrow">Chapter 7 · The list</div>
-        <h2>The 500, with reasons</h2>
-        <p class="lede">The submitted ranking. Select a row for the reason and how each model scored it. Dots show public exploit sources: Exploit-DB, Metasploit, Nuclei, GitHub PoC.</p>
-      </div>
-      <div class="toolbar">
-        <div style="display:flex;gap:12px;flex-wrap:wrap;flex:1;min-width:0">
-          <input type="search" id="q" placeholder="Search CVE, product or reason" aria-label="Search the list" style="flex:1;min-width:200px">
-          <select id="fcat" aria-label="Product type"><option value="">All product types</option></select>
-          <select id="fcode" aria-label="Exploit code"><option value="">With or without code</option><option value="1">Public exploit code</option><option value="0">No public code</option></select>
-        </div>
-      </div>
-      <div class="tbl-wrap"><table>
-        <thead><tr>
-          <th><button type="button" data-sort="r">Rank</button></th><th>CVE</th><th>Product</th><th>Type</th><th>Impact</th>
-          <th><button type="button" data-sort="e">EPSS</button></th><th>Code</th><th><button type="button" data-sort="tx">KEV-like text</button></th><th title="Percentile in each model, bars scaled from 80 to 100">Models · tree, linear, LLM</th>
-        </tr></thead>
-        <tbody id="tbody"><tr><td colspan="9" class="status-loading">Loading the list…</td></tr></tbody>
-      </table></div>
-      <div class="pager"><span id="pinfo"></span><button type="button" class="btn" id="prev">Previous</button><button type="button" class="btn" id="next">Next</button></div>
-    </div>
-  </section>
-</main>
-
-<footer>
-  <div class="wrap">
-    <div>Built by Team DATACENTERS for the Sheridan Datathon 2026 IBM track. Models: IBM Granite 4.2 30B and 8B (LoRA), Granite Embedding, Granite 3.3 2B, XGBoost, scikit-learn.</div>
-    <div>Data: CVE records, EPSS, public exploit flags and the CISA KEV catalog as provided by the track. Numbers come from the team repo (<span class="mono">luis/</span>, <span class="mono">chen/</span>); <span id="built"></span></div>
+<div class="modal" id="modal-raw" data-accent="var(--s0)" role="dialog" aria-modal="true" aria-labelledby="t-raw" tabindex="-1">
+  <div class="modal-glow" style="--accent:var(--s0)" aria-hidden="true"></div>
+  <div class="modal-head" style="--accent:var(--s0)">
+    <div class="ttl"><span class="modal-eyebrow"><i class="sw"></i>Input · before the model</span><h2 id="t-raw">Raw signal</h2>
+      <p class="lede">Exploit telemetry is thin — a handful of 0/1 flags and an EPSS score near zero for almost everything. The description, vendor and release pattern carry most of what can be known.</p></div>
+    <button type="button" class="modal-close" data-close aria-label="Close">✕</button>
   </div>
-</footer>
+  <div class="modal-body">
+    <div class="grid-3">
+      <div class="tile"><h3>Exploit telemetry in 2026</h3><p class="sub">CVEs with each public exploit source, out of 72,670.</p><div id="pre-flags"></div></div>
+      <div class="tile"><h3>Where the signal lives</h3><p class="sub">Best single-feature AUC per feature group.</p><div id="pre-groups"></div></div>
+      <div class="tile"><h3>The leak trap</h3><p class="sub">NVD status and reference counts are filled in after the fact. Alone they find almost nothing.</p><div id="pre-leak"></div><p class="takeaway">Not-yet-analyzed CVEs reach KEV at 0.000%, so NVD status removes a quarter of the haystack. That's a filter, not a ranker. Left out.</p></div>
+    </div>
+    <div class="grid-2">
+      <div class="tile"><h3>Where exploitation concentrates</h3><p class="sub">Granite Embedding clusters of past descriptions, ranked by KEV rate. Count = 2026 CVEs in the cluster.</p><div class="cl" id="pre-clusters"></div></div>
+      <div class="tile">
+        <h3>Who has been exploited</h3><p class="sub" id="kev-sub"></p><div id="pre-kev"></div>
+        <h3>When CVEs arrive</h3><p class="sub">2026 CVEs per snapshot month. June CVEs score in July's snapshot; Oracle released 1,097 in one day.</p><div id="pre-months"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="modal-weights" data-accent="var(--s2)" role="dialog" aria-modal="true" aria-labelledby="t-weights" tabindex="-1">
+  <div class="modal-glow" style="--accent:var(--s2)" aria-hidden="true"></div>
+  <div class="modal-head" style="--accent:var(--s2)">
+    <div class="ttl"><span class="modal-eyebrow"><i class="sw"></i>Features · the two linear models</span><h2 id="t-weights">Weights</h2>
+      <p class="lede">What moves the score: coefficients per standard deviation in the two logistic regressions. Blue pushes a CVE toward KEV, magenta pushes it away.</p></div>
+    <button type="button" class="modal-close" data-close aria-label="Close">✕</button>
+  </div>
+  <div class="modal-body">
+    <div class="toolbar">
+      <div class="seg" role="group" aria-label="Model">
+        <button type="button" data-lr="Luis" aria-pressed="true">LR A · 56 features</button>
+        <button type="button" data-lr="Chen" aria-pressed="false">LR B · 100 features</button>
+      </div>
+      <div class="seg" role="group" aria-label="How many">
+        <button type="button" data-n="20" aria-pressed="true">Top 20</button>
+        <button type="button" data-n="999" aria-pressed="false">All</button>
+      </div>
+    </div>
+    <div class="chips" id="w-groups" role="group" aria-label="Feature group"></div>
+    <div class="grid-2">
+      <div class="tile">
+        <div class="swatch-legend"><span><i class="sw" style="background:var(--s1)"></i>Raises KEV odds</span><span><i class="sw" style="background:var(--s4)"></i>Lowers KEV odds</span></div>
+        <div id="w-bars" class="mini"></div>
+      </div>
+      <div class="tile">
+        <h3>Signal strength on its own</h3>
+        <p class="sub">Univariate AUC on the training years (0.5 = random). The text model trained on past KEV descriptions beats every exploit flag.</p>
+        <div id="w-auc"></div>
+        <p class="takeaway" id="w-take"></p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="modal-worked" data-accent="var(--s3)" role="dialog" aria-modal="true" aria-labelledby="t-worked" tabindex="-1">
+  <div class="modal-glow" style="--accent:var(--s3)" aria-hidden="true"></div>
+  <div class="modal-head" style="--accent:var(--s3)">
+    <div class="ttl"><span class="modal-eyebrow"><i class="sw"></i>Models · ensemble</span><h2 id="t-worked">What worked</h2>
+      <p class="lede">Exploited CVEs found on the practice exam (75 possible). Each step adds one idea to the one above. The line marks 35 — the most any model we built ever reached.</p></div>
+    <button type="button" class="modal-close" data-close aria-label="Close">✕</button>
+  </div>
+  <div class="modal-body">
+    <div class="grid-2 stack">
+      <div class="tile">
+        <h3>Results ladder</h3>
+        <div id="ladder"></div>
+        <p class="note">Final row uses Chen's out-of-fold LoRA scores, so it's an estimate. Random picks would find 0.5.</p>
+      </div>
+      <div class="tile">
+        <div class="toolbar"><h3>Every experiment</h3>
+          <div class="seg" role="group" aria-label="Filter experiments">
+            <button type="button" data-x="all" aria-pressed="true">All</button>
+            <button type="button" data-x="ok" aria-pressed="false">Helped</button>
+            <button type="button" data-x="no" aria-pressed="false">Didn't</button>
+          </div>
+        </div>
+        <div class="ledger" id="ledger"></div>
+      </div>
+    </div>
+    <p class="valnote">
+      <span data-tip="Rebuilt the exam on 2024 and 2025: train on one year, test on the other. 75 exploited CVEs, top 441 of 64,120, the same selection rate as 500 of 72,670.">A/B FORWARD TEST</span><em>·</em>
+      <span data-tip="75,148 CVEs in time blocks. Exploit chains never split across train and test. Run on Chen's 4× H100 box.">5-FOLD PURGED CV</span><em>·</em>
+      <span data-tip="With 75 positives, gaps under about 5 hits are noise. We stopped tuning when results stopped clearing that bar.">PAIRED BOOTSTRAP + HOLM</span>
+    </p>
+  </div>
+</div>
+
+<div class="modal" id="modal-output" data-accent="var(--s4)" role="dialog" aria-modal="true" aria-labelledby="t-output" tabindex="-1">
+  <div class="modal-glow" style="--accent:var(--s4)" aria-hidden="true"></div>
+  <div class="modal-head" style="--accent:var(--s4)">
+    <div class="ttl"><span class="modal-eyebrow"><i class="sw"></i>Post-processing · the result</span><h2 id="t-output">Output profile</h2>
+      <p class="lede">After the model: the list leans hard toward enterprise servers, remote code execution and products ransomware crews already use. Post-processing then spreads it across vendors.</p></div>
+    <button type="button" class="modal-close" data-close aria-label="Close">✕</button>
+  </div>
+  <div class="modal-body">
+    <div class="grid-3" id="post-kpis" style="grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr))"></div>
+    <div class="grid-2">
+      <div class="tile">
+        <div class="toolbar"><h3>Our picks vs all 2026 CVEs</h3>
+          <div class="seg" role="group" aria-label="Breakdown">
+            <button type="button" data-b="product_type" aria-pressed="true">Product type</button>
+            <button type="button" data-b="impact" aria-pressed="false">Impact</button>
+            <button type="button" data-b="typical_attacker" aria-pressed="false">Attacker</button>
+          </div>
+        </div>
+        <div class="swatch-legend"><span><i class="sw" style="background:var(--s1)"></i>Our top 500</span><span><i class="sw" style="background:var(--s0)"></i>All 2026 CVEs</span></div>
+        <div id="post-break"></div>
+        <p class="note">Categories from Granite 4.2 30B's reading of each description. Value = share of group; end label is the lift.</p>
+      </div>
+      <div class="tile">
+        <h3>Who voted for each pick</h3>
+        <p class="sub">Each model's own top 500 over the whole scoreboard. "None" = consensus picks: good on all three, first on none.</p>
+        <div id="post-voters"></div>
+        <p class="takeaway" id="voters-take"></p>
+      </div>
+      <div class="tile">
+        <h3>Vendors in the list</h3>
+        <p class="sub">Vendor as Granite 30B named it. The cap keeps any one vendor from filling a month.</p>
+        <div id="post-vendors"></div>
+        <div class="mini" id="cap-batches"></div>
+      </div>
+      <div class="tile">
+        <h3>Words the list over-represents</h3>
+        <p class="sub">Description word pairs in our 500 vs the whole scoreboard. Number = times more common.</p>
+        <div class="terms" id="post-terms"></div>
+        <h3>EPSS of our picks</h3>
+        <div class="swatch-legend"><span><i class="sw" style="background:var(--s1)"></i>Our top 500</span><span><i class="sw" style="background:var(--s0)"></i>All 2026 CVEs</span></div>
+        <div id="post-epss"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="modal-book" data-accent="var(--s1)" role="dialog" aria-modal="true" aria-labelledby="t-book" tabindex="-1">
+  <div class="modal-glow" style="--accent:var(--s1)" aria-hidden="true"></div>
+  <div class="modal-head" style="--accent:var(--s1)">
+    <div class="ttl"><span class="modal-eyebrow"><i class="sw"></i>Output · the submission</span><h2 id="t-book">The book</h2>
+      <p class="lede">The 500, with reasons. Select a row for the reason and how each model scored it. Dots show public exploit sources — Exploit-DB, Metasploit, Nuclei, GitHub PoC.</p></div>
+    <button type="button" class="modal-close" data-close aria-label="Close">✕</button>
+  </div>
+  <div class="modal-body">
+    <div class="toolbar">
+      <div style="display:flex;gap:10px;flex-wrap:wrap;flex:1;min-width:0">
+        <input type="search" id="q" placeholder="Search CVE, product or reason" aria-label="Search the list" style="flex:1;min-width:200px">
+        <select id="fcat" aria-label="Product type"><option value="">All product types</option></select>
+        <select id="fcode" aria-label="Exploit code"><option value="">With or without code</option><option value="1">Public exploit code</option><option value="0">No public code</option></select>
+      </div>
+    </div>
+    <div class="tbl-wrap"><table>
+      <thead><tr>
+        <th><button type="button" data-sort="r">Rank</button></th><th>CVE</th><th>Product</th><th>Type</th><th>Impact</th>
+        <th><button type="button" data-sort="e">EPSS</button></th><th>Code</th><th><button type="button" data-sort="tx">KEV-like text</button></th><th title="Percentile in each model, bars scaled from 80 to 100">Models · tree, linear, LLM</th>
+      </tr></thead>
+      <tbody id="tbody"><tr><td colspan="9" class="status-loading">Loading the list…</td></tr></tbody>
+    </table></div>
+    <div class="pager"><span id="pinfo"></span><button type="button" class="btn" id="prev">Previous</button><button type="button" class="btn" id="next">Next</button></div>
+  </div>
+</div>
+
 <div id="tip" role="tooltip" hidden></div>
 
 <script>
@@ -473,7 +507,7 @@ footer .wrap { padding-block: 32px 48px; color: var(--text-3); font-size: var(--
       var t = r.tip || (esc(r.label) + ": " + esc(r.text || fmt(r.value, o.dec)));
       return '<div class="bar-row' + (r.hl ? " hl" : "") + '" data-tip="' + esc(t) + '">' +
         '<span class="bl">' + esc(r.label) + (r.small ? "<small>" + esc(r.small) + "</small>" : "") + "</span>" +
-        '<span class="bt"><span class="bf" style="width:' + w + "%;background:" + (r.color || o.color || "var(--s1)") + ";animation-delay:" + (i * 20) + 'ms"></span></span>' +
+        '<span class="bt"><span class="bf" style="width:' + w + "%;background:" + (r.color || o.color || "var(--s1)") + ";animation-delay:" + (i * 15) + 'ms"></span></span>' +
         '<span class="bv">' + esc(r.text || fmt(r.value, o.dec)) + "</span></div>";
     }).join("") + "</div>";
   }
@@ -482,16 +516,16 @@ footer .wrap { padding-block: 32px 48px; color: var(--text-3); font-size: var(--
     var max = Math.max.apply(null, rows.map(function (r) { return Math.max(r.a, r.b); }));
     el.innerHTML = '<div class="bars grow">' + rows.map(function (r, i) {
       return '<div class="bar-row" data-tip="' + esc(r.tip || "") + '"><span class="bl">' + esc(r.label) + '</span><span class="bt two">' +
-        '<span class="bf" style="width:' + (r.a / max * 100) + '%;background:var(--s1);animation-delay:' + (i * 40) + 'ms"></span>' +
-        '<span class="bf" style="width:' + (r.b / max * 100) + '%;background:var(--s0);animation-delay:' + (i * 40 + 20) + 'ms"></span></span>' +
+        '<span class="bf" style="width:' + (r.a / max * 100) + '%;background:var(--s1);animation-delay:' + (i * 30) + 'ms"></span>' +
+        '<span class="bf" style="width:' + (r.b / max * 100) + '%;background:var(--s0);animation-delay:' + (i * 30 + 15) + 'ms"></span></span>' +
         '<span class="bv">' + esc(r.text) + "</span></div>";
     }).join("") + "</div>";
   }
   function columns(el, labels, a, b, tipFn) {   // grouped columns, shares in %, same scale
     var max = Math.max.apply(null, a.concat(b || []));
     el.innerHTML = '<div class="cols grow">' + labels.map(function (l, i) {
-      return '<div class="col" data-tip="' + esc(tipFn(i)) + '"><span class="cb" style="height:' + (a[i] / max * 100) + '%;background:var(--s1);animation-delay:' + (i * 50) + 'ms"></span>' +
-        (b ? '<span class="cb" style="height:' + (b[i] / max * 100) + '%;background:var(--s0);animation-delay:' + (i * 50 + 25) + 'ms"></span>' : "") + "</div>";
+      return '<div class="col" data-tip="' + esc(tipFn(i)) + '"><span class="cb" style="height:' + (a[i] / max * 100) + '%;background:var(--s1);animation-delay:' + (i * 40) + 'ms"></span>' +
+        (b ? '<span class="cb" style="height:' + (b[i] / max * 100) + '%;background:var(--s0);animation-delay:' + (i * 40 + 20) + 'ms"></span>' : "") + "</div>";
     }).join("") + '</div><div class="col-labels">' + labels.map(function (l) { return "<span>" + esc(l) + "</span>"; }).join("") + "</div>";
   }
 
@@ -505,45 +539,143 @@ footer .wrap { padding-block: 32px 48px; color: var(--text-3); font-size: var(--
     { id: "f_cvss", t: "CVSS, CWE & dates", re: /.*/ }
   ];
   function groupOf(f) { for (var i = 0; i < GROUPS.length; i++) if (GROUPS[i].re.test(f)) return GROUPS[i].id; return "f_cvss"; }
+  var GROUP_CHIP = { f_sig: 1, f_txt: 1, f_batch: 1, f_hist: 1, f_g30: 1, f_cvss: 1 };
 
   var KIND = {
     data: { c: "var(--s0)", n: "Data" }, feat: { c: "var(--s1)", n: "Features" }, ml: { c: "var(--s2)", n: "Classic ML" },
     ibm: { c: "var(--s3)", n: "IBM Granite" }, post: { c: "var(--s4)", n: "Post-processing" }
   };
 
+  // which modal a pipeline node opens
+  var ROUTE = {
+    cve: "raw", f_emb: "raw",
+    f_sig: "weights", f_txt: "weights", f_batch: "weights", f_hist: "weights", f_g30: "weights", f_cvss: "weights",
+    m_xgb: "worked", m_lrl: "worked", m_lrc: "worked", m_lora: "worked", e_rank: "worked",
+    g_lgbm: "worked", g_cat: "worked", g_l30: "worked", g_g2b: "worked",
+    p_filter: "output", p_cap: "output",
+    o_top: "book"
+  };
+
+  /* ------------------------------------------------------------------ modals: circular reveal, focus trap, escape-to-close */
+  var scene = $("#scene"), lastTrigger = null, openKey = null, weightsApi = null;
+  var MODALS = {};
+  ["raw", "weights", "worked", "output", "book"].forEach(function (k) { MODALS[k] = $("#modal-" + k); });
+
+  function setInert(on) {
+    try { if (on) { scene.setAttribute("inert", ""); scene.setAttribute("aria-hidden", "true"); } else { scene.removeAttribute("inert"); scene.removeAttribute("aria-hidden"); } } catch (e) {}
+  }
+
+  function maxRadius(x, y) {
+    var w = window.innerWidth, h = window.innerHeight;
+    return Math.ceil(Math.hypot(Math.max(x, w - x), Math.max(y, h - y))) + 4;
+  }
+
+  function openModal(key, x, y, trigger) {
+    var el = MODALS[key]; if (!el) return;
+    if (openKey && openKey !== key) closeModal(true);
+    lastTrigger = trigger || document.activeElement;
+    openKey = key;
+    el.classList.add("live");
+    setInert(true);
+    el.scrollTop = 0;
+    var R = maxRadius(x, y);
+    if (REDUCED) {
+      el.style.clipPath = "circle(" + R + "px at " + x + "px " + y + "px)";
+    } else {
+      el.animate(
+        [{ clipPath: "circle(0px at " + x + "px " + y + "px)" }, { clipPath: "circle(" + R + "px at " + x + "px " + y + "px)" }],
+        { duration: 460, easing: "cubic-bezier(.16,.9,.2,1)", fill: "forwards" }
+      );
+    }
+    var closeBtn = $(".modal-close", el);
+    setTimeout(function () { closeBtn && closeBtn.focus(); }, REDUCED ? 0 : 220);
+  }
+
+  function closeModal(skipFocusReturn) {
+    if (!openKey) return;
+    var key = openKey, el = MODALS[key];
+    var btn = $(".modal-close", el), r = btn.getBoundingClientRect();
+    var x = r.left + r.width / 2, y = r.top + r.height / 2;
+    setInert(false);
+    openKey = null;
+    function finish() { el.classList.remove("live"); el.style.clipPath = ""; }
+    if (REDUCED) { finish(); } else {
+      var R = maxRadius(x, y);
+      var anim = el.animate(
+        [{ clipPath: "circle(" + R + "px at " + x + "px " + y + "px)" }, { clipPath: "circle(0px at " + x + "px " + y + "px)" }],
+        { duration: 360, easing: "cubic-bezier(.5,0,.75,0)", fill: "forwards" }
+      );
+      anim.onfinish = finish;
+    }
+    if (!skipFocusReturn && lastTrigger && lastTrigger.focus) lastTrigger.focus();
+  }
+
+  document.addEventListener("keydown", function (e) { if (e.key === "Escape" && openKey) closeModal(); });
+  $$(".modal-close").forEach(function (b) { b.addEventListener("click", function () { closeModal(); }); });
+  $$("[data-open]").forEach(function (b) {
+    b.addEventListener("click", function () {
+      var r = b.getBoundingClientRect();
+      openModal(b.getAttribute("data-open"), r.left + r.width / 2, r.top + r.height / 2, b);
+    });
+  });
+
+  /* ------------------------------------------------------------------ pointer-driven 3D tilt on the stage */
+  (function () {
+    if (REDUCED) return;
+    var wrap = $("#tilt");
+    $("#scene").addEventListener("pointermove", function (e) {
+      if (window.matchMedia("(hover: none)").matches) return;
+      var r = wrap.getBoundingClientRect();
+      if (e.clientY < r.top - 80 || e.clientY > r.bottom + 80) return;
+      var px = (e.clientX - r.left) / r.width - 0.5, py = (e.clientY - r.top) / r.height - 0.5;
+      wrap.style.setProperty("--ry", (px * 7).toFixed(2) + "deg");
+      wrap.style.setProperty("--rx", (py * -7).toFixed(2) + "deg");
+    });
+    $("#scene").addEventListener("pointerleave", function () { wrap.style.setProperty("--rx", "0deg"); wrap.style.setProperty("--ry", "0deg"); });
+  })();
+
   /* ------------------------------------------------------------------ main */
   fetch("story_data.json").then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); })
     .then(start).catch(function (err) {
-      $("#pipe-canvas").innerHTML = '<p class="status-loading" style="padding:20px">The data file story_data.json did not load (' + esc(err.message) + "). Rebuild it with luis/frontend/build_story_data.py and publish it next to the page.</p>";
+      $("#asof").textContent = "data file did not load";
+      $("#pipe-svg").outerHTML = '<p class="status-loading" style="padding:16px">story_data.json did not load (' + esc(err.message) + "). Rebuild it with luis/frontend/build_story_data.py and publish it next to the page.</p>";
     });
 
   function start(D) {
-    $("#built").textContent = "data built " + D.built + ".";
+    $("#asof").textContent = "SNAPSHOT " + D.built;
     D.weights.forEach(function (w) { w.pg = groupOf(w.f); });
     countUp();
     buildPipeline(D);
-    buildWeights(D);
+    weightsApi = buildWeights(D);
     buildResults();
     buildBefore(D);
     buildAfter(D);
     buildTable(D);
-    navSpy();
+    dockStats(D);
   }
 
   function countUp() {
     if (REDUCED) return;
     $$("[data-count]").forEach(function (el) {
-      var end = parseFloat(el.getAttribute("data-count")), dec = +(el.getAttribute("data-dec") || 0), suf = el.getAttribute("data-suf") || "";
-      var t0 = performance.now(), dur = 650;
+      var end = parseFloat(el.getAttribute("data-count")), t0 = performance.now(), dur = 600;
       (function tick(t) {
         var p = Math.min(1, (t - t0) / dur), e = 1 - Math.pow(1 - p, 3);
-        el.textContent = fmt(end * e, dec) + suf;
+        el.textContent = fmt(Math.round(end * e));
         if (p < 1) requestAnimationFrame(tick);
       })(t0);
     });
   }
 
-  /* ------------------------------------------------------------------ chapter 2: pipeline network */
+  function dockStats(D) {
+    var P = D.post, R = D.pre;
+    $("#dock-raw").textContent = "58% invisible";
+    $("#dock-weights").textContent = "156 cols";
+    $("#dock-worked").textContent = "32/75 est.";
+    $("#dock-output").textContent = (P.voters.none || 0) + " consensus";
+    $("#dock-book").textContent = "500 rows";
+  }
+
+  /* ------------------------------------------------------------------ pipeline network (the hero stage) */
   function buildPipeline(D) {
     var share = { Luis: {}, Chen: {} }, tot = { Luis: 0, Chen: 0 }, cols = {};
     D.weights.forEach(function (w) {
@@ -556,44 +688,24 @@ footer .wrap { padding-block: 32px 48px; color: var(--text-3); font-size: var(--
 
     var L = [
       { h: "INPUT", nodes: [
-        { id: "cve", k: "data", t: "CVE snapshot", s: fmt(R.n_scoreboard) + " CVEs · 2026",
-          d: "One row per CVE: description, vendor, CVSS, CWE, EPSS and public exploit flags as of the end of its publish month. Trained on 2024 and 2025 rebuilt the same way.",
-          f: [["2026 CVEs", fmt(R.n_scoreboard)], ["With public exploit code", R.share_any_flag + "%"], ["Median EPSS", R.median_epss], ["Leak columns removed", "NVD status, reference counts, CPE counts"]], v: "ok" } ] },
+        { id: "cve", k: "data", t: "CVE snapshot", s: fmt(R.n_scoreboard) + " CVEs · 2026" } ] },
       { h: "FEATURES · 156 COLUMNS", nodes: GROUPS.map(function (g) {
-        return { id: g.id, k: g.id === "f_g30" ? "ibm" : "feat", t: g.t, s: nCols(g.id) + " columns", g: g.id, v: "ok",
-          d: { f_sig: "The 0/1 exploit flags and EPSS. Strong when present, but present for 2.3% of CVEs.",
-               f_txt: "Regex flags plus a TF-IDF model trained only on past KEV descriptions. The strongest single feature in the project.",
-               f_batch: "How the CVE was released: big same-day batches, twins, near-adjacent IDs, Patch Tuesday. Big batches rarely reach KEV.",
-               f_hist: "How often this assigner, vendor, product or CWE reached KEV before this year.",
-               f_g30: "IBM Granite 4.2 30B read every description and answered 11 questions: product type, internet exposure, install base, impact, typical attacker, attacker appeal.",
-               f_cvss: "CVSS 3/4 metrics, CWE, CVE-ID age, time to the deadline." }[g.id] };
-      }).concat([{ id: "f_emb", k: "ibm", t: "Granite Embedding", s: "clusters · nearest KEV", v: "ok",
-        d: "Granite Embedding vectors of every description. Alone they score AUC 0.81 vs 0.91 for TF-IDF, so they don't rank. They group 2026 CVEs into clusters and find the most similar past KEV entry for each pick.",
-        f: [["Clusters", "60"], ["Picks with a KEV twin (similarity ≥ 0.85)", P.nearest_kev_ge_085 + " of 500"]] }]) },
+        return { id: g.id, k: g.id === "f_g30" ? "ibm" : "feat", t: g.t, s: nCols(g.id) + " columns" };
+      }).concat([{ id: "f_emb", k: "ibm", t: "Granite Embedding", s: "clusters · nearest KEV" }]) },
       { h: "MODELS", nodes: [
-        { id: "m_xgb", k: "ml", t: "XGBoost", s: "40 seeds averaged", v: "ok", d: "Gradient-boosted trees on the leak-free features. Averaging 40 seeds keeps the top-500 boundary stable.",
-          f: [["Alone, practice exam", "23 (LightGBM, same features)"], ["With the linear model", "28"], ["Two single runs share", "409 of 500"]] },
-        { id: "m_lrl", k: "ml", t: "Logistic regression A", s: "56 features · Luis", v: "ok", d: "L2 logistic regression, C chosen inside the training year. Averaged with LR B into one linear voter.",
-          f: [["Features", "56"], ["Regularization", "C = 0.001"], ["Strongest weight", "KEV-like text +0.83"]] },
-        { id: "m_lrc", k: "ml", t: "Logistic regression B", s: "100 features · Chen", v: "ok", d: "Same model family with CVSS, metadata and the 55 Granite 30B answers. Best single model on the practice exam.",
-          f: [["Features", "100"], ["Regularization", "C = 0.0001"], ["Alone, practice exam", "28 at density"], ["Agreement with LR A", "Spearman 0.59"]] },
-        { id: "m_lora", k: "ibm", t: "Granite 4.2 8B LoRA", s: "fine-tuned · 4 seeds", v: "ok", d: "Granite 4.2 8B fine-tuned to answer yes or no: will this CVE reach KEV? It reads a CVE card: description, CWE, CVSS, EPSS percentile, flags.",
-          f: [["Training CVEs", "75,148 (119 KEV)"], ["Added as third voter", "28 → 32 (estimate)"], ["Single seeds share", "135–264 of 500"]] },
-        { id: "g_lgbm", k: "ml", t: "LightGBM", s: "tie with XGBoost", ghost: 1, v: "no", d: "Same features as XGBoost. 24 vs 24 on Chen's CV and 32 vs 32 inside the final ensemble. A tie, so it stayed out.", f: [] },
-        { id: "g_cat", k: "ml", t: "CatBoost", s: "memorized vendors", ghost: 1, v: "no", d: "Learned assigner IDs by heart. 14 hits on the practice exam.", f: [] },
-        { id: "g_l30", k: "ibm", t: "Granite 4.2 30B LoRA", s: "bigger, worse", ghost: 1, v: "no", d: "Same recipe on the 30B model. 28 hits vs 32 with the 8B as the third voter.", f: [] },
-        { id: "g_g2b", k: "ibm", t: "Granite 3.3 2B zero-shot", s: "kept for reasons only", ghost: 1, v: "no", d: "Yes/no prompts on the top 5%. +2 hits without the cap, 0 with it. Its answers stayed in the explanations.", f: [] } ] },
-      { h: "ENSEMBLE", nodes: [
-        { id: "e_rank", k: "ml", t: "Rank average", s: "tree · linear · LLM", v: "ok", d: "Each voter becomes a percentile; the three are averaged with equal weight. No weights were tuned, to avoid fitting the practice exam.",
-          f: [["Voters", "3, equal weight"], ["Picks no single voter had in its top 500", (P.voters.none || 0) + " of 500"], ["Tree vs LLM agreement", "Spearman " + P.voter_corr.tree.llm]] } ] },
+        { id: "m_xgb", k: "ml", t: "XGBoost", s: "40 seeds averaged" },
+        { id: "m_lrl", k: "ml", t: "Logistic regression A", s: "56 features · Luis" },
+        { id: "m_lrc", k: "ml", t: "Logistic regression B", s: "100 features · Chen" },
+        { id: "m_lora", k: "ibm", t: "Granite 4.2 8B LoRA", s: "fine-tuned · 4 seeds" },
+        { id: "g_lgbm", k: "ml", t: "LightGBM", s: "tie with XGBoost", ghost: 1 },
+        { id: "g_cat", k: "ml", t: "CatBoost", s: "memorized vendors", ghost: 1 },
+        { id: "g_l30", k: "ibm", t: "Granite 4.2 30B LoRA", s: "bigger, worse", ghost: 1 },
+        { id: "g_g2b", k: "ibm", t: "Granite 3.3 2B zero-shot", s: "kept for reasons only", ghost: 1 } ] },
+      { h: "ENSEMBLE", nodes: [{ id: "e_rank", k: "ml", t: "Rank average", s: "tree · linear · LLM" }] },
       { h: "POST-PROCESSING", nodes: [
-        { id: "p_filter", k: "ibm", t: "Granite demotion", s: "4 rules", v: "ok", d: "Pushes down CVEs that Granite 30B reads as denial-of-service only, an unlikely target, low attacker appeal, or a WordPress plugin. Each rule was checked on the training years first.",
-          f: [["2026 CVEs pushed down", R.granite_demoted_share + "%"], ["Removed from the top 500", P.filters_pushed_out], ["Past KEV positives caught", "1 of 75"]] },
-        { id: "p_cap", k: "post", t: "Vendor cap", s: "≤ 3 per assigner-month", v: "ok", d: "At most 3 CVEs per assigner per month. Insurance against one vendor's batch filling the list.",
-          f: [["Removed from the top 500", P.cap_pushed_out], ["Biggest batch cut", (P.cap_biggest_batches[0] ? P.cap_biggest_batches[0].would_have + " → 3" : "–")], ["Effect on the baseline", "19 → 22 hits"]] } ] },
-      { h: "OUTPUT", nodes: [
-        { id: "o_top", k: "data", t: "top500.csv", s: "500 CVEs + reasons", v: "ok", d: "The submitted ranking. Every pick carries a reason built from the signals, Granite 30B's reading and its nearest past KEV entry.",
-          f: [["With public exploit code", P.exploit_code.top + " of 500"], ["Expected KEV additions", "≈ 12 (80%: 7–22)"], ["Best baseline", "8"]] } ] }
+        { id: "p_filter", k: "ibm", t: "Granite demotion", s: "4 rules" },
+        { id: "p_cap", k: "post", t: "Vendor cap", s: "≤ 3 per assigner-month" } ] },
+      { h: "OUTPUT", nodes: [{ id: "o_top", k: "data", t: "top500.csv", s: "500 CVEs + reasons" }] }
     ];
     var E = [];
     var add = function (a, b, o) { E.push(Object.assign({ a: a, b: b }, o || {})); };
@@ -606,13 +718,13 @@ footer .wrap { padding-block: 32px 48px; color: var(--text-3); font-size: var(--
     });
     add("f_g30", "m_lrc", { w: 1 + 9 * (share.Chen.f_g30 || 0), lr: "Chen" });
     ["f_txt", "f_sig", "f_cvss"].forEach(function (g) { add(g, "m_lora", { w: 1.6 }); add(g, "g_l30", { ghost: 1 }); add(g, "g_g2b", { ghost: 1 }); });
-    ["m_xgb", "m_lrl", "m_lrc", "m_lora"].forEach(function (m) { add(m, "e_rank", { w: 2 }); });
-    add("e_rank", "p_filter", { w: 2.4 }); add("f_g30", "p_filter", { w: 1.4 });
-    add("p_filter", "p_cap", { w: 2.4, down: 1 }); add("p_cap", "o_top", { w: 2.4 });
+    ["m_xgb", "m_lrl", "m_lrc", "m_lora"].forEach(function (m) { add(m, "e_rank", { w: 2.6, spine: 1 }); });
+    add("e_rank", "p_filter", { w: 3.2, spine: 1 }); add("f_g30", "p_filter", { w: 1.4 });
+    add("p_filter", "p_cap", { w: 3.2, down: 1, spine: 1 }); add("p_cap", "o_top", { w: 3.2, spine: 1 });
     add("f_emb", "o_top", { explain: 1 }); add("f_g30", "o_top", { explain: 1 });
 
-    var showGhost = false, sel = "cve";
-    var W = 1300, H = 620, X = [80, 310, 560, 815, 1015, 1210], TOP = 70, BOT = 30;
+    var showGhost = false;
+    var W = 1600, H = 760, X = [90, 365, 670, 1000, 1255, 1505], TOP = 74, BOT = 32;
     var byId = {};
     function layout() {
       L.forEach(function (layer, i) {
@@ -622,48 +734,62 @@ footer .wrap { padding-block: 32px 48px; color: var(--text-3); font-size: var(--
       });
     }
     function edgePath(a, b, down) {
-      if (down) return "M" + a.x + "," + (a.y + 14) + " L" + b.x + "," + (b.y - 14);
-      var x1 = a.x + 14, x2 = b.x - 14, mx = (x1 + x2) / 2;
+      if (down) return "M" + a.x + "," + (a.y + 12) + " L" + b.x + "," + (b.y - 12);
+      var x1 = a.x + 12, x2 = b.x - 12, mx = (x1 + x2) / 2;
       return "M" + x1 + "," + a.y + " C" + mx + "," + a.y + " " + mx + "," + b.y + " " + x2 + "," + b.y;
     }
     function render() {
       layout();
-      var s = '<svg viewBox="0 0 ' + W + " " + H + '" role="img" aria-label="Pipeline network: input, feature groups, models, ensemble, post-processing, output">';
-      L.forEach(function (layer, i) { s += '<text class="n-layer" x="' + X[i] + '" y="30" text-anchor="middle">' + layer.h + "</text>"; });
+      var out = "<defs>" + Object.keys(KIND).map(function (k) {
+        return '<radialGradient id="glow-' + k + '" cx="50%" cy="42%" r="60%"><stop offset="0%" stop-color="' + KIND[k].c + '" stop-opacity=".95"/><stop offset="100%" stop-color="' + KIND[k].c + '" stop-opacity="0"/></radialGradient>';
+      }).join("") + '<filter id="bloom" x="-120%" y="-120%" width="340%" height="340%"><feGaussianBlur stdDeviation="7" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>';
+      out += L.map(function (layer, i) { return '<text class="n-layer" x="' + X[i] + '" y="26" text-anchor="middle">' + layer.h + "</text>"; }).join("");
       var vis = E.filter(function (e) { return byId[e.a] && byId[e.b] && byId[e.a].vis && byId[e.b].vis && (showGhost || !e.ghost); });
       vis.forEach(function (e, i) {
         var a = byId[e.a], b = byId[e.b], p = edgePath(a, b, e.down), c = KIND[a.k].c;
         var w = e.ghost ? 1 : (e.w || 1.2);
         var t = e.lr ? ' data-tip="' + esc(a.t + " → " + b.t + ": " + Math.round(((e.lr === "Luis" ? share.Luis : share.Chen)[a.id] || 0) * 100) + "% of the model's total weight") + '"' : "";
-        s += '<path class="edge' + (e.explain ? " explain" : "") + '" data-e="' + i + '" data-a="' + e.a + '" data-b="' + e.b + '" d="' + p + '" stroke-width="' + w + '"' + (e.ghost ? ' stroke-dasharray="3 4"' : "") + t + ' style="pointer-events:stroke"></path>';
-        if (!e.ghost) s += '<path class="flow' + (e.explain ? " explain" : "") + '" data-a="' + e.a + '" data-b="' + e.b + '" d="' + p + '" stroke-width="' + Math.max(1.2, w * 0.55) + '" style="stroke:' + c + ';animation-delay:-' + ((i * 0.37) % 1.6).toFixed(2) + 's;pointer-events:none"></path>';
+        out += '<path class="edge' + (e.explain ? " explain" : "") + (e.spine ? " spine" : "") + '" data-e="' + i + '" data-a="' + e.a + '" data-b="' + e.b + '" d="' + p + '" stroke-width="' + w + '"' + (e.ghost ? ' stroke-dasharray="3 4"' : "") + t + ' style="pointer-events:stroke"></path>';
+        if (!e.ghost) {
+          out += '<path class="flow' + (e.explain ? " explain" : "") + '" data-a="' + e.a + '" data-b="' + e.b + '" d="' + p + '" stroke-width="' + Math.max(1.3, w * 0.6) + '" style="stroke:' + c + ';animation-delay:-' + ((i * 0.37) % 1.6).toFixed(2) + 's;pointer-events:none"></path>';
+          if (!REDUCED) out += '<circle r="' + (e.spine ? 4 : 3.2) + '" class="pkt" style="fill:' + c + ';color:' + c + ';offset-path:path(\'' + p + '\');animation:pkt ' + (2.6 + (i % 5) * 0.5).toFixed(1) + 's linear infinite;animation-delay:-' + ((i * 0.53) % 3).toFixed(2) + 's;pointer-events:none"></circle>';
+        }
       });
       L.forEach(function (layer) {
         layer.nodes.forEach(function (n) {
           if (!n.vis) return;
-          var c = KIND[n.k].c, r = n.id === "cve" || n.id === "o_top" ? 14 : 11;
+          var c = KIND[n.k].c, r = n.id === "cve" || n.id === "o_top" ? 17 : 13;
           var gauge = "";
-          if (n.g) {   // ring = share of LR B's (or A's) weight carried by this group
-            var sh = Math.max(share.Luis[n.g] || 0, share.Chen[n.g] || 0), C = 2 * Math.PI * 18;
-            gauge = '<circle cx="' + n.x + '" cy="' + n.y + '" r="18" fill="none" stroke-width="3" style="stroke:var(--track)"></circle>' +
-              '<circle cx="' + n.x + '" cy="' + n.y + '" r="18" fill="none" stroke-width="3" style="stroke:' + c + '" stroke-dasharray="' + (C * sh).toFixed(1) + " " + C.toFixed(1) + '" transform="rotate(-90 ' + n.x + " " + n.y + ')"></circle>';
+          if (GROUP_CHIP[n.id] || n.id === "f_g30") {
+            var sh = Math.max(share.Luis[n.id] || 0, share.Chen[n.id] || 0), C = 2 * Math.PI * 20;
+            gauge = '<circle cx="' + n.x + '" cy="' + n.y + '" r="20" fill="none" stroke-width="3.5" style="stroke:rgba(255,255,255,.14)"></circle>' +
+              '<circle cx="' + n.x + '" cy="' + n.y + '" r="20" fill="none" stroke-width="3.5" style="stroke:' + c + '" stroke-dasharray="' + (C * sh).toFixed(1) + " " + C.toFixed(1) + '" transform="rotate(-90 ' + n.x + " " + n.y + ')"></circle>';
           }
-          var tw = Math.max(n.t.length * 7.2, n.s.length * 6) + 14;
-          s += '<g class="node' + (n.ghost ? " ghost" : "") + (n.id === sel ? " sel" : "") + '" data-n="' + n.id + '" tabindex="0" role="button" aria-label="' + esc(n.t + ". " + n.s) + '">' +
-            '<rect class="n-plate" x="' + (n.x - tw / 2) + '" y="' + (n.y + 21) + '" width="' + tw + '" height="32"></rect>' + gauge +
-            '<circle class="n-halo" cx="' + n.x + '" cy="' + n.y + '" r="' + (r + 9) + '"></circle>' +
+          var tw = Math.max(n.t.length * 7.8, n.s.length * 6.6) + 16;
+          out += '<g class="node' + (n.ghost ? " ghost" : "") + '" data-n="' + n.id + '" tabindex="0" role="button" aria-label="Open ' + esc(n.t + ". " + n.s) + '">' +
+            '<circle class="n-glow" cx="' + n.x + '" cy="' + n.y + '" r="' + (r + 24) + '" fill="url(#glow-' + n.k + ')" filter="url(#bloom)"></circle>' +
+            '<rect class="n-plate" x="' + (n.x - tw / 2) + '" y="' + (n.y + 22) + '" width="' + tw + '" height="34" rx="7"></rect>' + gauge +
             '<circle class="n-core" cx="' + n.x + '" cy="' + n.y + '" r="' + r + '" style="fill:' + c + '"></circle>' +
-            '<text class="n-title" x="' + n.x + '" y="' + (n.y + 35) + '" text-anchor="middle">' + esc(n.t) + "</text>" +
-            '<text class="n-sub" x="' + n.x + '" y="' + (n.y + 49) + '" text-anchor="middle">' + esc(n.s) + "</text></g>";
+            '<text class="n-title" x="' + n.x + '" y="' + (n.y + 38) + '" text-anchor="middle">' + esc(n.t) + "</text>" +
+            '<text class="n-sub" x="' + n.x + '" y="' + (n.y + 52) + '" text-anchor="middle">' + esc(n.s) + "</text></g>";
         });
       });
-      s += "</svg>";
-      $("#pipe-canvas").innerHTML = s;
-      $$("#pipe-canvas .node").forEach(function (g) {
-        g.addEventListener("click", function () { select(g.getAttribute("data-n")); });
-        g.addEventListener("keydown", function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); select(g.getAttribute("data-n")); } });
-        g.addEventListener("pointerenter", function () { highlight(g.getAttribute("data-n")); });
+      $("#pipe-svg").setAttribute("viewBox", "0 0 " + W + " " + H);
+      $("#pipe-svg").innerHTML = out;
+      $$("#pipe-svg .node").forEach(function (g) {
+        var id = g.getAttribute("data-n");
+        function go() {
+          var r = g.querySelector(".n-core").getBoundingClientRect();
+          var grp = GROUP_CHIP[id] ? id : null;
+          if (grp && weightsApi) weightsApi.selectGroup(grp);
+          openModal(ROUTE[id] || "worked", r.left + r.width / 2, r.top + r.height / 2, g);
+        }
+        g.addEventListener("click", go);
+        g.addEventListener("keydown", function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); go(); } });
+        g.addEventListener("pointerenter", function () { highlight(id); });
         g.addEventListener("pointerleave", function () { highlight(null); });
+        g.addEventListener("focus", function () { highlight(id); });
+        g.addEventListener("blur", function () { highlight(null); });
       });
     }
     function connected(id) {
@@ -675,75 +801,46 @@ footer .wrap { padding-block: 32px 48px; color: var(--text-3); font-size: var(--
       walk(true); walk(false); return set;
     }
     function highlight(id) {
-      var svg = $("#pipe-canvas svg"); if (!svg) return;
+      var svg = $("#pipe-svg"); if (!svg) return;
       if (!id) { $$(".dim", svg).forEach(function (x) { x.classList.remove("dim"); }); return; }
       var set = connected(id);
       $$(".node", svg).forEach(function (g) { g.classList.toggle("dim", !set[g.getAttribute("data-n")]); });
-      $$(".edge, .flow", svg).forEach(function (p) { p.classList.toggle("dim", !(set[p.getAttribute("data-a")] && set[p.getAttribute("data-b")])); });
+      $$(".edge, .flow, .pkt", svg).forEach(function (p) { p.classList.toggle("dim", !(set[p.getAttribute("data-a")] && set[p.getAttribute("data-b")])); });
     }
-    function select(id) {
-      sel = id;
-      $$("#pipe-canvas .node").forEach(function (g) { g.classList.toggle("sel", g.getAttribute("data-n") === id); });
-      var n = byId[id], k = KIND[n.k], facts = (n.f || []).slice();
-      var extra = "";
-      if (n.g) {
-        facts = [["Columns", nCols(n.g)], ["Share of LR A weight", Math.round((share.Luis[n.g] || 0) * 100) + "%"], ["Share of LR B weight", Math.round((share.Chen[n.g] || 0) * 100) + "%"]];
-        var top = D.weights.filter(function (w) { return w.pg === n.g; }).sort(function (a, b) { return Math.abs(b.c) - Math.abs(a.c); }).slice(0, 6);
-        var mx = Math.max.apply(null, top.map(function (w) { return Math.abs(w.c); }).concat([0.01]));
-        extra = '<div class="mini"><div class="eyebrow">Heaviest columns</div>' + top.map(function (w) {
-          var pct = Math.abs(w.c) / mx * 50;
-          return '<div class="dv-row" style="grid-template-columns:minmax(0,1fr) 90px 3rem" data-tip="' + esc(w.f + " (LR " + (w.lr === "Luis" ? "A" : "B") + ")" + (w.d ? ": " + w.d : "")) + '"><span class="bl">' + esc(w.f) +
-            '</span><span class="dv-track"><span class="dv-bar ' + (w.c >= 0 ? "pos" : "neg") + '" style="width:' + pct + '%"></span></span><span class="bv">' + (w.c >= 0 ? "+" : "") + w.c.toFixed(2) + "</span></div>";
-        }).join("") + "</div>";
-      }
-      if (id === "f_emb") {
-        extra = '<div class="mini"><div class="eyebrow">Most-exploited clusters</div>' + D.pre.clusters.slice(0, 4).map(function (c) {
-          return '<div class="note"><b style="color:var(--text);font-weight:500">' + esc(c.products[0] || c.terms[0]) + "</b> · KEV rate " + c.kev_rate + "% · " + fmt(c.cves_2026) + " CVEs in 2026</div>";
-        }).join("") + "</div>";
-      }
-      $("#pipe-side").innerHTML = '<span class="kind"><i class="dot" style="background:' + k.c + '"></i>' + k.n + "</span><h3>" + esc(n.t) + "</h3>" +
-        '<span class="verdict ' + (n.v === "ok" ? "ok" : "no") + '">' + (n.v === "ok" ? "✓ In the final pipeline" : "✕ Tested, dropped") + "</span>" +
-        '<p style="color:var(--text-2)">' + esc(n.d) + "</p>" +
-        (facts.length ? '<dl class="facts">' + facts.map(function (f) { return "<div><dt>" + esc(f[0]) + "</dt><dd>" + esc(f[1]) + "</dd></div>"; }).join("") + "</dl>" : "") + extra;
-    }
-    $("#pipe-legend").innerHTML = Object.keys(KIND).map(function (k) { return '<span><i class="dot" style="background:' + KIND[k].c + '"></i>' + KIND[k].n + "</span>"; }).join("") +
-      '<span><svg width="26" height="8" aria-hidden="true"><line x1="0" y1="4" x2="26" y2="4" stroke-width="1.5" stroke-dasharray="2 4" style="stroke:var(--text-3)"></line></svg>Explains, doesn\'t score</span>';
-    function setGhost(on) {
-      showGhost = on; $("#ghost-on").setAttribute("aria-pressed", on); $("#ghost-off").setAttribute("aria-pressed", !on);
-      if (!on && byId[sel] && byId[sel].ghost) sel = "cve";
-      render(); select(on ? "g_l30" : sel);
-    }
-    $("#ghost-on").addEventListener("click", function () { setGhost(true); });
-    $("#ghost-off").addEventListener("click", function () { setGhost(false); });
-    render(); select(sel);
+    $("#pipe-legend").innerHTML = Object.keys(KIND).map(function (k) { return '<span><i class="sw" style="background:' + KIND[k].c + '"></i>' + KIND[k].n + "</span>"; }).join("") +
+      '<span><svg width="20" height="7" aria-hidden="true"><line x1="0" y1="3.5" x2="20" y2="3.5" stroke-width="1.4" stroke-dasharray="2 4" style="stroke:var(--text-3)"></line></svg>explains, doesn\'t score</span>';
+    $("#ghost-switch").addEventListener("change", function (e) { showGhost = e.target.checked; render(); });
+    render();
   }
 
-  /* ------------------------------------------------------------------ chapter 3: weights */
+  /* ------------------------------------------------------------------ weights modal */
   function buildWeights(D) {
     var lr = "Luis", n = 20, grp = "";
     var chips = $("#w-groups");
     var G = [{ id: "", t: "All groups" }].concat(GROUPS);
     chips.innerHTML = G.map(function (g) { return '<button type="button" class="chip" data-g="' + g.id + '" aria-pressed="' + (g.id === "" ? "true" : "false") + '">' + esc(g.t) + "</button>"; }).join("");
     function draw() {
+      $$(".chip", chips).forEach(function (x) { x.setAttribute("aria-pressed", x.getAttribute("data-g") === grp); });
       var rows = D.weights.filter(function (w) { return w.lr === lr && (!grp || w.pg === grp); }).sort(function (a, b) { return Math.abs(b.c) - Math.abs(a.c); });
       var shown = rows.slice(0, n), mx = Math.max.apply(null, rows.map(function (w) { return Math.abs(w.c); }).concat([0.01]));
       $("#w-bars").className = "mini grow";
       $("#w-bars").innerHTML = shown.length ? shown.map(function (w, i) {
         var t = esc(w.f) + "<br>" + (w.c >= 0 ? "+" : "") + w.c.toFixed(3) + " per SD" + (w.d ? "<br>" + esc(w.d) : "") + (w.eq ? "<br><i>In the other LR: " + esc(w.eq) + "</i>" : "");
         return '<div class="dv-row" data-tip="' + esc(t) + '"><span class="bl">' + esc(w.f) + '</span><span class="dv-track"><span class="dv-bar ' + (w.c >= 0 ? "pos" : "neg") +
-          '" style="width:' + (Math.abs(w.c) / mx * 50) + "%;animation-delay:" + (i * 25) + 'ms"></span></span><span class="bv">' + (w.c >= 0 ? "+" : "") + w.c.toFixed(2) + "</span></div>";
+          '" style="width:' + (Math.abs(w.c) / mx * 50) + "%;animation-delay:" + (i * 18) + 'ms"></span></span><span class="bv">' + (w.c >= 0 ? "+" : "") + w.c.toFixed(2) + "</span></div>";
       }).join("") + (rows.length > n ? '<p class="note">' + (rows.length - n) + " more in this view. Select All to see them.</p>" : "") : '<p class="note">No columns from this group in this model.</p>';
     }
     $$("[data-lr]").forEach(function (b) { b.addEventListener("click", function () { lr = b.getAttribute("data-lr"); $$("[data-lr]").forEach(function (x) { x.setAttribute("aria-pressed", x === b); }); draw(); }); });
     $$("[data-n]").forEach(function (b) { b.addEventListener("click", function () { n = +b.getAttribute("data-n"); $$("[data-n]").forEach(function (x) { x.setAttribute("aria-pressed", x === b); }); draw(); }); });
-    $$(".chip", chips).forEach(function (b) { b.addEventListener("click", function () { grp = b.getAttribute("data-g"); $$(".chip", chips).forEach(function (x) { x.setAttribute("aria-pressed", x === b); }); draw(); }); });
+    $$(".chip", chips).forEach(function (b) { b.addEventListener("click", function () { grp = b.getAttribute("data-g"); draw(); }); });
     draw();
     var u = D.pre.univariate.slice(0, 10);
     hbars($("#w-auc"), u.map(function (r) { return { label: r.feature, small: nice(r.group), value: r.auc, text: r.auc.toFixed(2), tip: esc(r.feature) + ": AUC " + r.auc + ", top 5% holds " + r.lift_top5 + "× the base KEV rate" }; }), { min: 0.5, max: 1 });
     $("#w-take").textContent = "Both LRs put their biggest weight on how much a description reads like past KEV entries, and their biggest negative on big same-day release batches.";
+    return { selectGroup: function (id) { grp = GROUP_CHIP[id] ? id : ""; draw(); } };
   }
 
-  /* ------------------------------------------------------------------ chapter 4: results */
+  /* ------------------------------------------------------------------ what-worked modal */
   function buildResults() {
     var L = [
       ["CVSS score", 5], ["EPSS", 11], ["Exploit code, then EPSS", 19], ["LightGBM", 23], ["LightGBM + logistic regression", 26],
@@ -780,7 +877,7 @@ footer .wrap { padding-block: 32px 48px; color: var(--text-3); font-size: var(--
     draw("all");
   }
 
-  /* ------------------------------------------------------------------ chapter 5: before the model */
+  /* ------------------------------------------------------------------ raw-signal modal */
   function buildBefore(D) {
     var R = D.pre, fl = R.flags;
     hbars($("#pre-flags"), [
@@ -792,27 +889,27 @@ footer .wrap { padding-block: 32px 48px; color: var(--text-3); font-size: var(--
     hbars($("#pre-groups"), Object.keys(R.group_best_auc).map(function (g) { return { label: gn[g] || g, value: R.group_best_auc[g], text: R.group_best_auc[g].toFixed(2), color: g === "text" || g === "granite" ? "var(--s1)" : "var(--s0)" }; }), { min: 0.5, max: 1 });
     var leak = [["Exploit code, then EPSS", 19, "var(--s0)"], ["Leak only: tree model", 2, "var(--s4)"], ["Leak only: logistic regression", 4, "var(--s4)"], ["Leak only: sort by references", 4, "var(--s4)"], ["Clean model", 26, "var(--s1)"], ["Clean + leak", 28, "var(--s1)"]];
     hbars($("#pre-leak"), leak.map(function (r) { return { label: r[0], value: r[1], color: r[2], text: String(r[1]), tip: esc(r[0]) + ": " + r[1] + " of 75" }; }), { max: 30 });
-    $("#pre-clusters").innerHTML = '<div class="eyebrow" style="padding:6px 0;border-bottom:1px solid var(--border);display:grid;grid-template-columns:3.4rem minmax(0,1fr) 4.5rem;gap:12px"><span>KEV rate</span><span>Cluster</span><span style="text-align:right">2026 CVEs</span></div>' +
+    $("#pre-clusters").innerHTML = '<div><span>KEV rate</span><span>Cluster</span><span style="text-align:right">2026 CVEs</span></div>' +
       R.clusters.slice(0, 8).map(function (c) {
         return '<div><span class="r">' + c.kev_rate.toFixed(1) + '%</span><span class="t"><b>' + esc(c.products.slice(0, 2).join(", ") || "—") + "</b><br>" + esc(c.terms.slice(0, 4).join(" · ")) + '</span><span class="r" style="text-align:right">' + fmt(c.cves_2026) + "</span></div>";
       }).join("");
-    $("#kev-sub").textContent = "KEV catalog entries by vendor (" + fmt(R.kev_total) + " in total; " + R.kev_ransomware_share + "% with known ransomware use).";
+    $("#kev-sub").textContent = "KEV catalog entries by vendor (" + fmt(R.kev_total) + " total; " + R.kev_ransomware_share + "% with known ransomware use).";
     var kv = R.kev_vendors;
     hbars($("#pre-kev"), Object.keys(kv).slice(0, 8).map(function (k) { return { label: k, value: kv[k] }; }));
     var mk = Object.keys(R.months);
     columns($("#pre-months"), mk.map(function (m) { return m.slice(5); }), mk.map(function (m) { return R.months[m]; }), null, function (i) { return "2026-" + mk[i].slice(5) + ": " + fmt(R.months[mk[i]]) + " CVEs"; });
   }
 
-  /* ------------------------------------------------------------------ chapter 6: after the model */
+  /* ------------------------------------------------------------------ output-profile modal */
   function buildAfter(D) {
     var P = D.post, R = D.pre;
     var k = [
-      [P.exploit_code.top + "", "of our 500 have public exploit code, vs " + R.share_any_flag + "% of all 2026 CVEs"],
+      [P.exploit_code.top + "", "have public exploit code, vs " + R.share_any_flag + "% of all 2026 CVEs"],
       ["0", "Granite-demoted CVEs in the list. " + R.granite_demoted_share + "% of all 2026 CVEs were pushed down"],
       [P.cap_pushed_out + "", "CVEs the vendor cap moved out of the top 500"],
       [(P.voters.none || 0) + "", "consensus picks: in no single model's top 500, in ours"]
     ];
-    $("#post-kpis").innerHTML = k.map(function (x, i) { return '<div class="kpi' + (i === 0 ? " hl" : "") + '"><div class="v">' + esc(x[0]) + '</div><div class="l">' + esc(x[1]) + "</div></div>"; }).join("");
+    $("#post-kpis").innerHTML = k.map(function (x, i) { return '<div class="tile" style="padding:13px 14px"><h3 style="font-size:1.4rem;font-family:var(--mono);font-weight:500' + (i === 0 ? ";color:#9cbcff" : "") + '">' + esc(x[0]) + '</h3><p class="sub">' + esc(x[1]) + "</p></div>"; }).join("");
     function breakdown(key) {
       pairbars($("#post-break"), P[key].slice(0, 7).map(function (r) {
         return { label: nice(r.key), a: r.top, b: r.all, text: r.lift.toFixed(1) + "×", tip: esc(nice(r.key)) + ": " + r.top + "% of our 500 vs " + r.all + "% of all 2026 CVEs" };
@@ -829,8 +926,8 @@ footer .wrap { padding-block: 32px 48px; color: var(--text-3); font-size: var(--
     var vd = P.vendors;
     hbars($("#post-vendors"), Object.keys(vd).slice(0, 10).map(function (k) { return { label: k, value: vd[k] }; }));
     var an = function (a) { var m = /^[^@]+@([^.]+)/.exec(a); return m ? m[1].charAt(0).toUpperCase() + m[1].slice(1) : a.slice(0, 8); };
-    $("#cap-batches").innerHTML = '<div class="eyebrow">Biggest batches the cap trimmed to 3</div>' + P.cap_biggest_batches.slice(0, 4).map(function (b) {
-      return '<div class="note"><b style="color:var(--text);font-weight:500">' + esc(an(b.assigner)) + "</b> · " + esc(b.month) + " · would have placed " + b.would_have + "</div>";
+    $("#cap-batches").innerHTML = P.cap_biggest_batches.slice(0, 4).map(function (b) {
+      return '<div class="note">Biggest cut: <b style="color:var(--text);font-weight:500">' + esc(an(b.assigner)) + "</b> · " + esc(b.month) + " · would have placed " + b.would_have + "</div>";
     }).join("");
     $("#post-terms").innerHTML = P.bigrams.slice(0, 12).map(function (b) { return '<span class="term" data-tip="' + esc(b.term + ": " + b.top + " of our 500, " + fmt(b.all) + " of all 2026 CVEs") + '">' + esc(b.term) + "<em>" + b.lift.toFixed(1) + "×</em></span>"; }).join("");
     var eb = P.epss_buckets, tt = eb.top.reduce(function (a, b) { return a + b; }, 0);
@@ -840,7 +937,7 @@ footer .wrap { padding-block: 32px 48px; color: var(--text-3); font-size: var(--
     }));
   }
 
-  /* ------------------------------------------------------------------ chapter 7: the list */
+  /* ------------------------------------------------------------------ the-book modal (top500 table) */
   function buildTable(D) {
     var rows = D.top500, page = 0, per = 20, key = "r", dir = 1, open = {};
     var cats = {}; rows.forEach(function (r) { if (r.cat) cats[r.cat] = (cats[r.cat] || 0) + 1; });
@@ -859,7 +956,7 @@ footer .wrap { padding-block: 32px 48px; color: var(--text-3); font-size: var(--
       var slice = f.slice(page * per, page * per + per);
       $("#tbody").innerHTML = slice.length ? slice.map(function (r) {
         var fl = r.fl.split("").map(function (b, i) { return '<i class="' + (b === "1" ? "on" : "") + '" title="' + ["Exploit-DB", "Metasploit", "Nuclei", "GitHub PoC"][i] + '"></i>'; }).join("");
-        var vt = r.v.map(function (v, i) { return '<i style="height:' + Math.max(2, Math.max(0, (v - 0.8) / 0.2) * 18) + "px;background:" + ["var(--s2)", "var(--s1)", "var(--s3)"][i] + '"></i>'; }).join("");
+        var vt = r.v.map(function (v, i) { return '<i style="height:' + Math.max(2, Math.max(0, (v - 0.8) / 0.2) * 16) + "px;background:" + ["var(--s2)", "var(--s1)", "var(--s3)"][i] + '"></i>'; }).join("");
         var main = '<tr class="row" data-id="' + r.id + '" tabindex="0" aria-expanded="' + (!!open[r.id]) + '"><td class="num">' + r.r + '</td><td class="mono">' + esc(r.id) + "</td><td>" + esc(r.p || "—") + "</td><td>" + esc(r.cat || "—") +
           "</td><td>" + esc(r.imp || "—") + '</td><td class="num">' + (r.e == null ? "—" : r.e.toFixed(3)) + '</td><td><span class="flags">' + fl + '</span></td><td class="num">' + r.tx.toFixed(2) +
           '</td><td><span class="vt" data-tip="' + esc("Percentile among 72,670 · tree " + Math.round(r.v[0] * 100) + " · linear " + Math.round(r.v[1] * 100) + " · LLM " + Math.round(r.v[2] * 100)) + '">' + vt + "</span></td></tr>";
@@ -877,16 +974,6 @@ footer .wrap { padding-block: 32px 48px; color: var(--text-3); font-size: var(--
     $$("[data-sort]").forEach(function (b) { b.addEventListener("click", function () { var k = b.getAttribute("data-sort"); dir = key === k ? -dir : (k === "r" ? 1 : -1); key = k; draw(); }); });
     draw();
   }
-
-  /* ------------------------------------------------------------------ chapter nav */
-  function navSpy() {
-    var links = $$(".chapters a");
-    links.forEach(function (a) { a.addEventListener("click", function (e) { var t = $(a.getAttribute("href")); if (t) { e.preventDefault(); t.scrollIntoView({ behavior: REDUCED ? "auto" : "smooth" }); } }); });
-    if (!("IntersectionObserver" in window)) return;
-    var io = new IntersectionObserver(function (es) {
-      es.forEach(function (en) { if (en.isIntersecting) links.forEach(function (a) { a.classList.toggle("on", a.getAttribute("href") === "#" + en.target.id); }); });
-    }, { rootMargin: "-45% 0px -50% 0px" });
-    $$("main section").forEach(function (s) { io.observe(s); });
-  }
 })();
 </script>
+<style>@keyframes pkt { to { offset-distance: 100%; } }</style>

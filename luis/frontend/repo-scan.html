@@ -1,0 +1,348 @@
+<meta charset="utf-8">
+<title>Repo Scan</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap">
+<style>
+/* Same dark/glass design language as breach-story.html, applied to a tool instead of a story: paste or drop a
+   lockfile, we match it against OSV.dev, score every non-KEV match with our exported LR A model (same
+   feature definitions as luis/analysis/common.py), and rank the result the way final_build.py ranks the
+   scoreboard. See luis/proposal_repo_scanner.md for what this MVP does and doesn't do yet. */
+:root {
+  color-scheme: dark;
+  --bg: #050507; --bg-deep: #020203;
+  --surface: #121219; --surface-2: #181821; --surface-3: #20202c;
+  --text: #f2f2f7; --text-2: #b9b9c8; --text-3: #7c7c90;
+  --line: rgba(255,255,255,.09); --line-2: rgba(255,255,255,.18);
+  --s1: #4589ff; --s2: #009d9a; --s3: #a56eff; --s4: #ee5396; --s0: #8d8d8d;
+  --good: #42be65; --bad: #fa4d56; --warn: #f1c21b;
+  --focus: #ffffff;
+  --sans: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body { margin: 0; background: var(--bg-deep); color: var(--text); font-family: var(--sans); font-size: 0.88rem; line-height: 1.5; -webkit-font-smoothing: antialiased; }
+a { color: #9cbcff; }
+:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; border-radius: 2px; }
+.mono { font-family: var(--mono); }
+h1, h2, h3 { margin: 0; font-weight: 400; text-wrap: balance; }
+p { margin: 0; }
+.wrap { max-width: 980px; margin: 0 auto; padding: 0 max(16px, env(safe-area-inset-right)) 0 max(16px, env(safe-area-inset-left)); }
+.scene-glow { position: fixed; inset: 0; z-index: -1; pointer-events: none;
+  background: radial-gradient(900px 500px at 20% -10%, rgba(69,137,255,.14), transparent 60%),
+              radial-gradient(800px 500px at 90% 10%, rgba(165,110,255,.1), transparent 60%), var(--bg-deep); }
+
+header.bar { padding: 16px 0 10px; border-bottom: 1px solid var(--line); margin-bottom: 22px; }
+.bar-in { display: flex; align-items: center; gap: 12px; }
+.brand { display: flex; align-items: center; gap: 8px; }
+.brand i.mk { width: 8px; height: 8px; background: var(--s1); border-radius: 2px; box-shadow: 0 0 12px 2px rgba(69,137,255,.7); }
+.brand b { font-weight: 600; font-size: 0.95rem; letter-spacing: 0.01em; }
+.back { margin-left: auto; font-size: 0.74rem; color: var(--text-3); font-family: var(--mono); text-decoration: none; }
+.back:hover { color: var(--text-2); }
+
+main.wrap { padding-bottom: 60px; }
+.hero h1 { font-size: 1.7rem; font-weight: 300; }
+.hero h1 b { font-weight: 500; color: #cfe0ff; }
+.hero p { color: var(--text-2); margin-top: 8px; max-width: 64ch; font-size: 0.86rem; }
+.privacy { display: flex; gap: 8px; align-items: flex-start; margin-top: 14px; color: var(--text-3); font-size: 0.76rem; max-width: 64ch; }
+.privacy svg { flex: none; margin-top: 2px; color: var(--s2); }
+
+.panel { background: linear-gradient(165deg, rgba(255,255,255,.045), rgba(255,255,255,.012)), var(--surface);
+  border: 1px solid var(--line); border-radius: 14px; padding: 18px; margin-top: 20px;
+  box-shadow: 0 1px 0 rgba(255,255,255,.04) inset, 0 14px 34px rgba(0,0,0,.4); }
+
+.tabs { display: inline-flex; border-radius: 9px; background: var(--surface-2); padding: 2px; border: 1px solid var(--line); margin-bottom: 14px; }
+.tabs button { font: inherit; font-size: 0.78rem; padding: 7px 13px; border: 0; border-radius: 7px; background: transparent; color: var(--text-2); cursor: pointer; }
+.tabs button[aria-pressed="true"] { background: var(--surface-3); color: var(--text); }
+
+.drop { border: 1.5px dashed var(--line-2); border-radius: 12px; padding: 28px 18px; text-align: center; color: var(--text-2); cursor: pointer; transition: border-color .15s, background .15s; }
+.drop.over { border-color: var(--s1); background: rgba(69,137,255,.06); }
+.drop b { color: var(--text); }
+.drop input { display: none; }
+.filename { margin-top: 10px; font-family: var(--mono); font-size: 0.78rem; color: #9cbcff; }
+
+textarea#paste { width: 100%; min-height: 160px; background: var(--surface-2); color: var(--text); border: 1px solid var(--line-2);
+  border-radius: 10px; padding: 12px; font-family: var(--mono); font-size: 0.78rem; resize: vertical; }
+textarea#paste::placeholder { color: var(--text-3); }
+
+.examples { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+.examples button { font: inherit; font-size: 0.72rem; padding: 5px 11px; border-radius: 999px; border: 1px solid var(--line-2);
+  background: var(--surface-2); color: var(--text-2); cursor: pointer; }
+.examples button:hover { color: var(--text); border-color: var(--text-2); }
+
+.actions { display: flex; align-items: center; gap: 14px; margin-top: 16px; }
+.scan-btn { font: inherit; font-size: 0.88rem; font-weight: 500; padding: 11px 22px; border-radius: 10px; border: 1px solid rgba(69,137,255,.5);
+  background: linear-gradient(165deg, rgba(69,137,255,.25), rgba(69,137,255,.1)); color: #eaf1ff; cursor: pointer; }
+.scan-btn:hover:not(:disabled) { background: linear-gradient(165deg, rgba(69,137,255,.35), rgba(69,137,255,.16)); }
+.scan-btn:disabled { opacity: 0.5; cursor: default; }
+.ecosystem-note { color: var(--text-3); font-size: 0.74rem; }
+
+#error { display: none; margin-top: 16px; padding: 12px 14px; border-radius: 10px; background: rgba(250,77,86,.1); border: 1px solid rgba(250,77,86,.35); color: #ffb3b8; font-size: 0.82rem; }
+
+#loading { display: none; margin-top: 24px; text-align: center; padding: 30px 0; }
+.spin-stage { display: inline-flex; gap: 10px; margin-bottom: 16px; }
+.spin-stage i { width: 11px; height: 11px; border-radius: 50%; background: var(--s1); box-shadow: 0 0 10px var(--s1); animation: pulse 1.2s ease-in-out infinite; }
+.spin-stage i:nth-child(2) { background: var(--s2); box-shadow: 0 0 10px var(--s2); animation-delay: .15s; }
+.spin-stage i:nth-child(3) { background: var(--s3); box-shadow: 0 0 10px var(--s3); animation-delay: .3s; }
+.spin-stage i:nth-child(4) { background: var(--s4); box-shadow: 0 0 10px var(--s4); animation-delay: .45s; }
+@keyframes pulse { 0%, 100% { opacity: .35; transform: scale(.8); } 50% { opacity: 1; transform: scale(1.15); } }
+#loading-text { color: var(--text-2); font-size: 0.82rem; font-family: var(--mono); min-height: 1.4em; }
+#loading-note { color: var(--text-3); font-size: 0.74rem; margin-top: 6px; }
+
+#results { display: none; margin-top: 26px; }
+.kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; margin-bottom: 20px; }
+.kpi { background: var(--surface); padding: 12px 14px; display: grid; gap: 3px; }
+.kpi b { font-family: var(--mono); font-size: 1.35rem; font-weight: 500; }
+.kpi span { color: var(--text-3); font-size: 0.68rem; letter-spacing: 0.02em; }
+.kpi.bad b { color: var(--bad); } .kpi.warn b { color: var(--warn); }
+
+section.block { margin-top: 22px; }
+section.block h2 { font-size: 1rem; font-weight: 500; display: flex; align-items: center; gap: 8px; }
+section.block h2 i.dot { width: 9px; height: 9px; border-radius: 50%; }
+section.block p.sub { color: var(--text-3); font-size: 0.78rem; margin-top: 4px; }
+
+.cve-card { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; margin-top: 10px; }
+.cve-card.kev { border-color: rgba(250,77,86,.4); background: linear-gradient(165deg, rgba(250,77,86,.08), rgba(250,77,86,.02)), var(--surface); }
+.cve-head { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; cursor: pointer; }
+.cve-rank { font-family: var(--mono); color: var(--text-3); font-size: 0.78rem; width: 1.6em; flex: none; }
+.cve-id { font-family: var(--mono); font-weight: 500; font-size: 0.86rem; }
+.cve-pkg { font-family: var(--mono); color: #9cbcff; font-size: 0.8rem; }
+.cve-badge { font-size: 0.66rem; font-family: var(--mono); padding: 2px 8px; border-radius: 999px; border: 1px solid currentColor; }
+.cve-badge.kev { color: var(--bad); }
+.cve-badge.demoted { color: var(--text-3); text-decoration: line-through; }
+.cve-score { margin-left: auto; font-family: var(--mono); font-size: 0.78rem; color: var(--text-2); white-space: nowrap; }
+.cve-flags { display: inline-flex; gap: 3px; }
+.cve-flags i { width: 7px; height: 7px; border-radius: 50%; border: 1px solid var(--line-2); display: inline-block; }
+.cve-flags i.on { background: var(--s1); border-color: var(--s1); }
+.cve-body { display: none; margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--line); color: var(--text-2); font-size: 0.8rem; display: grid; gap: 8px; }
+.cve-card.open .cve-body { display: grid; }
+.cve-fix { font-family: var(--mono); font-size: 0.78rem; color: var(--good); }
+.chev-sm { flex: none; transition: transform .12s; color: var(--text-3); }
+.cve-card.open .chev-sm { transform: rotate(90deg); }
+
+footer { color: var(--text-3); font-size: 0.72rem; padding: 30px 0 50px; border-top: 1px solid var(--line); margin-top: 40px; display: grid; gap: 6px; }
+@media (prefers-reduced-motion: reduce) { .spin-stage i { animation: none; opacity: .8; } }
+</style>
+
+<div class="scene-glow" aria-hidden="true"></div>
+<header class="bar"><div class="wrap bar-in">
+  <div class="brand"><i class="mk" aria-hidden="true"></i><b>BREACH RADAR</b></div>
+  <a class="back" href="breach-story.html">← the full pipeline</a>
+</div></header>
+
+<main class="wrap">
+  <section class="hero">
+    <h1>Scan a repo's <b>real</b> dependencies.</h1>
+    <p>Paste a <code>package-lock.json</code> or <code>requirements.txt</code>. We find every known CVE affecting your
+      exact dependency versions (via <a href="https://osv.dev" target="_blank" rel="noopener">OSV.dev</a>) and rank the ones
+      that aren't already on the CISA KEV list with the same model behind the Top 500 — not raw CVSS.</p>
+    <div class="privacy">
+      <svg width="15" height="15" viewBox="0 0 16 16" fill="none"><path d="M8 1l6 2.5v4c0 4-2.7 6.8-6 7.5-3.3-.7-6-3.5-6-7.5v-4L8 1z" stroke="currentColor" stroke-width="1.3"/><path d="M5.5 8l1.8 1.8L10.5 6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <span>We only read the lockfile you give us — package and version strings. Never your source code, and nothing is stored after the scan.</span>
+    </div>
+  </section>
+
+  <div class="panel">
+    <div class="tabs" role="group" aria-label="Input method">
+      <button type="button" data-tab="drop" aria-pressed="true">Upload a file</button>
+      <button type="button" data-tab="paste" aria-pressed="false">Paste contents</button>
+    </div>
+
+    <div id="tab-drop">
+      <label class="drop" id="dropzone" tabindex="0">
+        <input type="file" id="file-input" accept=".json,.txt">
+        <div><b>Drop package-lock.json or requirements.txt here</b><br>or click to choose a file</div>
+        <div class="filename" id="filename" hidden></div>
+      </label>
+    </div>
+    <div id="tab-paste" hidden>
+      <textarea id="paste" placeholder='Paste the full contents of package-lock.json or requirements.txt here'></textarea>
+    </div>
+
+    <div class="examples">
+      <span class="ecosystem-note">Try a real example:</span>
+      <button type="button" data-ex="npm">npm — a lodash/minimist-era lockfile</button>
+      <button type="button" data-ex="pip">PyPI — a requirements.txt with known CVEs</button>
+    </div>
+
+    <div class="actions">
+      <button type="button" class="scan-btn" id="scan-btn">Scan dependencies</button>
+      <span class="ecosystem-note" id="detected"></span>
+    </div>
+    <div id="error"></div>
+  </div>
+
+  <div id="loading">
+    <div class="spin-stage"><i></i><i></i><i></i><i></i></div>
+    <div id="loading-text">Matching dependencies against OSV.dev…</div>
+    <div id="loading-note">Live lookups (OSV, EPSS, exploit sources) — usually under a minute.</div>
+  </div>
+
+  <div id="results"></div>
+</main>
+
+<footer class="wrap">
+  <div>MVP build: one voter (the 56-feature logistic regression also used in the Top 500 pipeline). No live Granite calls yet —
+    the two demotion rules that need them are approximated by regex on the description. Full plan: <a href="../proposal_repo_scanner.md">proposal_repo_scanner.md</a>.</div>
+  <div>Data: <a href="https://osv.dev" target="_blank" rel="noopener">OSV.dev</a>, <a href="https://www.first.org/epss/" target="_blank" rel="noopener">FIRST.org EPSS</a>,
+    <a href="https://www.cisa.gov/known-exploited-vulnerabilities-catalog" target="_blank" rel="noopener">CISA KEV</a>, and the team's local NVD snapshot.</div>
+</footer>
+
+<script>
+(function () {
+  "use strict";
+  var $ = function (s, r) { return (r || document).querySelector(s); };
+  var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
+  var esc = function (s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); };
+
+  var EXAMPLES = {
+    npm: { filename: "package-lock.json", content: JSON.stringify({
+      name: "demo", lockfileVersion: 3, packages: {
+        "": { name: "demo" },
+        "node_modules/lodash": { version: "4.17.4" },
+        "node_modules/minimist": { version: "0.0.8" },
+        "node_modules/node-fetch": { version: "2.6.0" }
+      } }, null, 2) },
+    pip: { filename: "requirements.txt", content:
+      "Django==1.11.0\nPyYAML==5.1\nPillow==8.2.0\nFlask==0.12\nrequests==2.19.0\nurllib3==1.24.1\nJinja2==2.10\n" }
+  };
+
+  var state = { filename: "", content: "" };
+
+  $$(".tabs button").forEach(function (b) {
+    b.addEventListener("click", function () {
+      $$(".tabs button").forEach(function (x) { x.setAttribute("aria-pressed", x === b); });
+      var tab = b.getAttribute("data-tab");
+      $("#tab-drop").hidden = tab !== "drop"; $("#tab-paste").hidden = tab !== "paste";
+    });
+  });
+
+  var dz = $("#dropzone"), fi = $("#file-input");
+  dz.addEventListener("click", function (e) { if (e.target !== fi) fi.click(); });
+  dz.addEventListener("keydown", function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); fi.click(); } });
+  ["dragenter", "dragover"].forEach(function (ev) { dz.addEventListener(ev, function (e) { e.preventDefault(); dz.classList.add("over"); }); });
+  ["dragleave", "drop"].forEach(function (ev) { dz.addEventListener(ev, function (e) { e.preventDefault(); dz.classList.remove("over"); }); });
+  dz.addEventListener("drop", function (e) { var f = e.dataTransfer.files[0]; if (f) readFile(f); });
+  fi.addEventListener("change", function () { if (fi.files[0]) readFile(fi.files[0]); });
+  function readFile(f) {
+    var r = new FileReader();
+    r.onload = function () {
+      state.filename = f.name; state.content = r.result;
+      $("#filename").hidden = false; $("#filename").textContent = f.name + " (" + f.size.toLocaleString() + " bytes)";
+    };
+    r.readAsText(f);
+  }
+  $("#paste").addEventListener("input", function () { state.filename = ""; state.content = $("#paste").value; });
+  $$("[data-ex]").forEach(function (b) {
+    b.addEventListener("click", function () {
+      var ex = EXAMPLES[b.getAttribute("data-ex")];
+      $$('.tabs button').forEach(function (x) { x.setAttribute("aria-pressed", x.getAttribute("data-tab") === "paste"); });
+      $("#tab-drop").hidden = true; $("#tab-paste").hidden = false;
+      $("#paste").value = ex.content; state.filename = ex.filename; state.content = ex.content;
+    });
+  });
+
+  var STAGES = [
+    "Matching dependencies against OSV.dev…",
+    "Pulling CVE metadata, CVSS and CWE from the local NVD snapshot…",
+    "Fetching live EPSS scores…",
+    "Checking Nuclei, Exploit-DB and public PoC repos for exploit code…",
+    "Scoring with the trained model and applying the demotion rules…",
+    "Ranking…"
+  ];
+  var stageTimer = null;
+
+  $("#scan-btn").addEventListener("click", function () {
+    if (!state.content || !state.content.trim()) {
+      $("#paste").value && (state.content = $("#paste").value);
+      if (!state.content.trim()) return showError("Upload a file, paste a lockfile, or try an example first.");
+    }
+    runScan();
+  });
+
+  function showError(msg) { var el = $("#error"); el.textContent = msg; el.style.display = "block"; }
+  function hideError() { $("#error").style.display = "none"; }
+
+  function runScan() {
+    hideError();
+    $("#results").style.display = "none";
+    $("#loading").style.display = "block";
+    $("#scan-btn").disabled = true;
+    var i = 0;
+    $("#loading-text").textContent = STAGES[0];
+    stageTimer = setInterval(function () { i = Math.min(i + 1, STAGES.length - 1); $("#loading-text").textContent = STAGES[i]; }, 3200);
+
+    fetch("/api/scan", { method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ filename: state.filename, content: state.content }) })
+      .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, body: j }; }); })
+      .then(function (res) {
+        clearInterval(stageTimer);
+        $("#loading").style.display = "none";
+        $("#scan-btn").disabled = false;
+        if (!res.ok) return showError(res.body.error || "Scan failed.");
+        render(res.body);
+      })
+      .catch(function (err) {
+        clearInterval(stageTimer);
+        $("#loading").style.display = "none";
+        $("#scan-btn").disabled = false;
+        showError("Could not reach the scan server (" + err.message + "). Is `python luis/repo_scanner/server.py` running?");
+      });
+  }
+
+  function flagDots(flags) {
+    var order = [["exploitdb", "Exploit-DB"], ["metasploit", "Metasploit"], ["nuclei", "Nuclei"], ["poc_github", "GitHub PoC"]];
+    return '<span class="cve-flags">' + order.map(function (o) { return '<i class="' + (flags[o[0]] ? "on" : "") + '" title="' + o[1] + '"></i>'; }).join("") + "</span>";
+  }
+
+  function render(d) {
+    var s = d.summary;
+    var html = '<div class="kpis">' +
+      kpi(s.dependencies, "dependencies") + kpi(s.cves_found, "CVEs matched") +
+      kpi(s.already_in_kev, "already on KEV", s.already_in_kev > 0 ? "bad" : "") +
+      kpi(s.scored, "scored") + kpi(s.demoted, "demoted") + kpi(d.elapsed_s + "s", "scan time") + "</div>";
+
+    if (d.already_in_kev.length) {
+      html += '<section class="block"><h2><i class="dot" style="background:var(--bad)"></i>Already exploited — patch now (' + d.already_in_kev.length + ")</h2>" +
+        '<p class="sub">These are already on the CISA KEV catalog. There is nothing to predict here: patch first, regardless of rank below.</p>';
+      d.already_in_kev.forEach(function (r) {
+        html += '<div class="cve-card kev"><div class="cve-head"><span class="cve-badge kev">KEV</span>' +
+          '<span class="cve-id">' + esc(r.cve_id) + "</span>" +
+          r.packages.map(function (p) { return '<span class="cve-pkg">' + esc(p.package) + "@" + esc(p.version) + "</span>"; }).join("") +
+          "</div></div>";
+      });
+      html += "</section>";
+    }
+
+    html += '<section class="block"><h2><i class="dot" style="background:var(--s1)"></i>Ranked (' + d.rows.length + ")</h2>" +
+      '<p class="sub">Highest predicted likelihood of a future KEV addition first. Select a row for the reason and the fixed version.</p>';
+    if (!d.rows.length) {
+      html += '<p class="sub" style="margin-top:10px">No non-KEV CVEs matched your dependencies — nothing to rank.</p>';
+    }
+    d.rows.forEach(function (r) {
+      html += '<div class="cve-card' + (r.demoted ? "" : "") + '" data-id="' + esc(r.cve_id) + '">' +
+        '<div class="cve-head"><svg class="chev-sm" width="12" height="12" viewBox="0 0 16 16"><path d="M6 3l5 5-5 5" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>' +
+        '<span class="cve-rank">' + r.rank + '</span><span class="cve-id">' + esc(r.cve_id) + "</span>" +
+        r.packages.map(function (p) { return '<span class="cve-pkg">' + esc(p.package) + "@" + esc(p.version) + "</span>"; }).join("") +
+        (r.demoted ? '<span class="cve-badge demoted">' + esc(r.demoted_reason) + "</span>" : "") +
+        flagDots(r.flags) +
+        '<span class="cve-score">EPSS ' + r.epss.toFixed(3) + "</span></div>" +
+        '<div class="cve-body"><p>' + esc(r.reason) + "</p>" +
+        (r.packages.some(function (p) { return p.fixed_in; }) ?
+          '<div class="cve-fix">Fix: upgrade to ' + r.packages.filter(function (p) { return p.fixed_in; }).map(function (p) { return esc(p.package) + "@" + esc(p.fixed_in); }).join(", ") + "</div>" :
+          '<div class="cve-fix" style="color:var(--text-3)">No fixed version published yet.</div>') +
+        '<p style="color:var(--text-3)">' + esc(r.description) + "</p></div></div>";
+    });
+    html += "</section>";
+
+    $("#results").innerHTML = html;
+    $("#results").style.display = "block";
+    $$(".cve-card[data-id]", $("#results")).forEach(function (card) {
+      $(".cve-head", card).addEventListener("click", function () { card.classList.toggle("open"); });
+    });
+  }
+  function kpi(v, l, cls) { return '<div class="kpi' + (cls ? " " + cls : "") + '"><b>' + v + "</b><span>" + l + "</span></div>"; }
+})();
+</script>

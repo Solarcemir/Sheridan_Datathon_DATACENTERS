@@ -11,7 +11,8 @@ Team hub (Top 500 table with Granite reasons, rules, data map, shared notes): ht
 | `submissions/` | Candidate 2026 `top500` files (one column, `cve_id`). **Team final: `top500_final.csv`** (XGBoost + Luis & Chen LRs + Chen's Granite LoRA, Granite filters, cap 3) |
 | `derived/` | Feature dictionaries, full 2026 rankings with reasons, row-by-row A/B backtest rankings, Granite Instruct answers |
 | `site/` | Source of the team hub page and its `top500.json` |
-| `frontend/` | **Breach Radar**, the story page (pipeline network, weights, what worked, insights before/after the model, the 500). Live: https://claude.ai/artifact/TQYCiUtkqQbqtyZi7yvvNh · docs in `frontend/README.md` |
+| `frontend/` | **Breach Radar**, the story page (pipeline network, weights, what worked, insights before/after the model, the 500) *and* `repo-scan.html`, the repo-scanner UI. Live story page: https://claude.ai/artifact/TQYCiUtkqQbqtyZi7yvvNh · docs in `frontend/README.md` |
+| `repo_scanner/` | Working prototype: scans a real `package-lock.json`/`requirements.txt`, matches CVEs via OSV.dev, ranks the non-KEV ones with our exported model. Plan: `proposal_repo_scanner.md`. Run it: `repo_scanner/README.md` |
 | `received/` | Snapshots of teammates' docs this work refers to (Chen's GPU-box context) |
 | `derived/for_chen/` | Our features as Parquet for Jan 2024–Dec 2025 + the 2026 scoreboard, keyed by `cve_id`, to merge into Chen's CV (`build_features.py --all-months`) |
 
@@ -45,6 +46,9 @@ python -E -P luis/analysis/stats_review.py         # seed variability, Holm test
 python -E -P luis/analysis/nested_tuning.py        # grid search inside training only (~4 min): doesn't help, keep defaults
 python -E -P luis/analysis/final_build.py          # THE FINAL: submissions/top500_final.csv (Chen's LoRA + LR voters are in since Nov 7)
 python -E -P luis/analysis/chen_round3.py          # Chen's 3rd push on our A/B: final recipe, LoRA 30B / llmx, sensitivity (~3 min)
+
+python -E -P luis/repo_scanner/train_export.py     # repo scanner: train + export the servable model (once, ~15s)
+python -E -P luis/repo_scanner/server.py           # repo scanner: API + frontend on http://127.0.0.1:8900/repo-scan.html
 ```
 
 Environment notes and known install issues: `context_Luis.md` §12.

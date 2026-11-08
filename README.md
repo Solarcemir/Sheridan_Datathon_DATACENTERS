@@ -12,6 +12,8 @@ Team repo. Goal: rank the 72,670 CVEs in `scoreboard_2026.csv` so the top 500 co
 
 - **Team hub** (Top 500 table, rules, data map, shared notes): https://claude.ai/artifact/Np2SfMguMKySJnBfvNfnjR
 - **Team submission:** `luis/submissions/top500_final.csv`, built by `python -E -P luis/analysis/final_build.py`. Equal-weight rank average of XGBoost (40 seeds), Luis's and Chen's LRs, and Chen's Granite 4.2 8B LoRA (from `chen/submissions/`), then Granite-30B demotion filters and a cap of 3 per assigner-month. Checked by both workstreams: `luis/context_Luis.md` §14.14–14.15 and `chen/context_Chen.md` §8.5.
+- **Story page:** https://claude.ai/artifact/TQYCiUtkqQbqtyZi7yvvNh (the pipeline as a live network, feature weights, what worked, the final list). Source in `luis/frontend/`.
+- **Repo scanner (working prototype):** points the same model at a real developer's dependencies instead of the scoreboard. Plan: `luis/proposal_repo_scanner.md`. Run it: `luis/repo_scanner/README.md`.
 
 ## Data
 
