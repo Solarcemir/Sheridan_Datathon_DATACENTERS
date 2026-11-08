@@ -1,0 +1,11 @@
+metric,missed,found
+n,22.0,30.0
+days to KEV (median),37.5,56.0
+CVSS3 median,7.6,9.0
+network %,90.9,80.0
+UI required %,18.2,6.7
+PR none %,63.6,83.3
+any exploit code %,0.0,73.3
+EPSS percentile median,61.0,96.0
+ransomware %,9.1,10.0
+description length median,196.0,315.5
