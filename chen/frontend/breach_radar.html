@@ -546,7 +546,7 @@ table.t tr.hl td { background: var(--ibm-soft) }
   var DW = 1280;
   function demoRect() {   // same aspect as the screen, so the locked demo fills it exactly
     var a = vh() / vw();
-    if (!portrait) { var w = 640, h = w * a; return { x: 1990, y: Math.max(250, 512 - h / 2), w: w, h: h }; }
+    if (!portrait) { var w = 760, h = w * a; return { x: 1920 - w, y: 820, w: w, h: h }; }   // under slide 7, right-aligned with it
     var w2 = WB.w - 36; return { x: 18, y: WB.h - 40, w: w2, h: w2 * a };
   }
   function placeDemo() {
@@ -558,8 +558,8 @@ table.t tr.hl td { background: var(--ibm-soft) }
     var lab = world.querySelector(".demolab");
     if (lab) { lab.style.left = R.demo.x + "px"; lab.style.top = (R.demo.y - 30) + "px"; }
     world.querySelectorAll(".demo-wire").forEach(function (p) {
-      var a2 = R[p.getAttribute("data-from")], x1 = a2.x + a2.w, y1 = a2.y + a2.h / 2, x2 = R.demo.x - 6, y2 = R.demo.y + R.demo.h / 2, m = (x1 + x2) / 2;
-      p.setAttribute("d", "M" + x1 + "," + y1 + " C" + m + "," + y1 + " " + m + "," + y2 + " " + x2 + "," + y2);
+      var a2 = R[p.getAttribute("data-from")], x1 = a2.x + a2.w / 2, y1 = a2.y + a2.h, y2 = R.demo.y - 6;   // straight down from slide 7 into the demo
+      p.setAttribute("d", "M" + x1 + "," + y1 + " L" + x1 + "," + y2);
     });
   }
   function layout() {
@@ -567,9 +567,9 @@ table.t tr.hl td { background: var(--ibm-soft) }
     document.body.classList.toggle("portrait", portrait);
     SW = portrait ? 720 : 1280; SH = portrait ? 1280 : 720; R = {}; B0 = {}; B1 = {};
     if (!portrait) {
-      var L = { problem: [40, 280, 360], data: [40, 520, 360], features: [440, 330, 600], voters: [1080, 280, 400], cleanup: [1080, 520, 400], top500: [1520, 280, 400], proof: [1520, 520, 400] };
+      var L = { problem: [40, 280, 360], data: [40, 520, 360], features: [440, 330, 600], voters: [1080, 280, 400], cleanup: [1080, 520, 400], proof: [1520, 280, 400], top500: [1520, 520, 400] };
       Object.keys(L).forEach(function (k) { R[k] = { x: L[k][0], y: L[k][1], w: L[k][2], h: L[k][2] * 9 / 16 }; });
-      WB = { w: 2660, h: 800, title: { x: 40, y: 34, w: 860 }, heros: { x: 1010, y: 52, w: 880 } };
+      WB = { w: 1960, h: 820 + 760 * vh() / vw() + 50, title: { x: 40, y: 34, w: 860 }, heros: { x: 1010, y: 52, w: 880 } };
     } else {
       var pw = 200, ph = pw * 16 / 9, Wv = 460, y0 = 430;
       PATH.forEach(function (id, i) { var c = i % 2; R[id] = { x: c ? Wv - 18 - pw : 18, y: y0 + Math.floor(i / 2) * (ph + 30) + (c ? 56 : 0), w: pw, h: ph }; });
