@@ -250,6 +250,29 @@ The two agree only moderately (Spearman 0.58; 203 shared CVEs in their top 500s)
 
 **Seed stability of the LoRA (`reports/lora_seed_stability.txt`).** One run is unstable: two seeds have Spearman 0.75–0.87 but share only **135–264 of their top 500**; each single run shares 256–289 with the 4-seed average. So the LLM voter is now the 4-seed average (no selection, same recipe; matches Luis's 40-seed XGBoost bag). The first push of this file was seed 0 only.
 
+### 8.6 Unified LR (Luis's §14.16 plan; `scripts/lr_unified.py`, `reports/lr_unified_compare.txt`)
+
+**Columns (118):** our 100 + 18 Luis-only columns with no counterpart in ours: raw `epss`, `n_flags`, `age_days`, `desc_len`, 11 regex text flags (`txt_remote` … `txt_kernel`), `assigner_kev_3y`, `assigner_volume_3y`, `txt_vuldb_disclosed` (his regex). **Left out on purpose:** `cv4_e_poc` (CVSS 4 exploit maturity, excluded as after-the-fact from the start) and `days_to_cutoff` (in training it mostly encodes the publish year, 400–700 days for 2024 rows vs 40–300 for 2026; extrapolation; the time-left adjustment was neutral). Near-duplicates of our columns were not added.
+
+**Three versions fixed before running:** v1 curated union, L2, C grid 1e-5..1e-2; v2 same with group-balanced L2 (each block scaled by 1/sqrt(size)); v3 elastic net (saga, l1_ratio 0.5). C by inner grouped 3-fold CV on training rows only.
+
+**Forward-only check is now fully forward:** LoRA 8B trained per block on earlier blocks only (`scripts/fwd_lora.sh`, `results/cv_fwdlora_f{1-4}.parquet`; block 1 had only 14 training positives), XGBoost (Luis's settings, 5 seeds) and Luis-feature LR forward too (`scripts/fwd_extra.py`, `results/cv_fwd_extra.parquet`).
+
+| Linear voter in tree + linear + LoRA, filters, cap 3 | 5-fold (K 517, 75 pos.) | vs current (95% CI) | AP | Forward-only (K 414, 66 pos.) | vs current | AP |
+|---|---|---|---|---|---|---|
+| **avg(Chen LR, Luis LR), current** | 32 | – | 0.057 | 27 | – | **0.085** |
+| Chen LR only | 33 | −2..+4 | 0.058 | 27 | +0..+0 | 0.079 |
+| Luis LR only | 32 | −3..+3 | 0.054 | 27 | +0..+0 | 0.082 |
+| **unified v1** | **33** | −2..+4 | **0.058** | **27** | +0..+0 | 0.081 |
+| unified v2 | 30 | −5..+0 | 0.057 | 27 | +0..+0 | 0.076 |
+| unified v3 | 31 | −6..+3 | 0.054 | 26 | −3..+0 | 0.082 |
+
+LR alone (cap 3): 5-fold avg 29 / Chen 28 / v1 29 / v2 28 / v3 23; forward avg 24 / Chen 23 / v1 23 / v2 21 / v3 18.
+
+**Decision by the pre-set rule: v1 adopted** (within 1 hit or better on both checks: +1 and 0; ensemble AP equal on 5-fold, 0.081 vs 0.085 forward, not clearly lower; ties go to the single LR). v3 fails (elastic net hurts alone: 23 and 18). Final v1 on all rows: C = 1e-4, `results/lr_unified_coefficients.csv`; 2026 file `submissions/lr_unified_scoreboard_2026.parquet`.
+
+**Caveat for Luis:** at C = 1e-4 the unified LR is almost our LR: Spearman **0.991** with `lr_best_scoreboard_2026` and 438 of 500 shared top picks. Luis's columns enter with small weights (largest: `assigner_volume_3y` −0.16, `txt_kernel` +0.11). On Luis's A/B "Chen LR only" as the linear voter scored 30 vs 32 for the 2-LR average (§14.15), so his re-check (rule step 4) may well favour keeping the average. The forward-only check here can't separate the options (all 26–27).
+
 ### 8.5 Review of Luis's final recipe (`scripts/luis_recipe_check.py`, `reports/luis_recipe_check.txt`)
 
 Luis's `final_build.py` (his §14.14): equal-weight rank average of tree (XGBoost, 40 seeds) + linear (his LR averaged with ours) + LLM (our 8B LoRA), then 4 Granite 30B demotion filters (impact = DoS only, typical attacker = unlikely target, attacker appeal = low, WordPress plugin/theme), then cap 3. Checked on our 5-fold purged CV with proxies: `xgb_fixed_luis` for his XGBoost, `lr_luis_only` for his LR. K = 517, Nov-4 labels, cap 3.

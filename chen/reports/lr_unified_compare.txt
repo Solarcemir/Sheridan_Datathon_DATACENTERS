@@ -1,0 +1,30 @@
+== 5-fold purged CV: 75,148 CVEs, 75 Nov-4 positives, K=517; ensemble = tree + linear + LoRA 8B, Granite filters, cap 3; 'LR alone' = cap 3, no filters
+                   linear voter       as  hits Nov4 vs current ensemble 95% CI  AP Nov4 (raw score)
+                   Chen LR only ensemble         33                     -2..+4               0.0578
+                   Luis LR only ensemble         32                     -3..+3               0.0537
+avg(Chen LR, Luis LR) [current] ensemble         32                     +0..+0               0.0571
+                     unified_v1 ensemble         33                     -2..+4               0.0578
+                     unified_v2 ensemble         30                     -5..+0               0.0565
+                     unified_v3 ensemble         31                     -6..+3               0.0536
+                   Chen LR only LR alone         28                    -12..+3               0.0704
+                   Luis LR only LR alone         25                    -14..+0               0.0366
+avg(Chen LR, Luis LR) [current] LR alone         29                    -10..+3               0.0511
+                     unified_v1 LR alone         29                    -10..+2               0.0600
+                     unified_v2 LR alone         28                    -11..+3               0.0492
+                     unified_v3 LR alone         23                    -18..-1               0.0576
+
+== forward-only blocks 1-4 (every voter trained on earlier blocks only): 60,118 CVEs, 66 Nov-4 positives, K=414; ensemble = tree + linear + LoRA 8B, Granite filters, cap 3; 'LR alone' = cap 3, no filters
+                   linear voter       as  hits Nov4 vs current ensemble 95% CI  AP Nov4 (raw score)
+                   Chen LR only ensemble         27                     +0..+0               0.0794
+                   Luis LR only ensemble         27                     +0..+0               0.0822
+avg(Chen LR, Luis LR) [current] ensemble         27                     +0..+0               0.0849
+                     unified_v1 ensemble         27                     +0..+0               0.0810
+                     unified_v2 ensemble         27                     +0..+0               0.0764
+                     unified_v3 ensemble         26                     -3..+0               0.0824
+                   Chen LR only LR alone         23                    -10..+1               0.0620
+                   Luis LR only LR alone         20                    -14..+0               0.0696
+avg(Chen LR, Luis LR) [current] LR alone         24                     -8..+2               0.0795
+                     unified_v1 LR alone         23                    -10..+2               0.0583
+                     unified_v2 LR alone         21                    -12..+0               0.0548
+                     unified_v3 LR alone         18                    -16..-3               0.0290
+
