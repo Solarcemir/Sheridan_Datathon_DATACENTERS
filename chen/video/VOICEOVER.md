@@ -16,8 +16,8 @@ Runs 1:52. Read at a calm pace, about 150 words a minute. Each line fits its win
 | 1:00 | 1:08 | Slide 6: the proof, with watsonx.governance | "On held-out years it finds sixty-five percent more exploited bugs than the standard ranking, and watsonx.governance watches it for drift." |
 | 1:08 | 1:15 | Slide 7: the Top 500 treemap | "The result: five hundred bugs, each with a plain-language reason." |
 | 1:15 | 1:22 | The camera drops into the live scanner | "And because every CVE has a score, it works on your own code." |
-| 1:22 | 1:37 | A real GitHub repo is scanned step by step | "Point it at a GitHub repo. It reads your lockfiles, finds every known vulnerability in your exact versions, and scores each one with our model." |
-| 1:37 | 1:45 | Results: an exploited Pillow flagged at the top, then the ranked list | "Already-exploited bugs go straight to the top, then the rest in the order to patch." |
+| 1:22 | 1:30 | A real GitHub repo is scanned step by step | "Point it at a GitHub repo. It finds every known vulnerability in your exact versions and scores each one." |
+| 1:30 | 1:45 | Results: an exploited Pillow flagged at the top, then a glide down the ranked list and the upgrade plan | "Here, one dependency is already being exploited, so it goes straight to the top. Then the rest, in the order to patch, with one upgrade per package." |
 | 1:45 | 1:52 | End card | "KEVexploit. Patch these five hundred first." |
 
 ## Notes
