@@ -793,7 +793,7 @@ table.t tr.hl td { background: var(--ibm-soft) }
         o += '<rect x="' + x + '" y="' + y + '" width="' + bw + '" height="' + h + '" rx="5" fill="' + ["var(--muted)", "var(--teal)", "var(--ibm)", "var(--violet)", "var(--green)"][k] + '" fill-opacity="' + (k === 0 ? .4 : 1) + '"/>' +
           T(x + bw / 2, y - 6, s[1], k === 4 ? "hb2 green" : "hb2", "middle") + T(x + bw / 2, 158, s[0], "hs", "middle");
       });
-      o += '<path d="M' + (bw / 2) + ",50 C 60,4 250,-6 " + (4 * (bw + gap) + bw / 2 - 16) + ',4" fill="none" stroke="var(--green)" stroke-width="1.6" stroke-dasharray="4 4" marker-end="url(#harr)"/>' + T(170, 8, "+65%", "hb2 green", "middle");
+      o += '<path d="M' + (bw / 2) + ",50 C 60,4 250,-6 " + (4 * (bw + gap) + bw / 2 - 16) + ',4" fill="none" stroke="var(--green)" stroke-width="1.6" stroke-dasharray="4 4" marker-end="url(#harr)"/>' + '<rect x="138" y="-11" width="64" height="25" rx="6" fill="var(--panel)"/>' + T(170, 8, "+65%", "hb2 green", "middle");   // backing so the arc breaks around the label
       return '<defs><marker id="harr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10z" fill="var(--green)"/></marker></defs>' + o + T(0, 184, "Exploited bugs found, of 75 (practice data, 5-fold test)", "hs");
     }
   };
