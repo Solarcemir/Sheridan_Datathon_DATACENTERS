@@ -33,10 +33,8 @@ historical KEV patterns, machine learning, and IBM Granite.
 |---|---|
 | **Live Breach Radar** | [kevexploit.us](https://kevexploit.us/) |
 | **Repository** | [Solarcemir/Sheridan_Datathon_DATACENTERS](https://github.com/Solarcemir/Sheridan_Datathon_DATACENTERS) |
-| **Final Top 500** | [`luis/submissions/top500_final.csv`](luis/submissions/top500_final.csv) |
-| **Explainable results** | [`luis/reports/top500_final_explained.csv`](luis/reports/top500_final_explained.csv) |
+| **Final Top 500** | [`top500.csv`](top500.csv) |
 | **Technical project guide** | [`PROJECT_OVERVIEW_AND_DEPLOYMENT.md`](PROJECT_OVERVIEW_AND_DEPLOYMENT.md) |
-| **Demo video** | [`deliverables/before-the-breach-pitch.mp4`](deliverables/before-the-breach-pitch.mp4) |
 
 ## Why this matters
 
@@ -92,20 +90,28 @@ server-side API calls.
 
 The final submission is an equal-weight **rank ensemble**:
 
-```text
-point-in-time features
-        |
-        +--> bagged XGBoost tree voter
-        +--> regularized logistic-regression voters
-        +--> IBM Granite 4.2 8B LoRA voter
-                    |
-             rank averaging
-                    |
-       Granite-informed demotion filters
-                    |
-       assigner-month diversity cap
-                    |
-              final Top 500
+```mermaid
+flowchart LR
+    A["Point-in-time<br/>features"]:::input
+    B["Bagged XGBoost<br/>tree voter"]:::model
+    C["Regularized logistic<br/>regression voters"]:::model
+    D["IBM Granite 4.2<br/>8B LoRA voter"]:::granite
+    E["Equal-weight<br/>rank averaging"]:::ensemble
+    F["Granite-informed<br/>demotion filters"]:::guard
+    G["Assigner-month<br/>diversity cap"]:::guard
+    H["Final Top 500<br/>prioritized CVEs"]:::output
+
+    A --> B --> E
+    A --> C --> E
+    A --> D --> E
+    E --> F --> G --> H
+
+    classDef input fill:#d0e2ff,stroke:#0f62fe,color:#161616,stroke-width:2px
+    classDef model fill:#e8daff,stroke:#8a3ffc,color:#161616,stroke-width:2px
+    classDef granite fill:#f6d2ff,stroke:#a219a6,color:#161616,stroke-width:2px
+    classDef ensemble fill:#b8f0d2,stroke:#198038,color:#161616,stroke-width:3px
+    classDef guard fill:#ffe7b3,stroke:#f1c21b,color:#161616,stroke-width:2px
+    classDef output fill:#ffb3b8,stroke:#da1e28,color:#161616,stroke-width:3px
 ```
 
 ### Evidence used
@@ -215,5 +221,6 @@ This is a collaborative Sheridan Datathon project:
 - **Chen** — IBM Granite 4.2 extraction, LoRA modeling, GPU experiments,
   purged cross-validation, and Breach Radar presentation.
 - **Honiya** — analyst drill-down dashboard and CVE dossiers.
+- **Amy** — IBM watsonx.ai analyst experience and supporting project work.
 
 See [`CONTRIBUTING.md`](CONTRIBUTING.md) for repository conventions.

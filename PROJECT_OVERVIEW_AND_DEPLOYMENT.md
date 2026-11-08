@@ -192,8 +192,7 @@ The final ranking is an equal-weight rank ensemble:
 
 The final artifacts are:
 
-- [`luis/submissions/top500_final.csv`](luis/submissions/top500_final.csv)
-- [`luis/reports/top500_final_explained.csv`](luis/reports/top500_final_explained.csv)
+- [`top500.csv`](top500.csv)
 - [`luis/analysis/final_build.py`](luis/analysis/final_build.py)
 
 ### IBM technologies
@@ -352,8 +351,6 @@ expose a laptop through a tunnel as a permanent production service.
 
 ### Submission assets
 
-- [`deliverables/before-the-breach-pitch.mp4`](deliverables/before-the-breach-pitch.mp4)
-- [`deliverables/before-the-breach-pitch-narration.wav`](deliverables/before-the-breach-pitch-narration.wav)
 - [`chen/video/VOICEOVER.md`](chen/video/VOICEOVER.md)
 
 ---
@@ -368,4 +365,3 @@ The final score is therefore best understood as **prioritized decision
 support**, not a guarantee. The product's value is combining multiple
 point-in-time signals, exposing uncertainty, preserving an audit trail, and
 giving defenders a practical starting order.
-

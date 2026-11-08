@@ -1,4 +1,4 @@
-"""One command to build the team's final 2026 ranking: luis/submissions/top500_final.csv.
+"""One command to build the team's final 2026 ranking: top500.csv.
 
 Voters (equal-weight rank average), chosen from the A/B results and the statistical review (context_Luis.md §14.8-14.13):
   tree    XGBoost big on Luis's features, 40 seeds averaged (8 GPU runs x 5 seeds) for a stable top-500 boundary
@@ -11,7 +11,7 @@ Optional inputs from Chen (columns exactly as listed; higher score = more likely
   chen/submissions/lora8b_scoreboard_2026.parquet   cve_id, lora_score
   chen/submissions/lr_best_scoreboard_2026.parquet  cve_id, lr_score
   chen/submissions/lr_unified_scoreboard_2026.parquet  cve_id, lr_score   (if present: the ONLY linear voter; §14.16)
-Outputs: derived/xgb_bag_2026.parquet (cache), derived/scored_2026_final.csv, submissions/top500_final.csv,
+Outputs: derived/xgb_bag_2026.parquet (cache), derived/scored_2026_final.csv, root top500.csv,
          reports/final_build_info.txt, reports/top500_final_explained.csv, site/top500.json (hub table)
 
 Usage:  python -E -P luis/analysis/final_build.py
@@ -96,9 +96,10 @@ s26["rank_final"] = np.arange(1, len(s26) + 1)
 s26[["rank_final", "cve_id", "score_final"] + voters + ["granite_demoted", "snapshot_month", "assigner", "epss", "any_flag"]] \
     .to_csv(os.path.join(DER, "scored_2026_final.csv"), index=False)
 top = s26.head(500)
-top[["cve_id"]].to_csv(os.path.join(SUB, "top500_final.csv"), index=False)
+top[["cve_id"]].to_csv(os.path.join(REP, "..", "..", "top500.csv"), index=False)
 
-v4f = set(pd.read_csv(os.path.join(SUB, "top500_v4f.csv")).cve_id)
+v4f_path = os.path.join(SUB, "top500_v4f.csv")
+v4f = set(pd.read_csv(v4f_path).cve_id) if os.path.exists(v4f_path) else set()
 mix = top.snapshot_month.value_counts().sort_index().to_dict()
 info = [f"top500_final built {time.strftime('%Y-%m-%d %H:%M')}", "voters (equal-weight rank average): " + ", ".join(voters)] + \
        [f"  - {u}" for u in used] + \
