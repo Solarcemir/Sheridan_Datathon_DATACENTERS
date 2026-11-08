@@ -11,6 +11,7 @@ Team hub (Top 500 table with Granite reasons, rules, data map, shared notes): ht
 | `submissions/` | Candidate 2026 `top500` files (one column, `cve_id`). **Team final: `top500_final.csv`** (XGBoost + Luis & Chen LRs + Chen's Granite LoRA, Granite filters, cap 3) |
 | `derived/` | Feature dictionaries, full 2026 rankings with reasons, row-by-row A/B backtest rankings, Granite Instruct answers |
 | `site/` | Source of the team hub page and its `top500.json` |
+| `frontend/` | **Breach Radar**, the story page (pipeline network, weights, what worked, insights before/after the model, the 500). Live: https://claude.ai/artifact/TQYCiUtkqQbqtyZi7yvvNh · docs in `frontend/README.md` |
 | `received/` | Snapshots of teammates' docs this work refers to (Chen's GPU-box context) |
 | `derived/for_chen/` | Our features as Parquet for Jan 2024–Dec 2025 + the 2026 scoreboard, keyed by `cve_id`, to merge into Chen's CV (`build_features.py --all-months`) |
 

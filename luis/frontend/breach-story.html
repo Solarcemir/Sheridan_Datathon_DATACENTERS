@@ -1,0 +1,892 @@
+<title>Breach Radar</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap">
+<style>
+/* Layout: enterprise product shell (dark header, square tiles, 1px seams), a scroll story in seven chapters;
+   charts are HTML/CSS bars on one scale each, the pipeline is a layered SVG network. */
+:root {
+  --bg: #f4f4f4; --layer: #ffffff; --layer-2: #f4f4f4; --hover: #e8e8e8;
+  --border: #e0e0e0; --border-2: #c6c6c6;
+  --text: #161616; --text-2: #525252; --text-3: #6f6f6f;
+  --accent: #0f62fe; --accent-ink: #0f62fe; --on-accent: #ffffff; --focus: #0f62fe;
+  --shell: #161616; --shell-text: #f4f4f4; --shell-2: #c6c6c6; --shell-line: #393939;
+  --s1: #0f62fe; --s2: #009d9a; --s3: #8a3ffc; --s4: #d02670; --s0: #8d8d8d;
+  --track: #e8e8e8; --grid: #e0e0e0;
+  --good: #198038; --bad: #da1e28;
+  --sans: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --step--1: 0.75rem; --step-0: 0.875rem; --step-1: 1rem; --step-2: 1.25rem; --step-3: 1.75rem; --step-4: clamp(2rem, 4.6vw, 3.5rem);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #161616; --layer: #262626; --layer-2: #1f1f1f; --hover: #333333;
+    --border: #393939; --border-2: #525252;
+    --text: #f4f4f4; --text-2: #c6c6c6; --text-3: #a8a8a8;
+    --accent: #0f62fe; --accent-ink: #78a9ff; --on-accent: #ffffff; --focus: #ffffff;
+    --shell: #161616; --shell-text: #f4f4f4; --shell-2: #c6c6c6; --shell-line: #393939;
+    --s1: #4589ff; --s2: #009d9a; --s3: #a56eff; --s4: #ee5396; --s0: #8d8d8d;
+    --track: #393939; --grid: #393939;
+    --good: #42be65; --bad: #fa4d56;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #161616; --layer: #262626; --layer-2: #1f1f1f; --hover: #333333;
+  --border: #393939; --border-2: #525252;
+  --text: #f4f4f4; --text-2: #c6c6c6; --text-3: #a8a8a8;
+  --accent: #0f62fe; --accent-ink: #78a9ff; --on-accent: #ffffff; --focus: #ffffff;
+  --shell: #161616; --shell-text: #f4f4f4; --shell-2: #c6c6c6; --shell-line: #393939;
+  --s1: #4589ff; --s2: #009d9a; --s3: #a56eff; --s4: #ee5396; --s0: #8d8d8d;
+  --track: #393939; --grid: #393939;
+  --good: #42be65; --bad: #fa4d56;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--text); font-family: var(--sans); font-size: var(--step-0); line-height: 1.5; -webkit-font-smoothing: antialiased; }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--shell); }
+a { color: var(--accent-ink); }
+:focus-visible { outline: 2px solid var(--focus); outline-offset: 1px; }
+.wrap { max-width: 1312px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.mono { font-family: var(--mono); }
+.num { font-variant-numeric: tabular-nums; }
+h1, h2, h3 { text-wrap: balance; margin: 0; font-weight: 300; }
+p { margin: 0; }
+
+/* ---- shell header */
+.shell { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 9; background: var(--shell); color: var(--shell-text); border-bottom: 1px solid var(--shell-line); }
+.shell .wrap { display: flex; align-items: center; gap: 24px; height: 48px; }
+.brand { display: flex; align-items: baseline; gap: 8px; white-space: nowrap; font-size: var(--step-0); }
+.brand b { font-weight: 600; letter-spacing: 0.01em; }
+.brand span { color: var(--shell-2); font-weight: 400; }
+.chapters { display: flex; gap: 0; overflow-x: auto; scrollbar-width: none; margin-left: auto; height: 100%; }
+.chapters::-webkit-scrollbar { display: none; }
+.chapters a { display: flex; align-items: center; padding: 0 14px; color: var(--shell-2); text-decoration: none; font-size: var(--step--1); white-space: nowrap; border-bottom: 2px solid transparent; }
+.chapters a:hover { color: var(--shell-text); background: #262626; }
+.chapters a.on { color: var(--shell-text); border-bottom-color: #4589ff; }
+@media (max-width: 720px) { .brand span { display: none; } .shell .wrap { gap: 8px; } }
+
+/* ---- sections */
+section { border-bottom: 1px solid var(--border); }
+section > .wrap { padding-block: 56px; display: grid; gap: 28px; }
+.band { background: var(--layer); }
+.eyebrow { font-family: var(--mono); font-size: var(--step--1); color: var(--text-3); letter-spacing: 0.06em; text-transform: uppercase; }
+.head { display: grid; gap: 10px; max-width: 74ch; }
+.head h2 { font-size: var(--step-3); line-height: 1.2; }
+.lede { color: var(--text-2); font-size: var(--step-1); max-width: 68ch; }
+.grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 520px), 1fr)); gap: 1px; background: var(--border); border: 1px solid var(--border); }
+.grid-2.stack { grid-template-columns: minmax(0, 1fr); }
+.grid-2.stack #ladder { max-width: 860px; }
+.grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 360px), 1fr)); gap: 1px; background: var(--border); border: 1px solid var(--border); }
+.tile { background: var(--layer); padding: 20px; display: grid; gap: 14px; align-content: start; min-width: 0; }
+.band .tile { background: var(--layer-2); }
+.tile h3 { font-size: var(--step-1); font-weight: 500; }
+.tile .sub { color: var(--text-2); font-size: var(--step--1); }
+.note { color: var(--text-3); font-size: var(--step--1); }
+.takeaway { border-left: 3px solid var(--accent); padding: 2px 0 2px 12px; color: var(--text); font-size: var(--step-0); }
+
+/* ---- hero */
+.hero .wrap { padding-block: 64px 48px; }
+.hero h1 { font-size: var(--step-4); line-height: 1.08; letter-spacing: -0.01em; max-width: 18ch; }
+.kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr)); gap: 1px; background: var(--border); border: 1px solid var(--border); }
+.kpi { background: var(--layer); padding: 18px 20px 20px; display: grid; gap: 6px; }
+.kpi .v { font-size: 2.5rem; font-weight: 300; line-height: 1.1; }
+.kpi .l { color: var(--text-2); font-size: var(--step--1); max-width: 30ch; }
+.kpi.hl .v { color: var(--accent-ink); }
+
+/* ---- controls */
+.seg { display: inline-flex; border: 1px solid var(--border-2); background: var(--layer); flex-wrap: wrap; }
+.seg button { font: inherit; font-size: var(--step--1); padding: 7px 14px; border: 0; background: transparent; color: var(--text-2); cursor: pointer; }
+.seg button + button { border-left: 1px solid var(--border-2); }
+.seg button[aria-pressed="true"] { background: var(--text); color: var(--bg); }
+.seg button:hover:not([aria-pressed="true"]) { background: var(--hover); }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip { font: inherit; font-size: var(--step--1); padding: 4px 10px; border: 1px solid var(--border-2); background: var(--layer); color: var(--text-2); cursor: pointer; border-radius: 999px; display: inline-flex; gap: 6px; align-items: center; }
+.chip[aria-pressed="true"] { border-color: var(--text); color: var(--text); background: var(--hover); }
+.dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; flex: none; }
+.toolbar { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between; }
+.legend { display: flex; flex-wrap: wrap; gap: 14px; color: var(--text-2); font-size: var(--step--1); }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.sw { width: 12px; height: 12px; display: inline-block; border-radius: 2px; }
+input[type="search"], select { font: inherit; font-size: var(--step-0); padding: 8px 12px; background: var(--layer); color: var(--text); border: 0; border-bottom: 1px solid var(--border-2); min-width: 0; }
+.band input[type="search"], .band select { background: var(--layer-2); }
+
+/* ---- bars */
+.bars { display: grid; gap: 8px; --mark: none; }
+.bar-row { display: grid; grid-template-columns: minmax(7rem, 15rem) minmax(0, 1fr) 4.2rem; gap: 10px; align-items: center; }
+.bar-row .bl { font-size: var(--step--1); color: var(--text); overflow-wrap: anywhere; line-height: 1.3; }
+.bar-row .bl small { display: block; color: var(--text-3); }
+.bar-row .bv { font-size: var(--step--1); color: var(--text-2); text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.bt { position: relative; height: 18px; display: grid; align-content: center; gap: 2px; }
+.bf { height: 14px; border-radius: 0 4px 4px 0; transform-origin: left; min-width: 2px; }
+.bt.two .bf { height: 9px; }
+.bt::before { content: ""; position: absolute; left: 0; top: -2px; bottom: -2px; width: 1px; background: var(--border-2); }
+.bars.marked .bt::after { content: ""; position: absolute; left: var(--mark); top: -4px; bottom: -4px; width: 2px; background: var(--text); opacity: 0.55; }
+.bar-row.hl .bl { font-weight: 600; }
+.grow .bf { animation: grow 0.45s cubic-bezier(.2,.7,.2,1) both; }
+@keyframes grow { from { transform: scaleX(0); } }
+.dv-row { display: grid; grid-template-columns: minmax(8rem, 15rem) minmax(0, 1fr) 3.4rem; gap: 10px; align-items: center; }
+.dv-track { position: relative; height: 16px; }
+.dv-track::before { content: ""; position: absolute; left: 50%; top: -3px; bottom: -3px; width: 1px; background: var(--border-2); }
+.dv-bar { position: absolute; top: 2px; height: 12px; }
+.dv-bar.pos { left: 50%; border-radius: 0 4px 4px 0; background: var(--s1); transform-origin: left; }
+.dv-bar.neg { right: 50%; border-radius: 4px 0 0 4px; background: var(--s4); transform-origin: right; }
+.grow .dv-bar { animation: grow 0.45s cubic-bezier(.2,.7,.2,1) both; }
+.dv-row .bl { font-family: var(--mono); font-size: 0.72rem; overflow-wrap: anywhere; line-height: 1.25; }
+.dv-row .bv { font-size: var(--step--1); color: var(--text-2); text-align: right; font-variant-numeric: tabular-nums; }
+.cols { display: flex; align-items: flex-end; gap: 10px; height: 180px; border-bottom: 1px solid var(--border-2); padding: 0 2px; }
+.col { flex: 1; display: flex; align-items: flex-end; justify-content: center; gap: 2px; height: 100%; min-width: 0; }
+.col .cb { width: min(18px, 40%); border-radius: 4px 4px 0 0; transform-origin: bottom; }
+.grow .col .cb { animation: growy 0.45s cubic-bezier(.2,.7,.2,1) both; }
+@keyframes growy { from { transform: scaleY(0); } }
+.col-labels { display: flex; gap: 10px; padding: 6px 2px 0; }
+.col-labels span { flex: 1; text-align: center; font-size: 0.7rem; color: var(--text-3); font-family: var(--mono); min-width: 0; }
+
+/* ---- pipeline */
+.pipe { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 1px; background: var(--border); border: 1px solid var(--border); }
+@media (max-width: 1080px) { .pipe { grid-template-columns: minmax(0, 1fr); } }
+.pipe-canvas { background: var(--layer); overflow-x: auto; min-width: 0; }
+.pipe-canvas svg { display: block; width: 100%; min-width: 980px; height: auto; }
+.pipe-side { background: var(--layer); padding: 20px; display: grid; gap: 14px; align-content: start; min-width: 0; }
+.pipe-side h3 { font-size: var(--step-2); font-weight: 400; }
+.kind { font-family: var(--mono); font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.06em; display: inline-flex; align-items: center; gap: 6px; color: var(--text-2); }
+.facts { display: grid; gap: 0; border-top: 1px solid var(--border); }
+.facts div { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 12px; padding: 8px 0; border-bottom: 1px solid var(--border); font-size: var(--step--1); }
+.facts dt { color: var(--text-2); }
+.facts dd { margin: 0; text-align: right; font-variant-numeric: tabular-nums; }
+.verdict { display: inline-flex; align-items: center; gap: 6px; font-size: var(--step--1); font-weight: 500; padding: 2px 8px; border: 1px solid currentColor; }
+.verdict.ok { color: var(--good); } .verdict.no { color: var(--bad); }
+svg text { font-family: var(--sans); }
+.n-title { font-size: 13px; font-weight: 500; fill: var(--text); }
+.n-sub { font-size: 11px; fill: var(--text-2); }
+.n-layer { font-family: var(--mono); font-size: 11px; letter-spacing: 0.08em; fill: var(--text-3); }
+.n-plate { fill: var(--layer); opacity: 0.9; }
+.node { cursor: pointer; }
+.node:focus { outline: none; }
+.node:focus-visible .n-core { stroke: var(--focus); stroke-width: 3; }
+.node .n-core { stroke: var(--layer); stroke-width: 3; }
+.node.sel .n-halo { opacity: 1; }
+.n-halo { fill: none; stroke: var(--text); stroke-width: 1.5; opacity: 0; }
+.edge { fill: none; stroke: var(--border-2); }
+.flow { fill: none; stroke-dasharray: 3 11; animation: flow 1.6s linear infinite; opacity: 0.75; }
+.edge.explain, .flow.explain { stroke-dasharray: 2 5; }
+@keyframes flow { to { stroke-dashoffset: -28; } }
+.dim { opacity: 0.12; transition: opacity 0.2s; }
+.ghost .n-core { fill: var(--layer) !important; stroke: var(--text-3); stroke-dasharray: 3 3; stroke-width: 1.5; }
+.ghost .n-title { fill: var(--text-3); text-decoration: line-through; }
+.checks { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr)); gap: 1px; background: var(--border); border: 1px solid var(--border); }
+.check { background: var(--layer); padding: 14px 16px; display: grid; gap: 4px; }
+.check b { font-weight: 500; }
+.check span { color: var(--text-2); font-size: var(--step--1); }
+.mini { display: grid; gap: 6px; }
+
+/* ---- worked / didn't */
+.ledger { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr)); gap: 1px; background: var(--border); border: 1px solid var(--border); }
+.item { background: var(--layer); padding: 16px; display: grid; gap: 6px; align-content: start; }
+.item .tag { font-size: var(--step--1); font-weight: 500; display: inline-flex; gap: 6px; align-items: center; }
+.item .tag.ok { color: var(--good); } .item .tag.no { color: var(--bad); }
+.item b { font-weight: 500; font-size: var(--step-0); }
+.item span.n { color: var(--text-2); font-size: var(--step--1); }
+
+/* ---- table */
+.tbl-wrap { overflow-x: auto; border: 1px solid var(--border); background: var(--layer); }
+table { border-collapse: collapse; width: 100%; min-width: 880px; font-size: var(--step--1); }
+th { text-align: left; font-weight: 500; color: var(--text); background: var(--layer-2); padding: 10px 12px; border-bottom: 1px solid var(--border); white-space: nowrap; position: sticky; top: 0; }
+th button { font: inherit; background: none; border: 0; color: inherit; cursor: pointer; padding: 0; }
+td { padding: 9px 12px; border-bottom: 1px solid var(--border); vertical-align: top; }
+td.mono { white-space: nowrap; }
+tbody tr.row { cursor: pointer; }
+tbody tr.row:hover { background: var(--hover); }
+tr.detail td { background: var(--layer-2); color: var(--text-2); }
+.flags { display: inline-flex; gap: 3px; }
+.flags i { width: 8px; height: 8px; border-radius: 50%; border: 1px solid var(--border-2); display: inline-block; }
+.flags i.on { background: var(--s1); border-color: var(--s1); }
+.vt { display: inline-grid; grid-template-columns: repeat(3, 22px); gap: 3px; align-items: end; height: 18px; }
+.vt i { display: block; border-radius: 2px 2px 0 0; min-height: 2px; }
+.pager { display: flex; gap: 8px; align-items: center; justify-content: flex-end; color: var(--text-2); font-size: var(--step--1); }
+.btn { font: inherit; font-size: var(--step--1); padding: 7px 14px; border: 1px solid var(--border-2); background: var(--layer); color: var(--text); cursor: pointer; }
+.btn:disabled { opacity: 0.4; cursor: default; }
+.terms { display: flex; flex-wrap: wrap; gap: 6px; }
+.term { font-family: var(--mono); font-size: 0.72rem; padding: 4px 8px; background: var(--layer-2); border: 1px solid var(--border); display: inline-flex; gap: 8px; }
+.band .term { background: var(--layer); }
+.term em { font-style: normal; color: var(--accent-ink); }
+.cl { display: grid; gap: 0; border-top: 1px solid var(--border); }
+.cl > div { display: grid; grid-template-columns: 3.4rem minmax(0, 1fr) 4.5rem; gap: 12px; padding: 9px 0; border-bottom: 1px solid var(--border); font-size: var(--step--1); align-items: start; }
+.cl .r { font-variant-numeric: tabular-nums; color: var(--text); }
+.cl .t { color: var(--text-2); }
+.cl .t b { color: var(--text); font-weight: 500; }
+footer .wrap { padding-block: 32px 48px; color: var(--text-3); font-size: var(--step--1); display: grid; gap: 6px; }
+#tip { position: fixed; z-index: 20; pointer-events: none; background: var(--text); color: var(--bg); padding: 8px 10px; font-size: 0.75rem; max-width: 300px; line-height: 1.4; box-shadow: 0 2px 6px rgba(0,0,0,.3); }
+.status-loading { color: var(--text-3); font-size: var(--step--1); }
+@media (prefers-reduced-motion: reduce) {
+  .flow { animation: none; }
+  .grow .bf, .grow .dv-bar, .grow .col .cb { animation: none; }
+  * { scroll-behavior: auto !important; }
+}
+</style>
+
+<header class="shell">
+  <div class="wrap">
+    <div class="brand"><b>Breach Radar</b><span>Team DATACENTERS · Sheridan Datathon 2026</span></div>
+    <nav class="chapters" aria-label="Chapters">
+      <a href="#problem">Problem</a><a href="#pipeline">Pipeline</a><a href="#weights">Weights</a><a href="#results">What worked</a><a href="#before">Before the model</a><a href="#after">After the model</a><a href="#output">The list</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <section id="problem" class="hero">
+    <div class="wrap">
+      <div class="eyebrow">Chapter 1 · The problem</div>
+      <h1>72,670 new CVEs. Patch these 500 first.</h1>
+      <p class="lede">We ranked every CVE published January to September 2026 by how likely CISA is to add it to the Known Exploited Vulnerabilities catalog by November 4. Most of the ones that end up exploited look ordinary on the day they're published, so the hard part is reading what's there.</p>
+      <div class="kpis">
+        <div class="kpi"><div class="v" data-count="72670">72,670</div><div class="l">CVEs in the 2026 scoreboard, one row each, signals frozen at the end of the publish month</div></div>
+        <div class="kpi"><div class="v" data-count="2.3" data-dec="1" data-suf="%">2.3%</div><div class="l">have any public exploit code. 96% have no code and an EPSS under 0.01</div></div>
+        <div class="kpi"><div class="v" data-count="58" data-suf="%">58%</div><div class="l">of past KEV additions had no public exploit signal when we would have ranked them</div></div>
+        <div class="kpi hl"><div class="v">≈ 12</div><div class="l">expected KEV additions in our 500 (80% range 7–22). The best single-rule baseline gets 8</div></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="pipeline" class="band">
+    <div class="wrap">
+      <div class="head">
+        <div class="eyebrow">Chapter 2 · The pipeline</div>
+        <h2>One table in, 500 CVEs out</h2>
+        <p class="lede">Each column is a layer. Edge thickness into the two logistic regressions is the share of that model's total weight carried by the feature group. Select a node for its numbers.</p>
+      </div>
+      <div class="toolbar">
+        <div class="legend" id="pipe-legend"></div>
+        <div class="seg" role="group" aria-label="Show tested models">
+          <button type="button" id="ghost-off" aria-pressed="true">Final pipeline</button>
+          <button type="button" id="ghost-on" aria-pressed="false">Include what we dropped</button>
+        </div>
+      </div>
+      <div class="pipe">
+        <div class="pipe-canvas" id="pipe-canvas"><p class="status-loading" style="padding:20px">Loading pipeline…</p></div>
+        <aside class="pipe-side" id="pipe-side" aria-live="polite"></aside>
+      </div>
+      <div class="checks">
+        <div class="check"><b>A/B forward test</b><span>Rebuilt the exam on 2024 and 2025: train on one year, test on the other. 75 exploited CVEs, top 441 of 64,120, the same selection rate as 500 of 72,670.</span></div>
+        <div class="check"><b>5-fold purged CV</b><span>75,148 CVEs in time blocks. Exploit chains never split across train and test. Run on Chen's 4× H100 box.</span></div>
+        <div class="check"><b>Paired bootstrap + Holm</b><span>With 75 positives, gaps under about 5 hits are noise. We stopped tuning when results stopped clearing that bar.</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="weights">
+    <div class="wrap">
+      <div class="head">
+        <div class="eyebrow">Chapter 3 · The weights</div>
+        <h2>What moves the score</h2>
+        <p class="lede">Coefficients per standard deviation in the two logistic regressions. Blue pushes a CVE toward KEV, magenta pushes it away. Hover a bar for the definition.</p>
+      </div>
+      <div class="toolbar">
+        <div class="seg" role="group" aria-label="Model">
+          <button type="button" data-lr="Luis" aria-pressed="true">LR A · 56 features</button>
+          <button type="button" data-lr="Chen" aria-pressed="false">LR B · 100 features</button>
+        </div>
+        <div class="seg" role="group" aria-label="How many">
+          <button type="button" data-n="20" aria-pressed="true">Top 20</button>
+          <button type="button" data-n="999" aria-pressed="false">All</button>
+        </div>
+      </div>
+      <div class="chips" id="w-groups" role="group" aria-label="Feature group"></div>
+      <div class="grid-2">
+        <div class="tile">
+          <div class="legend"><span><i class="sw" style="background:var(--s1)"></i>Raises KEV odds</span><span><i class="sw" style="background:var(--s4)"></i>Lowers KEV odds</span></div>
+          <div id="w-bars" class="mini"></div>
+        </div>
+        <div class="tile">
+          <h3>Signal strength on its own</h3>
+          <p class="sub">Univariate AUC on the training years (0.5 = random). The text model trained on past KEV descriptions beats every exploit flag.</p>
+          <div id="w-auc"></div>
+          <p class="takeaway" id="w-take"></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="results" class="band">
+    <div class="wrap">
+      <div class="head">
+        <div class="eyebrow">Chapter 4 · What worked</div>
+        <h2>What helped and what didn't</h2>
+        <p class="lede">Exploited CVEs found on the practice exam (75 possible). Each step adds one idea to the one above. The line marks 35: the most that any model we built ever reached.</p>
+      </div>
+      <div class="grid-2 stack">
+        <div class="tile">
+          <h3>Results ladder</h3>
+          <div id="ladder"></div>
+          <p class="note">Final row uses Chen's out-of-fold LoRA scores, so it's an estimate. Random picks would find 0.5.</p>
+        </div>
+        <div class="tile">
+          <div class="toolbar"><h3>Every experiment</h3>
+            <div class="seg" role="group" aria-label="Filter experiments">
+              <button type="button" data-x="all" aria-pressed="true">All</button>
+              <button type="button" data-x="ok" aria-pressed="false">Helped</button>
+              <button type="button" data-x="no" aria-pressed="false">Didn't</button>
+            </div>
+          </div>
+          <div class="ledger" id="ledger"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="before">
+    <div class="wrap">
+      <div class="head">
+        <div class="eyebrow">Chapter 5 · Before the model</div>
+        <h2>The data is mostly text</h2>
+        <p class="lede">Exploit telemetry is thin: a handful of 0/1 flags and an EPSS score that is near zero for almost everything. The description, the vendor and the release pattern carry most of what can be known.</p>
+      </div>
+      <div class="grid-3">
+        <div class="tile"><h3>Exploit telemetry in 2026</h3><p class="sub">CVEs with each public exploit source, out of 72,670.</p><div id="pre-flags"></div></div>
+        <div class="tile"><h3>Where the signal lives</h3><p class="sub">Best single-feature AUC per feature group.</p><div id="pre-groups"></div></div>
+        <div class="tile"><h3>The leak trap</h3><p class="sub">NVD status and reference counts are filled in after the fact. Alone they find almost nothing.</p><div id="pre-leak"></div><p class="takeaway">Not-yet-analyzed CVEs reach KEV at 0.000%, so NVD status removes a quarter of the haystack. That makes it a filter. It doesn't rank. We left it out.</p></div>
+      </div>
+      <div class="grid-2">
+        <div class="tile"><h3>Where exploitation concentrates</h3><p class="sub">Granite Embedding clusters of past descriptions, ranked by KEV rate. Count = 2026 CVEs that land in the cluster.</p><div class="cl" id="pre-clusters"></div></div>
+        <div class="tile">
+          <h3>Who has been exploited</h3><p class="sub" id="kev-sub"></p><div id="pre-kev"></div>
+          <h3>When CVEs arrive</h3><p class="sub">2026 CVEs per snapshot month. June CVEs are scored in July's snapshot, and Oracle released 1,097 in one day.</p><div id="pre-months"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="after" class="band">
+    <div class="wrap">
+      <div class="head">
+        <div class="eyebrow">Chapter 6 · After the model</div>
+        <h2>What the top 500 looks like</h2>
+        <p class="lede">The list leans hard toward enterprise servers, remote code execution and products ransomware crews already use. Post-processing then spreads it across vendors.</p>
+      </div>
+      <div class="kpis" id="post-kpis"></div>
+      <div class="grid-2">
+        <div class="tile">
+          <div class="toolbar"><h3>Our picks vs all 2026 CVEs</h3>
+            <div class="seg" role="group" aria-label="Breakdown">
+              <button type="button" data-b="product_type" aria-pressed="true">Product type</button>
+              <button type="button" data-b="impact" aria-pressed="false">Impact</button>
+              <button type="button" data-b="typical_attacker" aria-pressed="false">Attacker</button>
+            </div>
+          </div>
+          <div class="legend"><span><i class="sw" style="background:var(--s1)"></i>Our top 500</span><span><i class="sw" style="background:var(--s0)"></i>All 2026 CVEs</span></div>
+          <div id="post-break"></div>
+          <p class="note">Categories come from Granite 4.2 30B reading each description. Value = share of each group; the end label is the lift.</p>
+        </div>
+        <div class="tile">
+          <h3>Who voted for each pick</h3>
+          <p class="sub">Each model's own top 500 over the whole scoreboard. Picks in no single top 500 are consensus picks: good on all three, first on none.</p>
+          <div id="post-voters"></div>
+          <p class="takeaway" id="voters-take"></p>
+        </div>
+        <div class="tile">
+          <h3>Vendors in the list</h3>
+          <p class="sub">Vendor as Granite 30B named it. The cap keeps any one vendor from filling a month.</p>
+          <div id="post-vendors"></div>
+          <div class="mini" id="cap-batches"></div>
+        </div>
+        <div class="tile">
+          <h3>Words the list over-represents</h3>
+          <p class="sub">Description word pairs in our 500 vs the whole scoreboard. Number = times more common.</p>
+          <div class="terms" id="post-terms"></div>
+          <h3>EPSS of our picks</h3>
+          <div class="legend"><span><i class="sw" style="background:var(--s1)"></i>Our top 500</span><span><i class="sw" style="background:var(--s0)"></i>All 2026 CVEs</span></div>
+          <div id="post-epss"></div>
+          <p class="note">Most of our picks have a modest EPSS. The models rank on text, vendor and release pattern, not on EPSS alone.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="output">
+    <div class="wrap">
+      <div class="head">
+        <div class="eyebrow">Chapter 7 · The list</div>
+        <h2>The 500, with reasons</h2>
+        <p class="lede">The submitted ranking. Select a row for the reason and how each model scored it. Dots show public exploit sources: Exploit-DB, Metasploit, Nuclei, GitHub PoC.</p>
+      </div>
+      <div class="toolbar">
+        <div style="display:flex;gap:12px;flex-wrap:wrap;flex:1;min-width:0">
+          <input type="search" id="q" placeholder="Search CVE, product or reason" aria-label="Search the list" style="flex:1;min-width:200px">
+          <select id="fcat" aria-label="Product type"><option value="">All product types</option></select>
+          <select id="fcode" aria-label="Exploit code"><option value="">With or without code</option><option value="1">Public exploit code</option><option value="0">No public code</option></select>
+        </div>
+      </div>
+      <div class="tbl-wrap"><table>
+        <thead><tr>
+          <th><button type="button" data-sort="r">Rank</button></th><th>CVE</th><th>Product</th><th>Type</th><th>Impact</th>
+          <th><button type="button" data-sort="e">EPSS</button></th><th>Code</th><th><button type="button" data-sort="tx">KEV-like text</button></th><th title="Percentile in each model, bars scaled from 80 to 100">Models · tree, linear, LLM</th>
+        </tr></thead>
+        <tbody id="tbody"><tr><td colspan="9" class="status-loading">Loading the list…</td></tr></tbody>
+      </table></div>
+      <div class="pager"><span id="pinfo"></span><button type="button" class="btn" id="prev">Previous</button><button type="button" class="btn" id="next">Next</button></div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div>Built by Team DATACENTERS for the Sheridan Datathon 2026 IBM track. Models: IBM Granite 4.2 30B and 8B (LoRA), Granite Embedding, Granite 3.3 2B, XGBoost, scikit-learn.</div>
+    <div>Data: CVE records, EPSS, public exploit flags and the CISA KEV catalog as provided by the track. Numbers come from the team repo (<span class="mono">luis/</span>, <span class="mono">chen/</span>); <span id="built"></span></div>
+  </div>
+</footer>
+<div id="tip" role="tooltip" hidden></div>
+
+<script>
+(function () {
+  "use strict";
+  var REDUCED = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var $ = function (s, r) { return (r || document).querySelector(s); };
+  var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
+  var esc = function (s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); };
+  var fmt = function (n, d) { return Number(n).toLocaleString("en-US", { minimumFractionDigits: d || 0, maximumFractionDigits: d || 0 }); };
+  var nice = function (k) { return String(k).replace(/_/g, " "); };
+
+  /* ------------------------------------------------------------------ tooltip */
+  var tip = $("#tip");
+  function showTip(e, html) { tip.innerHTML = html; tip.hidden = false; moveTip(e); }
+  function moveTip(e) {
+    var x = e.clientX + 14, y = e.clientY + 14, w = tip.offsetWidth, h = tip.offsetHeight;
+    if (x + w > window.innerWidth - 8) x = e.clientX - w - 14;
+    if (y + h > window.innerHeight - 8) y = e.clientY - h - 14;
+    tip.style.left = Math.max(8, x) + "px"; tip.style.top = Math.max(8, y) + "px";
+  }
+  document.addEventListener("pointerover", function (e) { var t = e.target.closest("[data-tip]"); if (t) showTip(e, t.getAttribute("data-tip")); });
+  document.addEventListener("pointermove", function (e) { if (!tip.hidden) moveTip(e); });
+  document.addEventListener("pointerout", function (e) { var t = e.target.closest("[data-tip]"); if (t && !t.contains(e.relatedTarget)) tip.hidden = true; });
+
+  /* ------------------------------------------------------------------ chart helpers (HTML bars, one scale per chart) */
+  function hbars(el, rows, o) {
+    o = o || {};
+    var max = o.max || Math.max.apply(null, rows.map(function (r) { return r.value; }));
+    var min = o.min || 0;
+    var cls = "bars grow" + (o.mark != null ? " marked" : "");
+    var style = o.mark != null ? ' style="--mark:' + ((o.mark - min) / (max - min) * 100) + '%"' : "";
+    el.innerHTML = '<div class="' + cls + '"' + style + ">" + rows.map(function (r, i) {
+      var w = Math.max(0, (r.value - min) / (max - min) * 100);
+      var t = r.tip || (esc(r.label) + ": " + esc(r.text || fmt(r.value, o.dec)));
+      return '<div class="bar-row' + (r.hl ? " hl" : "") + '" data-tip="' + esc(t) + '">' +
+        '<span class="bl">' + esc(r.label) + (r.small ? "<small>" + esc(r.small) + "</small>" : "") + "</span>" +
+        '<span class="bt"><span class="bf" style="width:' + w + "%;background:" + (r.color || o.color || "var(--s1)") + ";animation-delay:" + (i * 20) + 'ms"></span></span>' +
+        '<span class="bv">' + esc(r.text || fmt(r.value, o.dec)) + "</span></div>";
+    }).join("") + "</div>";
+  }
+  function pairbars(el, rows, o) {   // two series on one scale: [{label, a, b, text}]
+    o = o || {};
+    var max = Math.max.apply(null, rows.map(function (r) { return Math.max(r.a, r.b); }));
+    el.innerHTML = '<div class="bars grow">' + rows.map(function (r, i) {
+      return '<div class="bar-row" data-tip="' + esc(r.tip || "") + '"><span class="bl">' + esc(r.label) + '</span><span class="bt two">' +
+        '<span class="bf" style="width:' + (r.a / max * 100) + '%;background:var(--s1);animation-delay:' + (i * 40) + 'ms"></span>' +
+        '<span class="bf" style="width:' + (r.b / max * 100) + '%;background:var(--s0);animation-delay:' + (i * 40 + 20) + 'ms"></span></span>' +
+        '<span class="bv">' + esc(r.text) + "</span></div>";
+    }).join("") + "</div>";
+  }
+  function columns(el, labels, a, b, tipFn) {   // grouped columns, shares in %, same scale
+    var max = Math.max.apply(null, a.concat(b || []));
+    el.innerHTML = '<div class="cols grow">' + labels.map(function (l, i) {
+      return '<div class="col" data-tip="' + esc(tipFn(i)) + '"><span class="cb" style="height:' + (a[i] / max * 100) + '%;background:var(--s1);animation-delay:' + (i * 50) + 'ms"></span>' +
+        (b ? '<span class="cb" style="height:' + (b[i] / max * 100) + '%;background:var(--s0);animation-delay:' + (i * 50 + 25) + 'ms"></span>' : "") + "</div>";
+    }).join("") + '</div><div class="col-labels">' + labels.map(function (l) { return "<span>" + esc(l) + "</span>"; }).join("") + "</div>";
+  }
+
+  /* ------------------------------------------------------------------ feature groups used by the pipeline and the weights chart */
+  var GROUPS = [
+    { id: "f_sig", t: "Exploit signals", re: /^(epss|epss_pct|epss_missing|exploitdb|metasploit|nuclei|poc_github|n_flags|any_flag|any_code|cv4_e_poc)$/ },
+    { id: "f_txt", t: "Description text", re: /^(desc_len|txt_|text_kev|rce_text|unauth_text|auth_bypass_text|preauth_text|eol_text)/ },
+    { id: "f_batch", t: "Release batch", re: /^(n_same_day|sib_|sibling_|n_adjacent_ids|log1p_adjacent_ids|twins|log1p_twins|log_batch_size|out_of_band|is_patch_tuesday|patch_tuesday)/ },
+    { id: "f_hist", t: "Vendor history", re: /^(assigner_|log_assigner|log_days_since|log_cwe_kev_rate|kev_|log1p_(vendor|product|named|assigner)_)/ },
+    { id: "f_g30", t: "Granite 30B reading", re: /^llm_/ },
+    { id: "f_cvss", t: "CVSS, CWE & dates", re: /.*/ }
+  ];
+  function groupOf(f) { for (var i = 0; i < GROUPS.length; i++) if (GROUPS[i].re.test(f)) return GROUPS[i].id; return "f_cvss"; }
+
+  var KIND = {
+    data: { c: "var(--s0)", n: "Data" }, feat: { c: "var(--s1)", n: "Features" }, ml: { c: "var(--s2)", n: "Classic ML" },
+    ibm: { c: "var(--s3)", n: "IBM Granite" }, post: { c: "var(--s4)", n: "Post-processing" }
+  };
+
+  /* ------------------------------------------------------------------ main */
+  fetch("story_data.json").then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); })
+    .then(start).catch(function (err) {
+      $("#pipe-canvas").innerHTML = '<p class="status-loading" style="padding:20px">The data file story_data.json did not load (' + esc(err.message) + "). Rebuild it with luis/frontend/build_story_data.py and publish it next to the page.</p>";
+    });
+
+  function start(D) {
+    $("#built").textContent = "data built " + D.built + ".";
+    D.weights.forEach(function (w) { w.pg = groupOf(w.f); });
+    countUp();
+    buildPipeline(D);
+    buildWeights(D);
+    buildResults();
+    buildBefore(D);
+    buildAfter(D);
+    buildTable(D);
+    navSpy();
+  }
+
+  function countUp() {
+    if (REDUCED) return;
+    $$("[data-count]").forEach(function (el) {
+      var end = parseFloat(el.getAttribute("data-count")), dec = +(el.getAttribute("data-dec") || 0), suf = el.getAttribute("data-suf") || "";
+      var t0 = performance.now(), dur = 650;
+      (function tick(t) {
+        var p = Math.min(1, (t - t0) / dur), e = 1 - Math.pow(1 - p, 3);
+        el.textContent = fmt(end * e, dec) + suf;
+        if (p < 1) requestAnimationFrame(tick);
+      })(t0);
+    });
+  }
+
+  /* ------------------------------------------------------------------ chapter 2: pipeline network */
+  function buildPipeline(D) {
+    var share = { Luis: {}, Chen: {} }, tot = { Luis: 0, Chen: 0 }, cols = {};
+    D.weights.forEach(function (w) {
+      share[w.lr][w.pg] = (share[w.lr][w.pg] || 0) + Math.abs(w.c); tot[w.lr] += Math.abs(w.c);
+      (cols[w.pg] = cols[w.pg] || {})[w.f] = 1;
+    });
+    ["Luis", "Chen"].forEach(function (lr) { for (var g in share[lr]) share[lr][g] /= tot[lr]; });
+    var nCols = function (g) { return Object.keys(cols[g] || {}).length; };
+    var P = D.post, R = D.pre;
+
+    var L = [
+      { h: "INPUT", nodes: [
+        { id: "cve", k: "data", t: "CVE snapshot", s: fmt(R.n_scoreboard) + " CVEs · 2026",
+          d: "One row per CVE: description, vendor, CVSS, CWE, EPSS and public exploit flags as of the end of its publish month. Trained on 2024 and 2025 rebuilt the same way.",
+          f: [["2026 CVEs", fmt(R.n_scoreboard)], ["With public exploit code", R.share_any_flag + "%"], ["Median EPSS", R.median_epss], ["Leak columns removed", "NVD status, reference counts, CPE counts"]], v: "ok" } ] },
+      { h: "FEATURES · 156 COLUMNS", nodes: GROUPS.map(function (g) {
+        return { id: g.id, k: g.id === "f_g30" ? "ibm" : "feat", t: g.t, s: nCols(g.id) + " columns", g: g.id, v: "ok",
+          d: { f_sig: "The 0/1 exploit flags and EPSS. Strong when present, but present for 2.3% of CVEs.",
+               f_txt: "Regex flags plus a TF-IDF model trained only on past KEV descriptions. The strongest single feature in the project.",
+               f_batch: "How the CVE was released: big same-day batches, twins, near-adjacent IDs, Patch Tuesday. Big batches rarely reach KEV.",
+               f_hist: "How often this assigner, vendor, product or CWE reached KEV before this year.",
+               f_g30: "IBM Granite 4.2 30B read every description and answered 11 questions: product type, internet exposure, install base, impact, typical attacker, attacker appeal.",
+               f_cvss: "CVSS 3/4 metrics, CWE, CVE-ID age, time to the deadline." }[g.id] };
+      }).concat([{ id: "f_emb", k: "ibm", t: "Granite Embedding", s: "clusters · nearest KEV", v: "ok",
+        d: "Granite Embedding vectors of every description. Alone they score AUC 0.81 vs 0.91 for TF-IDF, so they don't rank. They group 2026 CVEs into clusters and find the most similar past KEV entry for each pick.",
+        f: [["Clusters", "60"], ["Picks with a KEV twin (similarity ≥ 0.85)", P.nearest_kev_ge_085 + " of 500"]] }]) },
+      { h: "MODELS", nodes: [
+        { id: "m_xgb", k: "ml", t: "XGBoost", s: "40 seeds averaged", v: "ok", d: "Gradient-boosted trees on the leak-free features. Averaging 40 seeds keeps the top-500 boundary stable.",
+          f: [["Alone, practice exam", "23 (LightGBM, same features)"], ["With the linear model", "28"], ["Two single runs share", "409 of 500"]] },
+        { id: "m_lrl", k: "ml", t: "Logistic regression A", s: "56 features · Luis", v: "ok", d: "L2 logistic regression, C chosen inside the training year. Averaged with LR B into one linear voter.",
+          f: [["Features", "56"], ["Regularization", "C = 0.001"], ["Strongest weight", "KEV-like text +0.83"]] },
+        { id: "m_lrc", k: "ml", t: "Logistic regression B", s: "100 features · Chen", v: "ok", d: "Same model family with CVSS, metadata and the 55 Granite 30B answers. Best single model on the practice exam.",
+          f: [["Features", "100"], ["Regularization", "C = 0.0001"], ["Alone, practice exam", "28 at density"], ["Agreement with LR A", "Spearman 0.59"]] },
+        { id: "m_lora", k: "ibm", t: "Granite 4.2 8B LoRA", s: "fine-tuned · 4 seeds", v: "ok", d: "Granite 4.2 8B fine-tuned to answer yes or no: will this CVE reach KEV? It reads a CVE card: description, CWE, CVSS, EPSS percentile, flags.",
+          f: [["Training CVEs", "75,148 (119 KEV)"], ["Added as third voter", "28 → 32 (estimate)"], ["Single seeds share", "135–264 of 500"]] },
+        { id: "g_lgbm", k: "ml", t: "LightGBM", s: "tie with XGBoost", ghost: 1, v: "no", d: "Same features as XGBoost. 24 vs 24 on Chen's CV and 32 vs 32 inside the final ensemble. A tie, so it stayed out.", f: [] },
+        { id: "g_cat", k: "ml", t: "CatBoost", s: "memorized vendors", ghost: 1, v: "no", d: "Learned assigner IDs by heart. 14 hits on the practice exam.", f: [] },
+        { id: "g_l30", k: "ibm", t: "Granite 4.2 30B LoRA", s: "bigger, worse", ghost: 1, v: "no", d: "Same recipe on the 30B model. 28 hits vs 32 with the 8B as the third voter.", f: [] },
+        { id: "g_g2b", k: "ibm", t: "Granite 3.3 2B zero-shot", s: "kept for reasons only", ghost: 1, v: "no", d: "Yes/no prompts on the top 5%. +2 hits without the cap, 0 with it. Its answers stayed in the explanations.", f: [] } ] },
+      { h: "ENSEMBLE", nodes: [
+        { id: "e_rank", k: "ml", t: "Rank average", s: "tree · linear · LLM", v: "ok", d: "Each voter becomes a percentile; the three are averaged with equal weight. No weights were tuned, to avoid fitting the practice exam.",
+          f: [["Voters", "3, equal weight"], ["Picks no single voter had in its top 500", (P.voters.none || 0) + " of 500"], ["Tree vs LLM agreement", "Spearman " + P.voter_corr.tree.llm]] } ] },
+      { h: "POST-PROCESSING", nodes: [
+        { id: "p_filter", k: "ibm", t: "Granite demotion", s: "4 rules", v: "ok", d: "Pushes down CVEs that Granite 30B reads as denial-of-service only, an unlikely target, low attacker appeal, or a WordPress plugin. Each rule was checked on the training years first.",
+          f: [["2026 CVEs pushed down", R.granite_demoted_share + "%"], ["Removed from the top 500", P.filters_pushed_out], ["Past KEV positives caught", "1 of 75"]] },
+        { id: "p_cap", k: "post", t: "Vendor cap", s: "≤ 3 per assigner-month", v: "ok", d: "At most 3 CVEs per assigner per month. Insurance against one vendor's batch filling the list.",
+          f: [["Removed from the top 500", P.cap_pushed_out], ["Biggest batch cut", (P.cap_biggest_batches[0] ? P.cap_biggest_batches[0].would_have + " → 3" : "–")], ["Effect on the baseline", "19 → 22 hits"]] } ] },
+      { h: "OUTPUT", nodes: [
+        { id: "o_top", k: "data", t: "top500.csv", s: "500 CVEs + reasons", v: "ok", d: "The submitted ranking. Every pick carries a reason built from the signals, Granite 30B's reading and its nearest past KEV entry.",
+          f: [["With public exploit code", P.exploit_code.top + " of 500"], ["Expected KEV additions", "≈ 12 (80%: 7–22)"], ["Best baseline", "8"]] } ] }
+    ];
+    var E = [];
+    var add = function (a, b, o) { E.push(Object.assign({ a: a, b: b }, o || {})); };
+    GROUPS.forEach(function (g) { add("cve", g.id); }); add("cve", "f_emb");
+    ["f_sig", "f_txt", "f_batch", "f_hist", "f_cvss"].forEach(function (g) {
+      add(g, "m_xgb", { w: 1.6 });
+      add(g, "m_lrl", { w: 1 + 9 * (share.Luis[g] || 0), lr: "Luis" });
+      add(g, "m_lrc", { w: 1 + 9 * (share.Chen[g] || 0), lr: "Chen" });
+      add(g, "g_lgbm", { ghost: 1 }); add(g, "g_cat", { ghost: 1 });
+    });
+    add("f_g30", "m_lrc", { w: 1 + 9 * (share.Chen.f_g30 || 0), lr: "Chen" });
+    ["f_txt", "f_sig", "f_cvss"].forEach(function (g) { add(g, "m_lora", { w: 1.6 }); add(g, "g_l30", { ghost: 1 }); add(g, "g_g2b", { ghost: 1 }); });
+    ["m_xgb", "m_lrl", "m_lrc", "m_lora"].forEach(function (m) { add(m, "e_rank", { w: 2 }); });
+    add("e_rank", "p_filter", { w: 2.4 }); add("f_g30", "p_filter", { w: 1.4 });
+    add("p_filter", "p_cap", { w: 2.4, down: 1 }); add("p_cap", "o_top", { w: 2.4 });
+    add("f_emb", "o_top", { explain: 1 }); add("f_g30", "o_top", { explain: 1 });
+
+    var showGhost = false, sel = "cve";
+    var W = 1300, H = 620, X = [80, 310, 560, 815, 1015, 1210], TOP = 70, BOT = 30;
+    var byId = {};
+    function layout() {
+      L.forEach(function (layer, i) {
+        var ns = layer.nodes.filter(function (n) { return showGhost || !n.ghost; });
+        ns.forEach(function (n, j) { n.x = X[i]; n.y = TOP + (H - TOP - BOT) * (j + 0.5) / ns.length; n.vis = true; byId[n.id] = n; });
+        layer.nodes.forEach(function (n) { if (!showGhost && n.ghost) n.vis = false; });
+      });
+    }
+    function edgePath(a, b, down) {
+      if (down) return "M" + a.x + "," + (a.y + 14) + " L" + b.x + "," + (b.y - 14);
+      var x1 = a.x + 14, x2 = b.x - 14, mx = (x1 + x2) / 2;
+      return "M" + x1 + "," + a.y + " C" + mx + "," + a.y + " " + mx + "," + b.y + " " + x2 + "," + b.y;
+    }
+    function render() {
+      layout();
+      var s = '<svg viewBox="0 0 ' + W + " " + H + '" role="img" aria-label="Pipeline network: input, feature groups, models, ensemble, post-processing, output">';
+      L.forEach(function (layer, i) { s += '<text class="n-layer" x="' + X[i] + '" y="30" text-anchor="middle">' + layer.h + "</text>"; });
+      var vis = E.filter(function (e) { return byId[e.a] && byId[e.b] && byId[e.a].vis && byId[e.b].vis && (showGhost || !e.ghost); });
+      vis.forEach(function (e, i) {
+        var a = byId[e.a], b = byId[e.b], p = edgePath(a, b, e.down), c = KIND[a.k].c;
+        var w = e.ghost ? 1 : (e.w || 1.2);
+        var t = e.lr ? ' data-tip="' + esc(a.t + " → " + b.t + ": " + Math.round(((e.lr === "Luis" ? share.Luis : share.Chen)[a.id] || 0) * 100) + "% of the model's total weight") + '"' : "";
+        s += '<path class="edge' + (e.explain ? " explain" : "") + '" data-e="' + i + '" data-a="' + e.a + '" data-b="' + e.b + '" d="' + p + '" stroke-width="' + w + '"' + (e.ghost ? ' stroke-dasharray="3 4"' : "") + t + ' style="pointer-events:stroke"></path>';
+        if (!e.ghost) s += '<path class="flow' + (e.explain ? " explain" : "") + '" data-a="' + e.a + '" data-b="' + e.b + '" d="' + p + '" stroke-width="' + Math.max(1.2, w * 0.55) + '" style="stroke:' + c + ';animation-delay:-' + ((i * 0.37) % 1.6).toFixed(2) + 's;pointer-events:none"></path>';
+      });
+      L.forEach(function (layer) {
+        layer.nodes.forEach(function (n) {
+          if (!n.vis) return;
+          var c = KIND[n.k].c, r = n.id === "cve" || n.id === "o_top" ? 14 : 11;
+          var gauge = "";
+          if (n.g) {   // ring = share of LR B's (or A's) weight carried by this group
+            var sh = Math.max(share.Luis[n.g] || 0, share.Chen[n.g] || 0), C = 2 * Math.PI * 18;
+            gauge = '<circle cx="' + n.x + '" cy="' + n.y + '" r="18" fill="none" stroke-width="3" style="stroke:var(--track)"></circle>' +
+              '<circle cx="' + n.x + '" cy="' + n.y + '" r="18" fill="none" stroke-width="3" style="stroke:' + c + '" stroke-dasharray="' + (C * sh).toFixed(1) + " " + C.toFixed(1) + '" transform="rotate(-90 ' + n.x + " " + n.y + ')"></circle>';
+          }
+          var tw = Math.max(n.t.length * 7.2, n.s.length * 6) + 14;
+          s += '<g class="node' + (n.ghost ? " ghost" : "") + (n.id === sel ? " sel" : "") + '" data-n="' + n.id + '" tabindex="0" role="button" aria-label="' + esc(n.t + ". " + n.s) + '">' +
+            '<rect class="n-plate" x="' + (n.x - tw / 2) + '" y="' + (n.y + 21) + '" width="' + tw + '" height="32"></rect>' + gauge +
+            '<circle class="n-halo" cx="' + n.x + '" cy="' + n.y + '" r="' + (r + 9) + '"></circle>' +
+            '<circle class="n-core" cx="' + n.x + '" cy="' + n.y + '" r="' + r + '" style="fill:' + c + '"></circle>' +
+            '<text class="n-title" x="' + n.x + '" y="' + (n.y + 35) + '" text-anchor="middle">' + esc(n.t) + "</text>" +
+            '<text class="n-sub" x="' + n.x + '" y="' + (n.y + 49) + '" text-anchor="middle">' + esc(n.s) + "</text></g>";
+        });
+      });
+      s += "</svg>";
+      $("#pipe-canvas").innerHTML = s;
+      $$("#pipe-canvas .node").forEach(function (g) {
+        g.addEventListener("click", function () { select(g.getAttribute("data-n")); });
+        g.addEventListener("keydown", function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); select(g.getAttribute("data-n")); } });
+        g.addEventListener("pointerenter", function () { highlight(g.getAttribute("data-n")); });
+        g.addEventListener("pointerleave", function () { highlight(null); });
+      });
+    }
+    function connected(id) {
+      var set = {}; set[id] = 1;
+      var walk = function (dir) {
+        var q = [id], seen = {}; seen[id] = 1;
+        while (q.length) { var cur = q.shift(); E.forEach(function (e) { var nx = dir ? (e.a === cur ? e.b : null) : (e.b === cur ? e.a : null); if (nx && !seen[nx]) { seen[nx] = 1; set[nx] = 1; q.push(nx); } }); }
+      };
+      walk(true); walk(false); return set;
+    }
+    function highlight(id) {
+      var svg = $("#pipe-canvas svg"); if (!svg) return;
+      if (!id) { $$(".dim", svg).forEach(function (x) { x.classList.remove("dim"); }); return; }
+      var set = connected(id);
+      $$(".node", svg).forEach(function (g) { g.classList.toggle("dim", !set[g.getAttribute("data-n")]); });
+      $$(".edge, .flow", svg).forEach(function (p) { p.classList.toggle("dim", !(set[p.getAttribute("data-a")] && set[p.getAttribute("data-b")])); });
+    }
+    function select(id) {
+      sel = id;
+      $$("#pipe-canvas .node").forEach(function (g) { g.classList.toggle("sel", g.getAttribute("data-n") === id); });
+      var n = byId[id], k = KIND[n.k], facts = (n.f || []).slice();
+      var extra = "";
+      if (n.g) {
+        facts = [["Columns", nCols(n.g)], ["Share of LR A weight", Math.round((share.Luis[n.g] || 0) * 100) + "%"], ["Share of LR B weight", Math.round((share.Chen[n.g] || 0) * 100) + "%"]];
+        var top = D.weights.filter(function (w) { return w.pg === n.g; }).sort(function (a, b) { return Math.abs(b.c) - Math.abs(a.c); }).slice(0, 6);
+        var mx = Math.max.apply(null, top.map(function (w) { return Math.abs(w.c); }).concat([0.01]));
+        extra = '<div class="mini"><div class="eyebrow">Heaviest columns</div>' + top.map(function (w) {
+          var pct = Math.abs(w.c) / mx * 50;
+          return '<div class="dv-row" style="grid-template-columns:minmax(0,1fr) 90px 3rem" data-tip="' + esc(w.f + " (LR " + (w.lr === "Luis" ? "A" : "B") + ")" + (w.d ? ": " + w.d : "")) + '"><span class="bl">' + esc(w.f) +
+            '</span><span class="dv-track"><span class="dv-bar ' + (w.c >= 0 ? "pos" : "neg") + '" style="width:' + pct + '%"></span></span><span class="bv">' + (w.c >= 0 ? "+" : "") + w.c.toFixed(2) + "</span></div>";
+        }).join("") + "</div>";
+      }
+      if (id === "f_emb") {
+        extra = '<div class="mini"><div class="eyebrow">Most-exploited clusters</div>' + D.pre.clusters.slice(0, 4).map(function (c) {
+          return '<div class="note"><b style="color:var(--text);font-weight:500">' + esc(c.products[0] || c.terms[0]) + "</b> · KEV rate " + c.kev_rate + "% · " + fmt(c.cves_2026) + " CVEs in 2026</div>";
+        }).join("") + "</div>";
+      }
+      $("#pipe-side").innerHTML = '<span class="kind"><i class="dot" style="background:' + k.c + '"></i>' + k.n + "</span><h3>" + esc(n.t) + "</h3>" +
+        '<span class="verdict ' + (n.v === "ok" ? "ok" : "no") + '">' + (n.v === "ok" ? "✓ In the final pipeline" : "✕ Tested, dropped") + "</span>" +
+        '<p style="color:var(--text-2)">' + esc(n.d) + "</p>" +
+        (facts.length ? '<dl class="facts">' + facts.map(function (f) { return "<div><dt>" + esc(f[0]) + "</dt><dd>" + esc(f[1]) + "</dd></div>"; }).join("") + "</dl>" : "") + extra;
+    }
+    $("#pipe-legend").innerHTML = Object.keys(KIND).map(function (k) { return '<span><i class="dot" style="background:' + KIND[k].c + '"></i>' + KIND[k].n + "</span>"; }).join("") +
+      '<span><svg width="26" height="8" aria-hidden="true"><line x1="0" y1="4" x2="26" y2="4" stroke-width="1.5" stroke-dasharray="2 4" style="stroke:var(--text-3)"></line></svg>Explains, doesn\'t score</span>';
+    function setGhost(on) {
+      showGhost = on; $("#ghost-on").setAttribute("aria-pressed", on); $("#ghost-off").setAttribute("aria-pressed", !on);
+      if (!on && byId[sel] && byId[sel].ghost) sel = "cve";
+      render(); select(on ? "g_l30" : sel);
+    }
+    $("#ghost-on").addEventListener("click", function () { setGhost(true); });
+    $("#ghost-off").addEventListener("click", function () { setGhost(false); });
+    render(); select(sel);
+  }
+
+  /* ------------------------------------------------------------------ chapter 3: weights */
+  function buildWeights(D) {
+    var lr = "Luis", n = 20, grp = "";
+    var chips = $("#w-groups");
+    var G = [{ id: "", t: "All groups" }].concat(GROUPS);
+    chips.innerHTML = G.map(function (g) { return '<button type="button" class="chip" data-g="' + g.id + '" aria-pressed="' + (g.id === "" ? "true" : "false") + '">' + esc(g.t) + "</button>"; }).join("");
+    function draw() {
+      var rows = D.weights.filter(function (w) { return w.lr === lr && (!grp || w.pg === grp); }).sort(function (a, b) { return Math.abs(b.c) - Math.abs(a.c); });
+      var shown = rows.slice(0, n), mx = Math.max.apply(null, rows.map(function (w) { return Math.abs(w.c); }).concat([0.01]));
+      $("#w-bars").className = "mini grow";
+      $("#w-bars").innerHTML = shown.length ? shown.map(function (w, i) {
+        var t = esc(w.f) + "<br>" + (w.c >= 0 ? "+" : "") + w.c.toFixed(3) + " per SD" + (w.d ? "<br>" + esc(w.d) : "") + (w.eq ? "<br><i>In the other LR: " + esc(w.eq) + "</i>" : "");
+        return '<div class="dv-row" data-tip="' + esc(t) + '"><span class="bl">' + esc(w.f) + '</span><span class="dv-track"><span class="dv-bar ' + (w.c >= 0 ? "pos" : "neg") +
+          '" style="width:' + (Math.abs(w.c) / mx * 50) + "%;animation-delay:" + (i * 25) + 'ms"></span></span><span class="bv">' + (w.c >= 0 ? "+" : "") + w.c.toFixed(2) + "</span></div>";
+      }).join("") + (rows.length > n ? '<p class="note">' + (rows.length - n) + " more in this view. Select All to see them.</p>" : "") : '<p class="note">No columns from this group in this model.</p>';
+    }
+    $$("[data-lr]").forEach(function (b) { b.addEventListener("click", function () { lr = b.getAttribute("data-lr"); $$("[data-lr]").forEach(function (x) { x.setAttribute("aria-pressed", x === b); }); draw(); }); });
+    $$("[data-n]").forEach(function (b) { b.addEventListener("click", function () { n = +b.getAttribute("data-n"); $$("[data-n]").forEach(function (x) { x.setAttribute("aria-pressed", x === b); }); draw(); }); });
+    $$(".chip", chips).forEach(function (b) { b.addEventListener("click", function () { grp = b.getAttribute("data-g"); $$(".chip", chips).forEach(function (x) { x.setAttribute("aria-pressed", x === b); }); draw(); }); });
+    draw();
+    var u = D.pre.univariate.slice(0, 10);
+    hbars($("#w-auc"), u.map(function (r) { return { label: r.feature, small: nice(r.group), value: r.auc, text: r.auc.toFixed(2), tip: esc(r.feature) + ": AUC " + r.auc + ", top 5% holds " + r.lift_top5 + "× the base KEV rate" }; }), { min: 0.5, max: 1 });
+    $("#w-take").textContent = "Both LRs put their biggest weight on how much a description reads like past KEV entries, and their biggest negative on big same-day release batches.";
+  }
+
+  /* ------------------------------------------------------------------ chapter 4: results */
+  function buildResults() {
+    var L = [
+      ["CVSS score", 5], ["EPSS", 11], ["Exploit code, then EPSS", 19], ["LightGBM", 23], ["LightGBM + logistic regression", 26],
+      ["XGBoost + LR, vendor cap", 28], ["+ Granite demotion rules", 30], ["+ second LR + Granite 8B LoRA (final)", 32]
+    ];
+    hbars($("#ladder"), L.map(function (r, i) {
+      return { label: r[0], value: r[1], hl: i === L.length - 1, color: i === L.length - 1 ? "var(--s3)" : i < 3 ? "var(--s0)" : "var(--s1)",
+        text: r[1] + (i === L.length - 1 ? " est." : ""), tip: esc(r[0]) + ": " + r[1] + " of 75 exploited CVEs in the top 441" };
+    }), { max: 40, mark: 35 });
+    var X = [
+      ["ok", "Tree + linear model, rank-averaged", "23 → 26 hits. They disagree on two thirds of their picks."],
+      ["ok", "Text model trained on past KEV descriptions", "Best single feature: AUC 0.91."],
+      ["ok", "Cap of 3 per vendor per month", "Baseline 19 → 22. One vendor batch can't fill the list."],
+      ["ok", "Granite 30B demotion rules", "+1 to +2 hits. Pushes down 49% of CVEs, catches 1 of 75 positives."],
+      ["ok", "Granite 8B LoRA as a third voter", "28 → 32 next to both LRs (estimate)."],
+      ["ok", "Averaging seeds", "40 XGBoost seeds, 4 LoRA seeds. Single LoRA runs share 135–264 of 500."],
+      ["ok", "Leak-free features only", "Leak columns alone: 2–5 hits. They filter, they don't rank."],
+      ["no", "Heavier models alone", "CatBoost 14, LambdaRank 21, a 7-model average 22–23."],
+      ["no", "Nested hyperparameter search", "Inner precision ×4, test hits 31 → 28–29."],
+      ["no", "Granite 4.2 30B LoRA", "28 vs 32 with the 8B."],
+      ["no", "Granite answers inside the LoRA prompt", "28. The LR already uses them."],
+      ["no", "More training years without signals", "2022–24 cohorts: 24–27 vs 28."],
+      ["no", "Time-series or RNN on exploit signals", "Every CVE has one signal month at prediction time. Nothing to sequence."],
+      ["no", "Granite embeddings as a ranker", "AUC 0.81 vs 0.91 for TF-IDF. Kept for clusters and explanations."],
+      ["no", "Boosting siblings after ranking", "+1 at best, −6 with full inheritance."],
+      ["no", "Granite 30B as a direct scorer", "Worse than exploit code, then EPSS."]
+    ];
+    function draw(f) {
+      $("#ledger").innerHTML = X.filter(function (x) { return f === "all" || x[0] === f; }).map(function (x) {
+        return '<div class="item"><span class="tag ' + x[0] + '">' + (x[0] === "ok" ? "✓ Helped" : "✕ Didn't help") + "</span><b>" + esc(x[1]) + '</b><span class="n">' + esc(x[2]) + "</span></div>";
+      }).join("");
+    }
+    $$("[data-x]").forEach(function (b) { b.addEventListener("click", function () { $$("[data-x]").forEach(function (x) { x.setAttribute("aria-pressed", x === b); }); draw(b.getAttribute("data-x")); }); });
+    draw("all");
+  }
+
+  /* ------------------------------------------------------------------ chapter 5: before the model */
+  function buildBefore(D) {
+    var R = D.pre, fl = R.flags;
+    hbars($("#pre-flags"), [
+      { label: "Any public code", value: Math.round(R.share_any_flag / 100 * R.n_scoreboard), hl: true },
+      { label: "GitHub PoC", value: fl.poc_github }, { label: "Nuclei template", value: fl.nuclei },
+      { label: "Exploit-DB", value: fl.exploitdb }, { label: "Metasploit module", value: fl.metasploit }
+    ].map(function (r) { r.text = fmt(r.value); r.tip = esc(r.label) + ": " + fmt(r.value) + " of " + fmt(R.n_scoreboard) + " (" + (r.value / R.n_scoreboard * 100).toFixed(2) + "%)"; return r; }));
+    var gn = { text: "Description text", granite: "Granite embedding model", history: "Vendor history", signals: "Exploit signals", time: "Time", siblings: "Release batch" };
+    hbars($("#pre-groups"), Object.keys(R.group_best_auc).map(function (g) { return { label: gn[g] || g, value: R.group_best_auc[g], text: R.group_best_auc[g].toFixed(2), color: g === "text" || g === "granite" ? "var(--s1)" : "var(--s0)" }; }), { min: 0.5, max: 1 });
+    var leak = [["Exploit code, then EPSS", 19, "var(--s0)"], ["Leak only: tree model", 2, "var(--s4)"], ["Leak only: logistic regression", 4, "var(--s4)"], ["Leak only: sort by references", 4, "var(--s4)"], ["Clean model", 26, "var(--s1)"], ["Clean + leak", 28, "var(--s1)"]];
+    hbars($("#pre-leak"), leak.map(function (r) { return { label: r[0], value: r[1], color: r[2], text: String(r[1]), tip: esc(r[0]) + ": " + r[1] + " of 75" }; }), { max: 30 });
+    $("#pre-clusters").innerHTML = '<div class="eyebrow" style="padding:6px 0;border-bottom:1px solid var(--border);display:grid;grid-template-columns:3.4rem minmax(0,1fr) 4.5rem;gap:12px"><span>KEV rate</span><span>Cluster</span><span style="text-align:right">2026 CVEs</span></div>' +
+      R.clusters.slice(0, 8).map(function (c) {
+        return '<div><span class="r">' + c.kev_rate.toFixed(1) + '%</span><span class="t"><b>' + esc(c.products.slice(0, 2).join(", ") || "—") + "</b><br>" + esc(c.terms.slice(0, 4).join(" · ")) + '</span><span class="r" style="text-align:right">' + fmt(c.cves_2026) + "</span></div>";
+      }).join("");
+    $("#kev-sub").textContent = "KEV catalog entries by vendor (" + fmt(R.kev_total) + " in total; " + R.kev_ransomware_share + "% with known ransomware use).";
+    var kv = R.kev_vendors;
+    hbars($("#pre-kev"), Object.keys(kv).slice(0, 8).map(function (k) { return { label: k, value: kv[k] }; }));
+    var mk = Object.keys(R.months);
+    columns($("#pre-months"), mk.map(function (m) { return m.slice(5); }), mk.map(function (m) { return R.months[m]; }), null, function (i) { return "2026-" + mk[i].slice(5) + ": " + fmt(R.months[mk[i]]) + " CVEs"; });
+  }
+
+  /* ------------------------------------------------------------------ chapter 6: after the model */
+  function buildAfter(D) {
+    var P = D.post, R = D.pre;
+    var k = [
+      [P.exploit_code.top + "", "of our 500 have public exploit code, vs " + R.share_any_flag + "% of all 2026 CVEs"],
+      ["0", "Granite-demoted CVEs in the list. " + R.granite_demoted_share + "% of all 2026 CVEs were pushed down"],
+      [P.cap_pushed_out + "", "CVEs the vendor cap moved out of the top 500"],
+      [(P.voters.none || 0) + "", "consensus picks: in no single model's top 500, in ours"]
+    ];
+    $("#post-kpis").innerHTML = k.map(function (x, i) { return '<div class="kpi' + (i === 0 ? " hl" : "") + '"><div class="v">' + esc(x[0]) + '</div><div class="l">' + esc(x[1]) + "</div></div>"; }).join("");
+    function breakdown(key) {
+      pairbars($("#post-break"), P[key].slice(0, 7).map(function (r) {
+        return { label: nice(r.key), a: r.top, b: r.all, text: r.lift.toFixed(1) + "×", tip: esc(nice(r.key)) + ": " + r.top + "% of our 500 vs " + r.all + "% of all 2026 CVEs" };
+      }));
+    }
+    $$("[data-b]").forEach(function (b) { b.addEventListener("click", function () { $$("[data-b]").forEach(function (x) { x.setAttribute("aria-pressed", x === b); }); breakdown(b.getAttribute("data-b")); }); });
+    breakdown("product_type");
+    var vn = { "tree+linear+llm": "All three", "tree+linear": "Tree + linear", "linear+llm": "Linear + LLM", "tree+llm": "Tree + LLM", "linear": "Linear only", "tree": "Tree only", "llm": "LLM only", "none": "None (consensus)" };
+    var order = ["tree+linear+llm", "tree+linear", "linear+llm", "tree+llm", "tree", "linear", "llm", "none"];
+    hbars($("#post-voters"), order.filter(function (o) { return P.voters[o]; }).map(function (o) {
+      return { label: vn[o], value: P.voters[o], color: o === "none" ? "var(--s3)" : "var(--s1)", tip: esc(vn[o]) + ": " + P.voters[o] + " picks" };
+    }));
+    $("#voters-take").textContent = "Only " + (P.voters["tree+linear+llm"] || 0) + " picks are in all three models' top 500. The LLM brings " + (P.voters.llm || 0) + " that neither the tree nor the linear model ranked that high.";
+    var vd = P.vendors;
+    hbars($("#post-vendors"), Object.keys(vd).slice(0, 10).map(function (k) { return { label: k, value: vd[k] }; }));
+    var an = function (a) { var m = /^[^@]+@([^.]+)/.exec(a); return m ? m[1].charAt(0).toUpperCase() + m[1].slice(1) : a.slice(0, 8); };
+    $("#cap-batches").innerHTML = '<div class="eyebrow">Biggest batches the cap trimmed to 3</div>' + P.cap_biggest_batches.slice(0, 4).map(function (b) {
+      return '<div class="note"><b style="color:var(--text);font-weight:500">' + esc(an(b.assigner)) + "</b> · " + esc(b.month) + " · would have placed " + b.would_have + "</div>";
+    }).join("");
+    $("#post-terms").innerHTML = P.bigrams.slice(0, 12).map(function (b) { return '<span class="term" data-tip="' + esc(b.term + ": " + b.top + " of our 500, " + fmt(b.all) + " of all 2026 CVEs") + '">' + esc(b.term) + "<em>" + b.lift.toFixed(1) + "×</em></span>"; }).join("");
+    var eb = P.epss_buckets, tt = eb.top.reduce(function (a, b) { return a + b; }, 0);
+    pairbars($("#post-epss"), eb.labels.map(function (l, i) {
+      var a = eb.top[i] / tt * 100;
+      return { label: "EPSS " + l, a: a, b: eb.all[i], text: Math.round(a) + "%", tip: "EPSS " + l + ": " + eb.top[i] + " of our 500 (" + a.toFixed(1) + "%) vs " + eb.all[i] + "% of all 2026 CVEs" };
+    }));
+  }
+
+  /* ------------------------------------------------------------------ chapter 7: the list */
+  function buildTable(D) {
+    var rows = D.top500, page = 0, per = 20, key = "r", dir = 1, open = {};
+    var cats = {}; rows.forEach(function (r) { if (r.cat) cats[r.cat] = (cats[r.cat] || 0) + 1; });
+    $("#fcat").innerHTML += Object.keys(cats).sort(function (a, b) { return cats[b] - cats[a]; }).map(function (c) { return '<option value="' + esc(c) + '">' + esc(c) + " (" + cats[c] + ")</option>"; }).join("");
+    function filtered() {
+      var q = $("#q").value.trim().toLowerCase(), c = $("#fcat").value, code = $("#fcode").value;
+      return rows.filter(function (r) {
+        if (c && r.cat !== c) return false;
+        if (code !== "" && ((r.fl.indexOf("1") >= 0) ? "1" : "0") !== code) return false;
+        return !q || (r.id + " " + r.p + " " + r.why + " " + r.cat).toLowerCase().indexOf(q) >= 0;
+      }).sort(function (a, b) { var x = a[key] == null ? -1 : a[key], y = b[key] == null ? -1 : b[key]; return (x > y ? 1 : x < y ? -1 : 0) * dir; });
+    }
+    function draw() {
+      var f = filtered(), pages = Math.max(1, Math.ceil(f.length / per));
+      page = Math.min(page, pages - 1);
+      var slice = f.slice(page * per, page * per + per);
+      $("#tbody").innerHTML = slice.length ? slice.map(function (r) {
+        var fl = r.fl.split("").map(function (b, i) { return '<i class="' + (b === "1" ? "on" : "") + '" title="' + ["Exploit-DB", "Metasploit", "Nuclei", "GitHub PoC"][i] + '"></i>'; }).join("");
+        var vt = r.v.map(function (v, i) { return '<i style="height:' + Math.max(2, Math.max(0, (v - 0.8) / 0.2) * 18) + "px;background:" + ["var(--s2)", "var(--s1)", "var(--s3)"][i] + '"></i>'; }).join("");
+        var main = '<tr class="row" data-id="' + r.id + '" tabindex="0" aria-expanded="' + (!!open[r.id]) + '"><td class="num">' + r.r + '</td><td class="mono">' + esc(r.id) + "</td><td>" + esc(r.p || "—") + "</td><td>" + esc(r.cat || "—") +
+          "</td><td>" + esc(r.imp || "—") + '</td><td class="num">' + (r.e == null ? "—" : r.e.toFixed(3)) + '</td><td><span class="flags">' + fl + '</span></td><td class="num">' + r.tx.toFixed(2) +
+          '</td><td><span class="vt" data-tip="' + esc("Percentile among 72,670 · tree " + Math.round(r.v[0] * 100) + " · linear " + Math.round(r.v[1] * 100) + " · LLM " + Math.round(r.v[2] * 100)) + '">' + vt + "</span></td></tr>";
+        var det = open[r.id] ? '<tr class="detail"><td></td><td colspan="8">' + esc(r.why) + (r.att ? " Typical attacker per Granite: " + esc(r.att) + "." : "") + (r.nk ? ' Nearest past KEV: <span class="mono">' + esc(r.nk) + "</span> (similarity " + r.ks + ")." : "") + "</td></tr>" : "";
+        return main + det;
+      }).join("") : '<tr><td colspan="9" class="note">Nothing matches. Clear the search or filters.</td></tr>';
+      $("#pinfo").textContent = f.length ? (page * per + 1) + "–" + Math.min(f.length, page * per + per) + " of " + f.length : "0 of 0";
+      $("#prev").disabled = page === 0; $("#next").disabled = page >= pages - 1;
+    }
+    $("#tbody").addEventListener("click", function (e) { var tr = e.target.closest("tr.row"); if (!tr) return; var id = tr.getAttribute("data-id"); open[id] = !open[id]; draw(); });
+    $("#tbody").addEventListener("keydown", function (e) { if ((e.key === "Enter" || e.key === " ") && e.target.matches("tr.row")) { e.preventDefault(); e.target.click(); } });
+    ["#q", "#fcat", "#fcode"].forEach(function (s) { $(s).addEventListener("input", function () { page = 0; draw(); }); });
+    $("#prev").addEventListener("click", function () { page--; draw(); });
+    $("#next").addEventListener("click", function () { page++; draw(); });
+    $$("[data-sort]").forEach(function (b) { b.addEventListener("click", function () { var k = b.getAttribute("data-sort"); dir = key === k ? -dir : (k === "r" ? 1 : -1); key = k; draw(); }); });
+    draw();
+  }
+
+  /* ------------------------------------------------------------------ chapter nav */
+  function navSpy() {
+    var links = $$(".chapters a");
+    links.forEach(function (a) { a.addEventListener("click", function (e) { var t = $(a.getAttribute("href")); if (t) { e.preventDefault(); t.scrollIntoView({ behavior: REDUCED ? "auto" : "smooth" }); } }); });
+    if (!("IntersectionObserver" in window)) return;
+    var io = new IntersectionObserver(function (es) {
+      es.forEach(function (en) { if (en.isIntersecting) links.forEach(function (a) { a.classList.toggle("on", a.getAttribute("href") === "#" + en.target.id); }); });
+    }, { rootMargin: "-45% 0px -50% 0px" });
+    $$("main section").forEach(function (s) { io.observe(s); });
+  }
+})();
+</script>
