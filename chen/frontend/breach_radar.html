@@ -3,6 +3,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>KEVexploit</title>
+<link rel="icon" type="image/png" href="favicon.png">
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -304,6 +305,10 @@ table.t tr.hl td { background: var(--ibm-soft) }
 .hud, .prog { transition: opacity .35s }
 #demoBtn { font-size: 13px !important; font-weight: 600; color: var(--ibm) }
 #blindBtn { font-size: 13px; font-weight: 600; color: var(--muted); text-decoration: none; padding: 0 10px; white-space: nowrap } #blindBtn:hover { color: var(--ink) }
+/* team logo, light/dark variants follow the theme */
+ .lg { display: inline-block; vertical-align: middle } .lg-d { display: none }
+:root[data-theme="dark"] .lg-l { display: none } :root[data-theme="dark"] .lg-d { display: inline-block }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .lg-l { display: none } :root:not([data-theme="light"]) .lg-d { display: inline-block } }
 </style>
 
 <div id="stage" aria-label="Zoomable presentation canvas"><div id="world"></div><div id="demoLayer"><div id="demoBox"><iframe id="demo" src="scan.html" title="Repo scanner demo"></iframe><button type="button" id="demoCatch" aria-label="Open the demo"></button></div></div></div>
@@ -861,7 +866,7 @@ table.t tr.hl td { background: var(--ibm-soft) }
     world.style.width = WB.w + "px"; world.style.height = WB.h + "px";
     var t = document.createElement("div"); t.className = "title";
     t.style.left = WB.title.x + "px"; t.style.top = WB.title.y + "px"; t.style.width = WB.title.w + "px";
-    t.innerHTML = '<div class="brand"><span class="dot"></span>KEVexploit <span class="t">Team DATACENTERS · Sheridan Datathon 2026 · IBM track</span></div><h1>72,670 new bugs.<br>Patch <em>these 500</em> first.</h1><p>We predict which 2026 vulnerabilities attackers will exploit, using only what was public the month each one came out. Press Start, or click any part of the machine.</p>';
+    t.innerHTML = '<div class="brand"><img class="lg lg-l" src="logo_light.png" alt="KevExploit" style="height:40px"><img class="lg lg-d" src="logo_dark.png" alt="KevExploit" style="height:40px"> <span class="t">Team DATACENTERS · Sheridan Datathon 2026 · IBM track</span></div><h1>72,670 new bugs.<br>Patch <em>these 500</em> first.</h1><p>We predict which 2026 vulnerabilities attackers will exploit, using only what was public the month each one came out. Press Start, or click any part of the machine.</p>';
     world.appendChild(t);
     var h = document.createElement("div"); h.className = "heros";
     h.style.left = WB.heros.x + "px"; h.style.top = WB.heros.y + "px"; h.style.width = WB.heros.w + "px";

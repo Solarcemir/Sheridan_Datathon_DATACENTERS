@@ -1,5 +1,6 @@
 <meta charset="utf-8">
 <title>KEVexploit · Repo Scan</title>
+<link rel="icon" type="image/png" href="favicon.png">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -438,11 +439,15 @@ footer { border-top-color: var(--line); color: var(--muted); }
 @media (prefers-reduced-motion: reduce) { #splash .ibm-mark rect { transform: none; } .sp-sub, .sp-line, .sp-tag { opacity: 1; } .blip { opacity: .8; } }
 .tourlink { margin-top: 14px; font: inherit; font-weight: 600; color: var(--ibm); background: none; border: 1.5px solid var(--ibm); border-radius: 999px; padding: 6px 14px; cursor: pointer }
 .pipeline-link .tourgo { color: var(--ibm); white-space: nowrap }
+/* team logo, light/dark variants follow the theme */
+ .lg { display: inline-block; vertical-align: middle } .lg-d { display: none }
+:root[data-theme="dark"] .lg-l { display: none } :root[data-theme="dark"] .lg-d { display: inline-block }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .lg-l { display: none } :root:not([data-theme="light"]) .lg-d { display: inline-block } }
 </style>
 
 <div id="splash" aria-hidden="true"><div class="sp-in">
   <svg class="ibm-mark" id="splash-mark" viewBox="0 0 300 120"></svg>
-  <div class="sp-sub"><svg class="logo-mark" width="34" height="34" viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="14.5" style="fill:var(--panel);stroke:var(--ink)" stroke-width="1.5"/><circle cx="16" cy="16" r="9.5" fill="none" style="stroke:var(--ink)" stroke-opacity=".35"/><circle cx="16" cy="16" r="4.5" fill="none" style="stroke:var(--ink)" stroke-opacity=".25"/><path class="lm-sweep" d="M16 16 L16 1.5 A14.5 14.5 0 0 1 28.6 8.8 Z" style="fill:var(--ibm)" fill-opacity=".45"/><circle cx="22.5" cy="10" r="2.4" style="fill:var(--alert)"/><circle cx="16" cy="16" r="1.6" style="fill:var(--ink)"/></svg><b>KEV<em>exploit</em></b></div>
+  <div class="sp-sub"><img class="lg lg-l" src="logo_light.png" alt="KevExploit" style="height:30px"><img class="lg lg-d" src="logo_dark.png" alt="KevExploit" style="height:30px"></div>
   <div class="sp-line"></div>
   <div class="sp-tag">IBM track · Before the Breach · threat scan</div>
 </div></div>
@@ -452,7 +457,7 @@ footer { border-top-color: var(--line); color: var(--muted); }
 <div class="grid-bg" aria-hidden="true"></div>
 
 <header class="bar"><div class="wrap bar-in">
-  <div class="brand"><svg class="logo-mark" width="28" height="28" viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="14.5" style="fill:var(--panel);stroke:var(--ink)" stroke-width="1.5"/><circle cx="16" cy="16" r="9.5" fill="none" style="stroke:var(--ink)" stroke-opacity=".35"/><circle cx="16" cy="16" r="4.5" fill="none" style="stroke:var(--ink)" stroke-opacity=".25"/><path class="lm-sweep" d="M16 16 L16 1.5 A14.5 14.5 0 0 1 28.6 8.8 Z" style="fill:var(--ibm)" fill-opacity=".45"/><circle cx="22.5" cy="10" r="2.4" style="fill:var(--alert)"/><circle cx="16" cy="16" r="1.6" style="fill:var(--ink)"/></svg><b>KEV<em>exploit</em></b><span class="x-sep">×</span><svg class="ibm-mark" id="hdr-mark" width="52" height="21" viewBox="0 0 300 120" role="img" aria-label="IBM"></svg></div>
+  <div class="brand"><img class="lg lg-l" src="logo_light.png" alt="KevExploit" style="height:30px"><img class="lg lg-d" src="logo_dark.png" alt="KevExploit" style="height:30px"><span class="x-sep">×</span><svg class="ibm-mark" id="hdr-mark" width="52" height="21" viewBox="0 0 300 120" role="img" aria-label="IBM"></svg></div>
   <nav class="nav"><a href="#" data-tour>The model</a><a href="#scan">Scan a repo</a><a href="blind-spots.html" target="_blank" rel="noopener" title="Where the model misses">Blind spots ↗</a><button type="button" id="theme-btn" aria-label="Toggle light or dark theme">◐</button></nav>
 </div></header>
 
