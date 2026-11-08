@@ -16,6 +16,7 @@ BASE = "http://127.0.0.1:8093"
 FPS, W, H = 30, 1920, 1080
 GALAXY_S = 22.5
 SPARSE = int(sys.argv[sys.argv.index("--sparse") + 1]) if "--sparse" in sys.argv else 1   # test runs: keep every Nth frame
+RANGE = tuple(float(x) for x in sys.argv[sys.argv.index("--range") + 1:sys.argv.index("--range") + 3]) if "--range" in sys.argv else (0, 1e9)
 HERE = os.path.dirname(os.path.abspath(__file__))
 REPO = "IBM/MAX-Object-Detector"
 
@@ -84,7 +85,8 @@ async def deck(b, out):
     fr = pg.frame_locator("#demo")
     scroll = None   # (frame js target, from, to, t0, t1)
     n, todo = int(DECK_S * FPS), list(DECK)
-    for i in range(n):
+    lo, hi = int(RANGE[0] * FPS), min(n, int(RANGE[1] * FPS))   # this worker films [lo, hi); earlier frames are replayed unfilmed
+    for i in range(hi):
         t = i / FPS
         while todo and todo[0][0] <= t + 1e-9:
             _, a = todo.pop(0)
@@ -106,7 +108,7 @@ async def deck(b, out):
             await fr.locator("html").evaluate(f"e => window.scrollTo(0, {y0 + (y1 - y0) * e})")
             if k >= 1: scroll = None
         await pg.evaluate("__advance(1000/30)")
-        if i % SPARSE == 0: await pg.screenshot(path=os.path.join(out, f"{i:05d}.jpg"), type="jpeg", quality=93)
+        if i >= lo and i % SPARSE == 0: await pg.screenshot(path=os.path.join(out, f"{i:05d}.jpg"), type="jpeg", quality=93)
         if i % 150 == 0: print(f"deck {i}/{n} t={t:.1f}", flush=True)
     if errs: print("page errors:", errs)
     await ctx.close()
@@ -115,13 +117,22 @@ async def deck(b, out):
 async def main():
     out = sys.argv[1]; only = sys.argv[sys.argv.index("--only") + 1] if "--only" in sys.argv else None
     os.makedirs(out, exist_ok=True)
+    if "--parallel" in sys.argv:   # galaxy + 4 deck chunks at once; the live scan (54-90 s) stays inside one chunk
+        t0 = time.time(); d = os.path.join(out, "deck"); shutil.rmtree(d, ignore_errors=True); os.makedirs(d)
+        cuts = [0, 18, 36, 54, DECK_S]
+        jobs = [subprocess.Popen([sys.executable, __file__, out, "--only", "galaxy"])]
+        jobs += [subprocess.Popen([sys.executable, __file__, out, "--only", "deckpart", "--range", str(a), str(b)]) for a, b in zip(cuts, cuts[1:])]
+        if any(j.wait() for j in jobs): sys.exit("a worker failed")
+        encode(d, os.path.join(out, "deck.mp4")); print("parallel render", round(time.time() - t0), "s", flush=True)
+        only = "join"
     async with async_playwright() as p:
         b = await p.chromium.launch(args=["--use-angle=swiftshader", "--enable-unsafe-swiftshader", "--ignore-gpu-blocklist"])
-        for name, fn in (("galaxy", galaxy), ("deck", deck)):
-            if only and only != name: continue
-            d = os.path.join(out, name); shutil.rmtree(d, ignore_errors=True); os.makedirs(d)
+        for name, fn in (("galaxy", galaxy), ("deck", deck), ("deckpart", deck)):
+            if (only or "galaxy") != name and not (only is None and name == "deck"): continue
+            d = os.path.join(out, "deck" if name == "deckpart" else name)
+            if name != "deckpart": shutil.rmtree(d, ignore_errors=True); os.makedirs(d)
             t0 = time.time(); await fn(b, d)
-            if SPARSE == 1: encode(d, os.path.join(out, name + ".mp4"))
+            if SPARSE == 1 and name != "deckpart": encode(d, os.path.join(out, name + ".mp4"))
             print(name, "done in", round(time.time() - t0), "s", flush=True)
         await b.close()
     if SPARSE == 1 and (not only or only == "join"):
