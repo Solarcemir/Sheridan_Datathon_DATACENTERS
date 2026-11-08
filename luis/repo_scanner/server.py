@@ -16,6 +16,7 @@ from urllib.parse import urlparse
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import scan  # noqa: E402
+import github_scan  # noqa: E402
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 FRONTEND_DIR = os.path.abspath(os.path.join(HERE, "..", "frontend"))
@@ -49,7 +50,8 @@ class Handler(BaseHTTPRequestHandler):
         self.end_headers()
 
     def do_POST(self):
-        if urlparse(self.path).path != "/api/scan":
+        path = urlparse(self.path).path
+        if path not in ("/api/scan", "/api/scan-github"):
             return self._json(404, {"error": "not found"})
         length = int(self.headers.get("Content-Length", 0))
         if length <= 0 or length > MAX_BODY:
@@ -57,14 +59,20 @@ class Handler(BaseHTTPRequestHandler):
         raw = self.rfile.read(length)
         try:
             payload = json.loads(raw)
-            filename, content = payload.get("filename", ""), payload.get("content", "")
         except Exception:
-            return self._json(400, {"error": "expected JSON: {\"filename\": \"...\", \"content\": \"...\"}"})
-        if not content.strip():
-            return self._json(400, {"error": "empty lockfile content"})
+            return self._json(400, {"error": "expected JSON"})
         try:
-            result = scan.run_scan(filename, content)
-        except ValueError as e:   # unrecognized lockfile, or a parse problem -- a user-facing message, not a crash
+            if path == "/api/scan-github":
+                url = payload.get("url", "")
+                if not url.strip():
+                    return self._json(400, {"error": "missing \"url\""})
+                result = github_scan.scan_github_repo(url, scan.run_scan, scan.build_upgrade_plan)
+            else:
+                filename, content = payload.get("filename", ""), payload.get("content", "")
+                if not content.strip():
+                    return self._json(400, {"error": "empty lockfile content"})
+                result = scan.run_scan(filename, content)
+        except ValueError as e:   # unrecognized lockfile, bad URL, clone failure -- a user-facing message, not a crash
             return self._json(422, {"error": str(e)})
         except Exception as e:
             traceback.print_exc()
@@ -91,5 +99,6 @@ class Handler(BaseHTTPRequestHandler):
 if __name__ == "__main__":
     print("[server] loading the trained model + local NVD/KEV snapshot (first request will be a little slower)...")
     scan._ensure_models()
-    print(f"[server] ready. Open http://127.0.0.1:{PORT}/repo-scan.html")
+    print(f"[server] exploit indexes loaded: {scan.ls.warm_indexes()}")
+    print(f"[server] ready. Open http://127.0.0.1:{PORT}/repo-scan.html", flush=True)
     ThreadingHTTPServer(("127.0.0.1", PORT), Handler).serve_forever()

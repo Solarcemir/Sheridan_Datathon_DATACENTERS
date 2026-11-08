@@ -177,7 +177,9 @@ def build_feature_row(cve_id, meta, epss_value, flags, kev_set, hist, tfidf):
     """
     d = _s(meta.get("description"))
     now = pd.Timestamp.utcnow().tz_localize(None)
-    published = meta["published"] if pd.notna(meta.get("published")) else now
+    # The local snapshot gives a Timestamp; the live NVD fallback gives an ISO string -- normalize both.
+    published = pd.to_datetime(meta.get("published"), errors="coerce", utc=True)
+    published = now if pd.isna(published) else published.tz_convert(None).normalize()
     assigner = _s(meta.get("assigner")) or "unknown"
     age_days = max(0, (now - published).days)
     epss = float(epss_value) if epss_value is not None else 0.0

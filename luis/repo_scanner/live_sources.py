@@ -36,20 +36,50 @@ def osv_batch(deps, ecosystem):
         except Exception as e:
             print(f"[live_sources] OSV batch query failed: {e}")
             results = [{} for _ in chunk]
-        for (name, version), res in zip(chunk, results):
-            vulns = []
-            for v in res.get("vulns", []):
-                vulns.append(_resolve_osv_vuln(v["id"]))
-            out[name] = [v for v in vulns if v]
+        pairs = [(name, version, v["id"]) for (name, version), res in zip(chunk, results) for v in res.get("vulns", [])]
+        # The batch endpoint only returns ids; resolving each one is an HTTP call, so do them concurrently.
+        from concurrent.futures import ThreadPoolExecutor
+        with ThreadPoolExecutor(max_workers=16) as pool:
+            resolved = list(pool.map(_resolve_osv_vuln, [p[2] for p in pairs]))
+        for name, _version in chunk:
+            out.setdefault(name, [])
+        for (name, version, _), rec in zip(pairs, resolved):
+            if not rec:
+                continue
+            fixes = rec["fixed_by_pkg"].get(name.lower()) or [f for fs in rec["fixed_by_pkg"].values() for f in fs]
+            out[name].append({**{k: v for k, v in rec.items() if k != "fixed_by_pkg"},
+                              "fixed_in": _lowest_fix_above(version, fixes)})
     return out
 
 
+def _vkey(s):
+    """Sortable version key: PEP 440 when it parses, else numeric dot-parts (good enough for npm semver)."""
+    try:
+        from packaging.version import Version
+        return (0, Version(s))
+    except Exception:
+        nums = [int(x) for x in re.findall(r"\d+", s)[:4]]
+        return (1, tuple(nums + [0] * (4 - len(nums))))
+
+
+def _lowest_fix_above(installed, fixes):
+    """Of every version an advisory says fixes it, the smallest one newer than what's installed -- the upgrade
+    that actually applies to you. (An advisory often lists fixes for several release lines, e.g. 1.8.19, 1.11.11
+    and 2.0.3 for Django; someone on 1.11.0 needs 1.11.11, not 1.8.19.)"""
+    try:
+        cur = _vkey(installed)
+        above = [f for f in fixes if _vkey(f)[0] == cur[0] and _vkey(f) > cur]
+        return min(above, key=_vkey) if above else None
+    except Exception:
+        return None
+
+
 def _resolve_osv_vuln(osv_id):
-    """The batch endpoint only returns ids; fetch each vuln once (cached) for its CVE alias, description,
-    severity and fixed-version ranges."""
+    """Fetch one OSV record once (cached) for its CVE alias, description, severity and, per affected package,
+    every version listed as fixing it."""
     def fetch():
         try:
-            r = requests.get(f"https://api.osv.dev/v1/vulns/{osv_id}", timeout=TIMEOUT)
+            r = _session.get(f"https://api.osv.dev/v1/vulns/{osv_id}", timeout=TIMEOUT)
             r.raise_for_status()
             v = r.json()
         except Exception as e:
@@ -58,15 +88,16 @@ def _resolve_osv_vuln(osv_id):
         cve_id = v["id"] if CVE_RE.fullmatch(v["id"]) else next((a for a in v.get("aliases", []) if CVE_RE.fullmatch(a)), None)
         if not cve_id:
             return None
-        fixed = None
+        fixed_by_pkg = {}
         for aff in v.get("affected", []):
+            pkg = (aff.get("package", {}).get("name") or "").lower()
             for rng in aff.get("ranges", []):
                 for ev in rng.get("events", []):
                     if "fixed" in ev:
-                        fixed = ev["fixed"]
+                        fixed_by_pkg.setdefault(pkg, []).append(ev["fixed"])
         severity_vector = next((s["score"] for s in v.get("severity", []) if "CVSS" in s.get("type", "")), None)
         return {"cve_id": cve_id, "osv_id": osv_id, "summary": v.get("summary") or v.get("details", "")[:300],
-                "published": v.get("published"), "severity_vector": severity_vector, "fixed_in": fixed}
+                "published": v.get("published"), "severity_vector": severity_vector, "fixed_by_pkg": fixed_by_pkg}
     return _get(("osv_vuln", osv_id), fetch)
 
 
@@ -132,57 +163,91 @@ def live_nvd_lookup(cve_id):
 
 
 # ----------------------------------------------------------------------------- exploit-source flags (best-effort)
-_exploitdb_csv = None
+# Exploit-DB and Nuclei both publish a single bulk index, so each is downloaded once, kept on disk for a day
+# (cache/, git-ignored) and turned into an in-memory set: a lookup per CVE instead of an HTTP call per CVE.
+# GitHub PoCs (via the Trickest/cve mirror) have no bulk index, so those stay one HEAD per CVE -- over a pooled
+# session, and remembered on disk so a CVE is only ever checked once.
+import json as _json  # noqa: E402
+import os as _os  # noqa: E402
+import threading as _threading  # noqa: E402
+
+from requests.adapters import HTTPAdapter  # noqa: E402
+
+CACHE_DIR = _os.path.join(_os.path.dirname(_os.path.abspath(__file__)), "cache")
+_os.makedirs(CACHE_DIR, exist_ok=True)
+INDEX_MAX_AGE = 24 * 3600
+_session = requests.Session()
+_session.mount("https://", HTTPAdapter(pool_connections=8, pool_maxsize=48))
+_index = {}
+_index_lock = _threading.Lock()
+_poc_path = _os.path.join(CACHE_DIR, "poc_github.json")
+_poc_lock = _threading.Lock()
+try:
+    _poc = _json.load(open(_poc_path))
+except Exception:
+    _poc = {}
 
 
-def _exploitdb_text():
-    global _exploitdb_csv
-    if _exploitdb_csv is None:
+def _cached_download(name, url, timeout=30):
+    path = _os.path.join(CACHE_DIR, name)
+    fresh = _os.path.exists(path) and time.time() - _os.path.getmtime(path) < INDEX_MAX_AGE
+    if not fresh:
         try:
-            r = requests.get("https://gitlab.com/exploit-database/exploitdb/-/raw/main/files_exploits.csv", timeout=10)
+            r = _session.get(url, timeout=timeout)
             r.raise_for_status()
-            _exploitdb_csv = r.text
+            open(path, "wb").write(r.content)
         except Exception as e:
-            print(f"[live_sources] Exploit-DB mirror fetch failed: {e}")
-            _exploitdb_csv = ""
-    return _exploitdb_csv
+            print(f"[live_sources] {name} download failed ({e}); using the cached copy if there is one")
+    return open(path, encoding="utf-8", errors="ignore").read() if _os.path.exists(path) else ""
+
+
+def _cve_set(name):
+    with _index_lock:
+        if name not in _index:
+            if name == "exploitdb":
+                text = _cached_download("exploitdb.csv", "https://gitlab.com/exploit-database/exploitdb/-/raw/main/files_exploits.csv")
+                _index[name] = set(CVE_RE.findall(text))
+            elif name == "nuclei":
+                text = _cached_download("nuclei_cves.json", "https://raw.githubusercontent.com/projectdiscovery/nuclei-templates/main/cves.json")
+                _index[name] = set(CVE_RE.findall(text))
+    return _index[name]
+
+
+def warm_indexes():
+    """Download/load both bulk indexes up front (server start), so the first scan doesn't pay for them."""
+    return {k: len(_cve_set(k)) for k in ("exploitdb", "nuclei")}
+
+
+def _poc_github(cve_id):
+    if cve_id in _poc:
+        return _poc[cve_id]
+    year = cve_id.split("-")[1]
+    try:
+        r = _session.head(f"https://raw.githubusercontent.com/trickest/cve/main/{year}/{cve_id}.md", timeout=5)
+        hit = r.status_code == 200
+        ok = r.status_code in (200, 404)
+    except Exception:
+        hit, ok = False, False
+    if ok:   # only remember definite answers; a timeout gets retried next scan
+        with _poc_lock:
+            _poc[cve_id] = hit
+    return hit
+
+
+def save_caches():
+    with _poc_lock:
+        try:
+            _json.dump(_poc, open(_poc_path, "w"))
+        except Exception as e:
+            print(f"[live_sources] could not save PoC cache: {e}")
 
 
 def exploit_flags(cve_id):
-    """-> {exploitdb, metasploit, nuclei, poc_github} booleans, each a best-effort live check. A failed check
-    is False, never an error -- same convention as every other live_sources function."""
-    def exploitdb():
-        return cve_id in _exploitdb_text()
-
-    def nuclei():
-        # nuclei-templates has moved files over time; try the layouts that have been stable for years.
-        year = cve_id.split("-")[1]
-        for path in (f"http/cves/{year}/{cve_id}.yaml", f"cves/{year}/{cve_id}.yaml"):
-            try:
-                r = requests.head(f"https://raw.githubusercontent.com/projectdiscovery/nuclei-templates/main/{path}",
-                                   timeout=4)
-                if r.status_code == 200:
-                    return True
-            except Exception:
-                pass
-        return False
-
-    def poc_github():
-        year = cve_id.split("-")[1]
-        try:
-            r = requests.head(f"https://raw.githubusercontent.com/trickest/cve/main/{year}/{cve_id}.md", timeout=4)
-            return r.status_code == 200
-        except Exception:
-            return False
-
-    def metasploit():
-        # The module metadata file is tens of MB; fetching it per scan is too slow for a demo, and we have no
-        # lighter official index. Left off in this build rather than faked -- see proposal_repo_scanner.md §10.
-        return False
-
+    """-> {exploitdb, metasploit, nuclei, poc_github} booleans. A failed check is False, never an error.
+    Metasploit stays False in this build: its module index is tens of MB with no lighter official list."""
     return {
-        "exploitdb": _get(("edb", cve_id), exploitdb),
-        "metasploit": _get(("msf", cve_id), metasploit),
-        "nuclei": _get(("nuclei", cve_id), nuclei),
-        "poc_github": _get(("poc", cve_id), poc_github),
+        "exploitdb": cve_id in _cve_set("exploitdb"),
+        "metasploit": False,
+        "nuclei": cve_id in _cve_set("nuclei"),
+        "poc_github": _poc_github(cve_id),
     }

@@ -67,6 +67,12 @@ textarea#paste { width: 100%; min-height: 160px; background: var(--surface-2); c
   border-radius: 10px; padding: 12px; font-family: var(--mono); font-size: 0.78rem; resize: vertical; }
 textarea#paste::placeholder { color: var(--text-3); }
 
+.gh-input { width: 100%; background: var(--surface-2); color: var(--text); border: 1px solid var(--line-2);
+  border-radius: 10px; padding: 12px 14px; font-family: var(--mono); font-size: 0.86rem; }
+.gh-input::placeholder { color: var(--text-3); }
+#tab-github code { font-family: var(--mono); background: var(--surface-2); padding: 1px 5px; border-radius: 4px; }
+.lockfile-note { color: var(--text-3); font-size: 0.74rem; font-family: var(--mono); margin: -8px 0 4px; }
+
 .examples { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
 .examples button { font: inherit; font-size: 0.72rem; padding: 5px 11px; border-radius: 999px; border: 1px solid var(--line-2);
   background: var(--surface-2); color: var(--text-2); cursor: pointer; }
@@ -148,6 +154,7 @@ footer { color: var(--text-3); font-size: 0.72rem; padding: 30px 0 50px; border-
     <div class="tabs" role="group" aria-label="Input method">
       <button type="button" data-tab="drop" aria-pressed="true">Upload a file</button>
       <button type="button" data-tab="paste" aria-pressed="false">Paste contents</button>
+      <button type="button" data-tab="github" aria-pressed="false">GitHub repo</button>
     </div>
 
     <div id="tab-drop">
@@ -160,11 +167,18 @@ footer { color: var(--text-3); font-size: 0.72rem; padding: 30px 0 50px; border-
     <div id="tab-paste" hidden>
       <textarea id="paste" placeholder='Paste the full contents of package-lock.json or requirements.txt here'></textarea>
     </div>
+    <div id="tab-github" hidden>
+      <input type="text" id="github-url" class="gh-input" placeholder="org/repo, or https://github.com/org/repo">
+      <p class="ecosystem-note" style="margin-top:8px">Public repos only. We clone it (depth 1, no credentials), find every
+        <code>package-lock.json</code>/<code>requirements.txt</code> in it (up to 8), scan each, merge the results —
+        then delete the clone. We never keep or send the rest of the code anywhere.</p>
+    </div>
 
-    <div class="examples">
+    <div class="examples" id="examples-row">
       <span class="ecosystem-note">Try a real example:</span>
       <button type="button" data-ex="npm">npm — a lodash/minimist-era lockfile</button>
       <button type="button" data-ex="pip">PyPI — a requirements.txt with known CVEs</button>
+      <button type="button" data-ex="gh">GitHub — an IBM open-source repo</button>
     </div>
 
     <div class="actions">
@@ -206,18 +220,20 @@ footer { color: var(--text-3); font-size: 0.72rem; padding: 30px 0 50px; border-
         "node_modules/node-fetch": { version: "2.6.0" }
       } }, null, 2) },
     pip: { filename: "requirements.txt", content:
-      "Django==1.11.0\nPyYAML==5.1\nPillow==8.2.0\nFlask==0.12\nrequests==2.19.0\nurllib3==1.24.1\nJinja2==2.10\n" }
+      "Django==1.11.0\nPyYAML==5.1\nPillow==8.2.0\nFlask==0.12\nrequests==2.19.0\nurllib3==1.24.1\nJinja2==2.10\n" },
+    gh: { url: "IBM/MAX-Image-Resolution-Enhancer" }
   };
 
-  var state = { filename: "", content: "" };
+  var state = { mode: "drop", filename: "", content: "", githubUrl: "" };
 
   $$(".tabs button").forEach(function (b) {
-    b.addEventListener("click", function () {
-      $$(".tabs button").forEach(function (x) { x.setAttribute("aria-pressed", x === b); });
-      var tab = b.getAttribute("data-tab");
-      $("#tab-drop").hidden = tab !== "drop"; $("#tab-paste").hidden = tab !== "paste";
-    });
+    b.addEventListener("click", function () { selectTab(b.getAttribute("data-tab")); });
   });
+  function selectTab(tab) {
+    state.mode = tab;
+    $$(".tabs button").forEach(function (x) { x.setAttribute("aria-pressed", x.getAttribute("data-tab") === tab); });
+    $("#tab-drop").hidden = tab !== "drop"; $("#tab-paste").hidden = tab !== "paste"; $("#tab-github").hidden = tab !== "github";
+  }
 
   var dz = $("#dropzone"), fi = $("#file-input");
   dz.addEventListener("click", function (e) { if (e.target !== fi) fi.click(); });
@@ -235,12 +251,17 @@ footer { color: var(--text-3); font-size: 0.72rem; padding: 30px 0 50px; border-
     r.readAsText(f);
   }
   $("#paste").addEventListener("input", function () { state.filename = ""; state.content = $("#paste").value; });
+  $("#github-url").addEventListener("input", function () { state.githubUrl = $("#github-url").value; });
   $$("[data-ex]").forEach(function (b) {
     b.addEventListener("click", function () {
-      var ex = EXAMPLES[b.getAttribute("data-ex")];
-      $$('.tabs button').forEach(function (x) { x.setAttribute("aria-pressed", x.getAttribute("data-tab") === "paste"); });
-      $("#tab-drop").hidden = true; $("#tab-paste").hidden = false;
-      $("#paste").value = ex.content; state.filename = ex.filename; state.content = ex.content;
+      var key = b.getAttribute("data-ex"), ex = EXAMPLES[key];
+      if (key === "gh") {
+        selectTab("github");
+        $("#github-url").value = ex.url; state.githubUrl = ex.url;
+      } else {
+        selectTab("paste");
+        $("#paste").value = ex.content; state.filename = ex.filename; state.content = ex.content;
+      }
     });
   });
 
@@ -252,12 +273,17 @@ footer { color: var(--text-3); font-size: 0.72rem; padding: 30px 0 50px; border-
     "Scoring with the trained model and applying the demotion rules…",
     "Ranking…"
   ];
+  var STAGES_GH = ["Cloning the repo (depth 1, read-only)…", "Finding lockfiles…"].concat(STAGES).concat(["Merging results, deleting the clone…"]);
   var stageTimer = null;
 
   $("#scan-btn").addEventListener("click", function () {
-    if (!state.content || !state.content.trim()) {
-      $("#paste").value && (state.content = $("#paste").value);
-      if (!state.content.trim()) return showError("Upload a file, paste a lockfile, or try an example first.");
+    if (state.mode === "github") {
+      if (!state.githubUrl.trim()) return showError("Enter a GitHub repo (\"org/repo\") or try the example first.");
+    } else {
+      if (!state.content || !state.content.trim()) {
+        $("#paste").value && (state.content = $("#paste").value);
+        if (!state.content.trim()) return showError("Upload a file, paste a lockfile, or try an example first.");
+      }
     }
     runScan();
   });
@@ -270,12 +296,15 @@ footer { color: var(--text-3); font-size: 0.72rem; padding: 30px 0 50px; border-
     $("#results").style.display = "none";
     $("#loading").style.display = "block";
     $("#scan-btn").disabled = true;
-    var i = 0;
-    $("#loading-text").textContent = STAGES[0];
-    stageTimer = setInterval(function () { i = Math.min(i + 1, STAGES.length - 1); $("#loading-text").textContent = STAGES[i]; }, 3200);
+    var isGh = state.mode === "github", stages = isGh ? STAGES_GH : STAGES, i = 0;
+    $("#loading-note").textContent = isGh ? "Cloning + live lookups across every lockfile found — can take a minute or two for a bigger repo."
+                                           : "Live lookups (OSV, EPSS, exploit sources) — usually under a minute.";
+    $("#loading-text").textContent = stages[0];
+    stageTimer = setInterval(function () { i = Math.min(i + 1, stages.length - 1); $("#loading-text").textContent = stages[i]; }, 3200);
 
-    fetch("/api/scan", { method: "POST", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ filename: state.filename, content: state.content }) })
+    var url = isGh ? "/api/scan-github" : "/api/scan";
+    var body = isGh ? { url: state.githubUrl } : { filename: state.filename, content: state.content };
+    fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) })
       .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, body: j }; }); })
       .then(function (res) {
         clearInterval(stageTimer);
@@ -299,10 +328,29 @@ footer { color: var(--text-3); font-size: 0.72rem; padding: 30px 0 50px; border-
 
   function render(d) {
     var s = d.summary;
-    var html = '<div class="kpis">' +
+    var html = "";
+    if (d.repo) {
+      html += '<p class="lockfile-note">' + esc(d.repo) + " — found " + d.lockfiles_found.length + " lockfile" + (d.lockfiles_found.length === 1 ? "" : "s") +
+        ": " + d.lockfiles_found.map(esc).join(", ") + "</p>";
+    }
+    html += '<div class="kpis">' +
       kpi(s.dependencies, "dependencies") + kpi(s.cves_found, "CVEs matched") +
       kpi(s.already_in_kev, "already on KEV", s.already_in_kev > 0 ? "bad" : "") +
       kpi(s.scored, "scored") + kpi(s.demoted, "demoted") + kpi(d.elapsed_s + "s", "scan time") + "</div>";
+
+    if (d.upgrade_plan && d.upgrade_plan.length) {
+      html += '<section class="block"><h2><i class="dot" style="background:var(--good)"></i>Upgrade plan (' + d.upgrade_plan.length + " packages)</h2>" +
+        '<p class="sub">One action per dependency: the version that clears every known CVE for it. Already-exploited first, then by the model\'s top score.</p>';
+      d.upgrade_plan.forEach(function (e) {
+        html += '<div class="cve-card' + (e.on_kev ? " kev" : "") + '"><div class="cve-head">' +
+          (e.on_kev ? '<span class="cve-badge kev">' + e.on_kev + " on KEV</span>" : "") +
+          '<span class="cve-pkg">' + esc(e.package) + "@" + esc(e.version) + "</span>" +
+          '<span class="cve-fix">' + (e.upgrade_to ? "→ " + esc(e.upgrade_to) : "no fix published") + "</span>" +
+          '<span class="ecosystem-note">' + e.cves + " CVE" + (e.cves === 1 ? "" : "s") + (e.unfixed.length && e.upgrade_to ? ", " + e.unfixed.length + " unfixed" : "") + "</span>" +
+          '<span class="cve-score">top ' + e.top_probability.toFixed(2) + "</span></div></div>";
+      });
+      html += "</section>";
+    }
 
     if (d.already_in_kev.length) {
       html += '<section class="block"><h2><i class="dot" style="background:var(--bad)"></i>Already exploited — patch now (' + d.already_in_kev.length + ")</h2>" +
@@ -311,6 +359,7 @@ footer { color: var(--text-3); font-size: 0.72rem; padding: 30px 0 50px; border-
         html += '<div class="cve-card kev"><div class="cve-head"><span class="cve-badge kev">KEV</span>' +
           '<span class="cve-id">' + esc(r.cve_id) + "</span>" +
           r.packages.map(function (p) { return '<span class="cve-pkg">' + esc(p.package) + "@" + esc(p.version) + "</span>"; }).join("") +
+          (r.source_lockfile ? '<span class="ecosystem-note mono">' + esc(r.source_lockfile) + "</span>" : "") +
           "</div></div>";
       });
       html += "</section>";
@@ -326,6 +375,7 @@ footer { color: var(--text-3); font-size: 0.72rem; padding: 30px 0 50px; border-
         '<div class="cve-head"><svg class="chev-sm" width="12" height="12" viewBox="0 0 16 16"><path d="M6 3l5 5-5 5" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>' +
         '<span class="cve-rank">' + r.rank + '</span><span class="cve-id">' + esc(r.cve_id) + "</span>" +
         r.packages.map(function (p) { return '<span class="cve-pkg">' + esc(p.package) + "@" + esc(p.version) + "</span>"; }).join("") +
+        (r.source_lockfile ? '<span class="ecosystem-note mono">' + esc(r.source_lockfile) + "</span>" : "") +
         (r.demoted ? '<span class="cve-badge demoted">' + esc(r.demoted_reason) + "</span>" : "") +
         flagDots(r.flags) +
         '<span class="cve-score">EPSS ' + r.epss.toFixed(3) + "</span></div>" +

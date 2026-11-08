@@ -76,6 +76,12 @@ joblib.dump({"vec": vec, "lr": lr, "pos_matrix": pos_matrix, "pos_ids": pos.inde
 log(f"wrote model/tfidf_kev.joblib ({len(pos):,} KEV positives, {len(neg):,} negatives, {Xt.shape[1]:,} terms)")
 
 json.dump(FEATURES, open(os.path.join(MODEL_DIR, "feature_order.json"), "w"))
+# Training range of every feature. A live CVE can sit far outside it (an old CVE's age_days is ~2,000 vs 0-30 in
+# training, which alone pushes the LR's logit to ~+26 and every probability to 1.0), so scan.py clips live rows
+# to these bounds before scoring: never extrapolate a linear model past the data it was fit on.
+bounds = {f: [float(train[f].min()), float(train[f].max())] for f in FEATURES}
+json.dump(bounds, open(os.path.join(MODEL_DIR, "feature_bounds.json"), "w"), indent=1)
+log("wrote model/feature_bounds.json")
 json.dump({
     "built": pd.Timestamp.now().strftime("%Y-%m-%d %H:%M"),
     "training_rows": int(len(train)), "training_positives": int(train.y.sum()),

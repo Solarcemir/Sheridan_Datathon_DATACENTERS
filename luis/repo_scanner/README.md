@@ -27,17 +27,23 @@ every other script here (`IBM-20261107T174321Z-1-001/IBM/data/data/`).
 | Scoring | `scan.py` | The exported **LR A** (the same 56-feature logistic regression used as half of the linear voter in `final_build.py`), retrained on the 2024+2025 replicas and exported by `train_export.py`. **Not included yet**: the XGBoost tree voter, LR B (Chen's 100-feature model), and the Granite 8B LoRA — see the proposal's §10 for why. |
 | Demotion | `scan.py: demoted` | A **regex stand-in** for 2 of the 4 Granite-30B demotion rules (denial-of-service-only phrasing, WordPress-plugin phrasing). The other two (`typical_attacker=unlikely_target`, `attacker_appeal=low`) need a live Granite call and aren't approximated — flagged honestly in the UI, not faked. |
 
-## A real finding from building this
+## A real finding from building this: the model is trained on new CVEs, repos are full of old ones
 
-Scoring real, old dependency CVEs (Django, Flask, PyYAML, requests, ... from 2016-2019) surfaces a genuine
-distribution-shift case the proposal predicted but didn't have a concrete example for yet: many pre-2017 CVEs
-were filed under the generic `cve@mitre.org` CNA, before most projects had their own delegated CNA. That
-assigner alone carries an enormous historical KEV count (hundreds of entries — it's the catch-all for a lot of
-infamous old vulnerabilities), so `assigner_kev_all`/`assigner_kev_3y` read as very high for *any* CVE filed
-that way, regardless of how exploitable that specific CVE actually is. The model was trained on 2024-2025
-CVEs, where per-project CNAs are now the norm, so it never had to learn that "assigner = MITRE" is close to
-an uninformative default for old software, not a strong vendor-history signal. Worth saying in the
-write-up/demo rather than hiding.
+The first version scored most real dependency CVEs at probability 1.0, which made the ranking useless. We first
+blamed the generic `cve@mitre.org` assigner (it has ~300 historical KEV entries); **decomposing the logit showed
+that was wrong.** The real cause was `age_days`: in training, every CVE is scored within its publish month, so
+`age_days` is 0–30. A 2020 CVE in a 2026 scan has `age_days` ≈ 2,300 — a z-score of ~270 that alone added +26 to
+the logit. That's a linear model extrapolating far outside its training data.
+
+Fix (`train_export.py` → `model/feature_bounds.json`, applied in `scan.py`): every live feature is clipped to its
+training [min, max] before scoring. On `IBM/MAX-Image-Resolution-Enhancer` that took the result from "all 284
+CVEs tied near 1.0" to 254 distinct probabilities (max 0.97). Each row reports which features were clipped
+(`clipped_features`), so an old CVE is visibly flagged as outside the model's training window.
+
+The broader lesson for the write-up: the Top 500 model answers "will a *newly published* CVE reach KEV?". A
+dependency scan mostly asks it about CVEs that are years old. Clipping keeps the ranking sane, but those scores
+are an extrapolation, not something we validated — and a CVE that is years old and still not on KEV is, by that
+fact alone, less likely to get there than the model's prior suggests.
 
 ## Files
 
@@ -60,7 +66,7 @@ write-up/demo rather than hiding.
   project's best number.
 - **Two of four demotion rules are regex approximations**, not Granite 30B.
 - **npm and PyPI only.** No Maven, Go, Cargo, RubyGems, NuGet, Composer.
-- **No GitHub URL input.** Paste or upload a lockfile directly.
+- **GitHub URL input**: public repos only, default branch, up to 8 lockfiles (`github_scan.py`). Results on 4 IBM repos: `IBM_SCAN_REPORT.md`.
 - **Metasploit flag is always false.**
 - See `proposal_repo_scanner.md` §11 for the rest (SCA matching isn't perfect; this hasn't been validated on a
   "dependency CVEs only" cohort the way the Top 500 pipeline was validated on its replicas).
