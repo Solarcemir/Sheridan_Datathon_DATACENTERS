@@ -1035,12 +1035,12 @@ table.t tr.hl td { background: var(--ibm-soft) }
     }
     f.duration = Math.min(1900, Math.max(800, Math.abs(S2) * 850)); return f;
   }
-  function fly(target, done, at) {   // at: optional [fraction, fn], fn runs once the flight is that far along
+  function fly(target, done, at, soft) {   // at: optional [fraction, fn], fn runs once the flight is that far along; soft: sine easing (moves sooner)
     if (anim) cancelAnimationFrame(anim);
     if (!cam || reduce) { cam = target; apply(cam); if (done) done(); return; }
-    var f = interp(cam, target), t0 = performance.now();
+    var f = interp(cam, target), t0 = performance.now(); if (soft) f.duration *= .75;
     function tick(now) {
-      var t = Math.min(1, (now - t0) / f.duration), e = t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+      var t = Math.min(1, (now - t0) / f.duration), e = soft ? (1 - Math.cos(Math.PI * t)) / 2 : t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
       cam = f(e); apply(cam);
       if (at && t >= at[0]) { var fn = at[1]; at = null; fn(); }
       if (t < 1) anim = requestAnimationFrame(tick); else { anim = null; cam = target; apply(cam); if (done) done(); }
@@ -1078,8 +1078,8 @@ table.t tr.hl td { background: var(--ibm-soft) }
           if (seq !== goSeq) return;
           if (!folded) foldIn();
           setTimeout(land, Math.max(0, 450 - (Date.now() - folded)));
-        }, [.55, foldIn]);
-      }, 300);
+        }, [.4, foldIn], true);
+      }, 120);
     } else {
       focusOn(); leaving = from && id && from !== id ? from : null;
       focusId = id; world.classList.toggle("zoomed", !!id); place();   // bubbles start shrinking into the slide while the camera flies
