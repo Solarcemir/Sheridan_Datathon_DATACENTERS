@@ -1,0 +1,1109 @@
+<meta charset="utf-8">
+<title>Repo Scan</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@75..100,500..800&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600;700&display=swap">
+<style>
+/* Breach Radar repo scanner. Visual language from our chen/frontend/breach_radar.html (tokens in the SKIN block). Every scan step is a step of the same
+   pipeline that builds the Top 500 (final_build.py), pointed at one repo's dependencies instead of the scoreboard. */
+:root {
+  --bg-deep: #020203; --surface: #111118; --surface-2: #181821; --surface-3: #22222e;
+  --text: #f2f2f7; --text-2: #b9b9c8; --text-3: #7c7c90;
+  --line: rgba(255,255,255,.09); --line-2: rgba(255,255,255,.18);
+  --s1: #4589ff; --s2: #009d9a; --s3: #a56eff; --s4: #ee5396;
+  --good: #42be65; --bad: #fa4d56; --warn: #f1c21b;
+  --sans: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg-deep); color: var(--text); font-family: var(--sans); font-size: 0.9rem; line-height: 1.5; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+a { color: #9cbcff; }
+:focus-visible { outline: 2px solid #fff; outline-offset: 2px; border-radius: 3px; }
+code, .mono { font-family: var(--mono); }
+code { background: var(--surface-3); padding: 1px 6px; border-radius: 5px; font-size: .85em; }
+h1, h2, h3 { margin: 0; font-weight: 400; text-wrap: balance; }
+p { margin: 0; }
+button { font: inherit; color: inherit; }
+.wrap { max-width: 1080px; margin: 0 auto; padding: 0 16px; }
+.glow { position: fixed; inset: 0; z-index: -1; pointer-events: none;
+  background: radial-gradient(900px 520px at 15% -10%, rgba(69,137,255,.16), transparent 60%),
+              radial-gradient(800px 520px at 95% 5%, rgba(165,110,255,.12), transparent 60%),
+              radial-gradient(700px 500px at 50% 110%, rgba(0,157,154,.08), transparent 60%), var(--bg-deep); }
+.grid-bg { position: fixed; inset: 0; z-index: -1; pointer-events: none; opacity: .35;
+  background-image: linear-gradient(var(--line) 1px, transparent 1px), linear-gradient(90deg, var(--line) 1px, transparent 1px);
+  background-size: 44px 44px; mask-image: radial-gradient(ellipse at 50% 0%, #000 20%, transparent 70%); }
+
+/* header */
+header.bar { padding: 14px 0; border-bottom: 1px solid var(--line); backdrop-filter: blur(10px); position: sticky; top: 0; z-index: 20; background: rgba(2,2,3,.6); }
+.bar-in { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+.brand { display: flex; align-items: center; gap: 9px; }
+.brand i { width: 9px; height: 9px; background: var(--s1); border-radius: 2px; box-shadow: 0 0 14px 3px rgba(69,137,255,.7); }
+.brand b { font-weight: 600; letter-spacing: .04em; font-size: .92rem; }
+.nav { margin-left: auto; display: flex; gap: 6px; }
+.nav a { font-size: .76rem; color: var(--text-2); text-decoration: none; padding: 6px 12px; border-radius: 999px; border: 1px solid var(--line); }
+.nav a:hover { color: var(--text); border-color: var(--line-2); }
+
+/* hero */
+.hero { display: grid; grid-template-columns: 1.1fr .9fr; gap: 30px; align-items: center; padding: 44px 0 10px; }
+.eyebrow { font-family: var(--mono); font-size: .72rem; letter-spacing: .14em; color: #9cbcff; text-transform: uppercase; }
+.hero h1 { font-size: clamp(2rem, 4.6vw, 3.1rem); font-weight: 300; line-height: 1.08; margin-top: 10px; }
+.hero h1 b { font-weight: 600; background: linear-gradient(90deg, #a6c8ff, #d4bbff); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.hero .lead { color: var(--text-2); margin-top: 14px; font-size: 1.02rem; max-width: 52ch; }
+.trust { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 18px; }
+.trust span { display: inline-flex; align-items: center; gap: 6px; font-size: .74rem; color: var(--text-2); padding: 5px 11px; border-radius: 999px; background: var(--surface-2); border: 1px solid var(--line); }
+.trust svg { color: var(--s2); }
+.hero-art { width: 100%; height: auto; filter: drop-shadow(0 30px 50px rgba(0,0,0,.5)); }
+.hero-art .sweep { transform-origin: 250px 190px; animation: sweep 5s linear infinite; }
+.hero-art .blip { animation: blip 2.5s ease-in-out infinite; }
+.hero-art .blip:nth-of-type(2) { animation-delay: .8s; } .hero-art .blip:nth-of-type(3) { animation-delay: 1.6s; }
+@keyframes sweep { to { transform: rotate(360deg); } }
+@keyframes blip { 0%,100% { opacity: .25; } 50% { opacity: 1; } }
+
+/* how-it-works strip */
+.section-title { display: flex; align-items: baseline; gap: 12px; margin: 46px 0 14px; flex-wrap: wrap; }
+.section-title h2 { font-size: 1.35rem; font-weight: 400; }
+.section-title p { color: var(--text-3); font-size: .82rem; }
+.steps { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; position: relative; }
+.step { position: relative; text-align: left; background: linear-gradient(165deg, rgba(255,255,255,.05), rgba(255,255,255,.01)), var(--surface);
+  border: 1px solid var(--line); border-radius: 14px; padding: 16px 14px 14px; cursor: pointer; transition: transform .18s, border-color .18s, box-shadow .18s; }
+.step:hover { transform: translateY(-3px); border-color: var(--line-2); box-shadow: 0 16px 30px rgba(0,0,0,.4); }
+.step .num { position: absolute; top: 12px; right: 14px; font-family: var(--mono); font-size: .7rem; color: var(--text-3); }
+.step .ico { width: 44px; height: 44px; border-radius: 12px; display: grid; place-items: center; margin-bottom: 12px; }
+.step h3 { font-size: .92rem; font-weight: 500; }
+.step p { color: var(--text-3); font-size: .76rem; margin-top: 4px; }
+.step .layer { display: inline-block; margin-top: 10px; font-family: var(--mono); font-size: .64rem; color: var(--text-2); padding: 2px 8px; border-radius: 999px; border: 1px solid var(--line-2); }
+
+/* input panel */
+.panel { background: linear-gradient(165deg, rgba(255,255,255,.05), rgba(255,255,255,.012)), var(--surface);
+  border: 1px solid var(--line); border-radius: 18px; padding: 20px; box-shadow: 0 1px 0 rgba(255,255,255,.05) inset, 0 24px 50px rgba(0,0,0,.45); }
+.modes { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.mode { display: flex; align-items: center; gap: 12px; padding: 14px; border-radius: 12px; border: 1px solid var(--line); background: var(--surface-2); cursor: pointer; text-align: left; transition: border-color .15s, background .15s; }
+.mode svg { flex: none; color: var(--text-3); }
+.mode b { display: block; font-weight: 500; font-size: .88rem; }
+.mode span { display: block; color: var(--text-3); font-size: .72rem; }
+.mode[aria-pressed="true"] { border-color: rgba(69,137,255,.6); background: linear-gradient(165deg, rgba(69,137,255,.16), rgba(69,137,255,.04)); }
+.mode[aria-pressed="true"] svg { color: #9cbcff; }
+.pane { margin-top: 16px; }
+.drop { display: grid; place-items: center; gap: 8px; border: 1.5px dashed var(--line-2); border-radius: 14px; padding: 30px 18px; text-align: center; color: var(--text-2); cursor: pointer; transition: border-color .15s, background .15s; }
+.drop.over { border-color: var(--s1); background: rgba(69,137,255,.07); }
+.drop b { color: var(--text); font-weight: 500; }
+.drop input { display: none; }
+.filename { font-family: var(--mono); font-size: .8rem; color: var(--good); }
+textarea#paste, .gh-input { width: 100%; background: var(--surface-2); color: var(--text); border: 1px solid var(--line-2); border-radius: 12px; padding: 12px 14px; font-family: var(--mono); }
+textarea#paste { min-height: 170px; font-size: .78rem; resize: vertical; }
+.gh-row { display: flex; align-items: center; gap: 10px; background: var(--surface-2); border: 1px solid var(--line-2); border-radius: 12px; padding: 4px 4px 4px 14px; }
+.gh-row .gh-input { border: 0; background: transparent; padding: 10px 0; font-size: .95rem; }
+.gh-row .gh-input:focus { outline: none; }
+.gh-row:focus-within { border-color: var(--s1); }
+.note { color: var(--text-3); font-size: .76rem; margin-top: 10px; }
+.examples { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; align-items: center; }
+.examples button { display: inline-flex; align-items: center; gap: 7px; font-size: .74rem; padding: 6px 12px; border-radius: 999px; border: 1px solid var(--line-2); background: var(--surface-2); color: var(--text-2); cursor: pointer; }
+.examples button:hover { color: var(--text); border-color: var(--text-2); }
+.actions { display: flex; align-items: center; gap: 14px; margin-top: 18px; flex-wrap: wrap; }
+.scan-btn { display: inline-flex; align-items: center; gap: 10px; font-size: 1rem; font-weight: 500; padding: 13px 26px; border-radius: 12px; border: 1px solid rgba(69,137,255,.6);
+  background: linear-gradient(165deg, #3d7ef5, #2a5fd0); color: #fff; cursor: pointer; box-shadow: 0 10px 30px rgba(69,137,255,.35); transition: transform .12s, box-shadow .12s; }
+.scan-btn:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 14px 36px rgba(69,137,255,.5); }
+.scan-btn:disabled { opacity: .5; cursor: default; }
+#error { display: none; margin-top: 16px; padding: 12px 14px; border-radius: 12px; background: rgba(250,77,86,.1); border: 1px solid rgba(250,77,86,.35); color: #ffb3b8; font-size: .84rem; }
+
+/* full-screen scan overlay */
+#overlay { position: fixed; inset: 0; z-index: 50; display: none; background: rgba(2,2,3,.86); backdrop-filter: blur(14px);
+  clip-path: circle(0 at var(--cx, 50%) var(--cy, 50%)); transition: clip-path .6s cubic-bezier(.7,0,.2,1); }
+#overlay.on { clip-path: circle(150% at var(--cx, 50%) var(--cy, 50%)); }
+.ov-in { height: 100%; max-width: 1080px; margin: 0 auto; padding: 40px 16px; display: grid; grid-template-columns: 1.3fr .9fr; gap: 40px; align-items: center; }
+.ov-stage { text-align: left; }
+.ov-icon { width: 120px; height: 120px; border-radius: 30px; display: grid; place-items: center; position: relative; margin-bottom: 26px; }
+.ov-icon::after { content: ""; position: absolute; inset: -10px; border-radius: 38px; border: 2px solid currentColor; opacity: .35; animation: ring 1.6s ease-out infinite; }
+@keyframes ring { from { transform: scale(.9); opacity: .5; } to { transform: scale(1.25); opacity: 0; } }
+.ov-count { font-family: var(--mono); font-size: .78rem; color: var(--text-3); letter-spacing: .1em; }
+.ov-title { font-size: clamp(1.8rem, 4.2vw, 2.9rem); font-weight: 300; line-height: 1.12; margin-top: 8px; }
+.ov-text { color: var(--text-2); font-size: 1.05rem; margin-top: 14px; max-width: 48ch; }
+.ov-file { display: inline-flex; gap: 8px; align-items: center; margin-top: 18px; font-family: var(--mono); font-size: .76rem; color: var(--text-2); padding: 6px 12px; border: 1px solid var(--line-2); border-radius: 999px; }
+.ov-file i { width: 7px; height: 7px; border-radius: 50%; background: var(--good); box-shadow: 0 0 8px var(--good); }
+.fade-in { animation: fadein .45s ease both; }
+@keyframes fadein { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+.ov-list { list-style: none; margin: 0; padding: 18px; border-radius: 16px; background: var(--surface); border: 1px solid var(--line); display: grid; gap: 4px; }
+.ov-list li { display: flex; align-items: center; gap: 10px; padding: 7px 8px; border-radius: 9px; color: var(--text-3); font-size: .84rem; transition: background .2s, color .2s; }
+.ov-list li .st { width: 20px; height: 20px; border-radius: 50%; border: 1.5px solid var(--line-2); flex: none; display: grid; place-items: center; }
+.ov-list li.now { background: var(--surface-3); color: var(--text); }
+.ov-list li.now .st { border-color: var(--s1); border-top-color: transparent; animation: spin .8s linear infinite; }
+.ov-list li.done { color: var(--text-2); }
+.ov-list li.done .st { background: var(--good); border-color: var(--good); }
+.ov-list li.done .st::after { content: ""; width: 8px; height: 4px; border-left: 2px solid #031; border-bottom: 2px solid #031; transform: rotate(-45deg) translate(1px,-1px); }
+@keyframes spin { to { transform: rotate(360deg); } }
+.ov-bar { height: 4px; border-radius: 4px; background: var(--surface-3); margin-top: 14px; overflow: hidden; }
+.ov-bar i { display: block; height: 100%; width: 0; background: linear-gradient(90deg, var(--s1), var(--s3)); transition: width .6s ease; }
+
+/* popup modal */
+#pop { position: fixed; inset: 0; z-index: 60; display: none; background: rgba(0,0,0,.6); backdrop-filter: blur(6px); place-items: center; padding: 16px; }
+#pop.on { display: grid; }
+.pop-card { max-width: 560px; width: 100%; background: linear-gradient(165deg, rgba(255,255,255,.06), rgba(255,255,255,.015)), var(--surface); border: 1px solid var(--line-2); border-radius: 20px; padding: 26px; position: relative; animation: popin .35s cubic-bezier(.2,.9,.3,1.2) both; box-shadow: 0 40px 80px rgba(0,0,0,.6); }
+@keyframes popin { from { opacity: 0; transform: scale(.92) translateY(10px); } to { opacity: 1; transform: none; } }
+.pop-card .x { position: absolute; top: 14px; right: 14px; width: 34px; height: 34px; border-radius: 50%; border: 1px solid var(--line-2); background: var(--surface-2); cursor: pointer; display: grid; place-items: center; }
+.pop-card .ico { width: 64px; height: 64px; border-radius: 18px; display: grid; place-items: center; margin-bottom: 16px; }
+.pop-card h3 { font-size: 1.5rem; font-weight: 400; padding-right: 40px; }
+.pop-card p { color: var(--text-2); margin-top: 10px; font-size: .92rem; }
+.pop-card .layer { margin-top: 16px; font-family: var(--mono); font-size: .74rem; color: var(--text-3); }
+
+/* results */
+#results { display: none; padding-top: 10px; }
+.verdict { display: grid; grid-template-columns: auto 1fr; gap: 22px; align-items: center; padding: 26px; border-radius: 20px; margin-top: 34px; border: 1px solid; }
+.verdict.bad { background: linear-gradient(120deg, rgba(250,77,86,.18), rgba(250,77,86,.03)); border-color: rgba(250,77,86,.45); }
+.verdict.warn { background: linear-gradient(120deg, rgba(241,194,27,.14), rgba(241,194,27,.02)); border-color: rgba(241,194,27,.4); }
+.verdict.good { background: linear-gradient(120deg, rgba(66,190,101,.15), rgba(66,190,101,.02)); border-color: rgba(66,190,101,.4); }
+.verdict .big-ico { width: 84px; height: 84px; border-radius: 24px; display: grid; place-items: center; }
+.verdict .label { font-family: var(--mono); font-size: .72rem; letter-spacing: .12em; text-transform: uppercase; color: var(--text-2); }
+.verdict h2 { font-size: clamp(1.4rem, 3.2vw, 2.1rem); font-weight: 400; margin-top: 4px; }
+.verdict p { color: var(--text-2); margin-top: 6px; }
+.repo-line { margin-top: 12px; font-family: var(--mono); font-size: .76rem; color: var(--text-3); }
+
+.kpis { display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; margin-top: 16px; }
+.kpi { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 14px; display: grid; gap: 4px; }
+.kpi svg { color: var(--text-3); }
+.kpi b { font-family: var(--mono); font-size: 1.6rem; font-weight: 500; line-height: 1.1; }
+.kpi span { color: var(--text-3); font-size: .72rem; }
+.kpi.bad b { color: var(--bad); }
+
+.two { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 14px; }
+.card { background: linear-gradient(165deg, rgba(255,255,255,.04), rgba(255,255,255,.01)), var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 18px; }
+.card-h { display: flex; align-items: center; gap: 10px; margin-bottom: 4px; }
+.card-h h3 { font-size: 1rem; font-weight: 500; }
+.card .sub { color: var(--text-3); font-size: .78rem; margin-bottom: 12px; }
+.info { margin-left: auto; width: 26px; height: 26px; border-radius: 50%; border: 1px solid var(--line-2); background: var(--surface-2); cursor: pointer; font-family: var(--mono); font-size: .78rem; color: var(--text-2); flex: none; }
+.info:hover { color: var(--text); border-color: var(--text-2); }
+
+/* funnel */
+.funnel { display: grid; gap: 8px; }
+.fn-row { display: grid; grid-template-columns: 130px 1fr 56px; gap: 10px; align-items: center; font-size: .78rem; color: var(--text-2); }
+.fn-bar { height: 22px; border-radius: 0 6px 6px 0; background: var(--surface-3); position: relative; overflow: hidden; }
+.fn-bar i { position: absolute; inset: 0 auto 0 0; border-radius: 0 6px 6px 0; width: 0; transition: width 1s cubic-bezier(.2,.8,.2,1); }
+.fn-row b { font-family: var(--mono); font-weight: 500; text-align: right; color: var(--text); }
+
+/* top bars */
+.tbars { display: grid; gap: 6px; position: relative; }
+.tb { display: grid; grid-template-columns: 128px 1fr 40px; gap: 10px; align-items: center; font-size: .74rem; cursor: default; }
+.tb .id { font-family: var(--mono); color: var(--text-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tb .tr { height: 14px; background: var(--surface-3); border-radius: 0 4px 4px 0; position: relative; }
+.tb .tr i { position: absolute; inset: 0 auto 0 0; border-radius: 0 4px 4px 0; background: var(--s1); width: 0; transition: width .9s cubic-bezier(.2,.8,.2,1); }
+.tb.dem .tr i { background: #5b5b6e; }
+.tb:hover .tr i { filter: brightness(1.25); }
+.tb .v { font-family: var(--mono); color: var(--text); text-align: right; }
+#tip { position: fixed; z-index: 70; pointer-events: none; display: none; background: #1d1d28; border: 1px solid var(--line-2); border-radius: 10px; padding: 8px 10px; font-size: .74rem; max-width: 280px; box-shadow: 0 10px 24px rgba(0,0,0,.5); }
+#tip b { font-family: var(--mono); }
+
+/* upgrade plan */
+.plan { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 10px; }
+.pl { border: 1px solid var(--line); border-radius: 14px; padding: 14px; background: var(--surface-2); display: grid; gap: 8px; position: relative; overflow: hidden; }
+.pl.kev { border-color: rgba(250,77,86,.5); background: linear-gradient(165deg, rgba(250,77,86,.12), rgba(250,77,86,.02)), var(--surface-2); }
+.pl .pri { position: absolute; top: 12px; right: 12px; font-family: var(--mono); font-size: .66rem; padding: 2px 8px; border-radius: 999px; border: 1px solid currentColor; }
+.pl .pkg { font-family: var(--mono); font-weight: 600; font-size: .95rem; padding-right: 70px; word-break: break-all; }
+.ver { display: flex; align-items: center; gap: 8px; font-family: var(--mono); font-size: .82rem; }
+.ver .old { color: #ffb3b8; text-decoration: line-through; text-decoration-color: rgba(250,77,86,.6); }
+.ver .new { color: var(--good); font-weight: 600; }
+.pl .meta { color: var(--text-3); font-size: .74rem; }
+.meter { height: 6px; border-radius: 4px; background: var(--surface-3); overflow: hidden; }
+.meter i { display: block; height: 100%; border-radius: 4px; }
+
+/* ranked */
+.cve { border: 1px solid var(--line); border-radius: 14px; background: var(--surface); margin-top: 8px; overflow: hidden; }
+.cve.kev { border-color: rgba(250,77,86,.45); background: linear-gradient(165deg, rgba(250,77,86,.09), rgba(250,77,86,.02)), var(--surface); }
+.cve summary { list-style: none; display: grid; grid-template-columns: 34px 1fr auto; gap: 12px; align-items: center; padding: 12px 14px; cursor: pointer; }
+.cve summary::-webkit-details-marker { display: none; }
+.rk { font-family: var(--mono); color: var(--text-3); font-size: .8rem; text-align: center; }
+.cve .mid { min-width: 0; display: grid; gap: 4px; }
+.cve .top { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.cve .cid { font-family: var(--mono); font-weight: 500; }
+.chip { font-family: var(--mono); font-size: .68rem; padding: 2px 8px; border-radius: 999px; background: var(--surface-3); color: #9cbcff; }
+.chip.red { background: rgba(250,77,86,.15); color: #ff9aa0; }
+.chip.dim { color: var(--text-3); text-decoration: line-through; }
+.chip.src { color: var(--text-3); }
+.flags { display: flex; gap: 4px; flex-wrap: wrap; }
+.flag { font-size: .64rem; padding: 1px 7px; border-radius: 999px; border: 1px solid var(--line); color: var(--text-3); }
+.flag.on { border-color: rgba(238,83,150,.55); color: #ffa3cb; background: rgba(238,83,150,.1); }
+.prob { display: grid; justify-items: end; gap: 4px; min-width: 92px; }
+.prob b { font-family: var(--mono); font-size: 1.05rem; font-weight: 500; }
+.prob .meter { width: 92px; }
+.prob span { font-size: .64rem; color: var(--text-3); }
+.cve .body { padding: 0 14px 14px 60px; display: grid; gap: 8px; color: var(--text-2); font-size: .82rem; }
+.cve .fix { font-family: var(--mono); color: var(--good); font-size: .8rem; }
+.cve .desc { color: var(--text-3); }
+.more { margin-top: 12px; font-size: .8rem; padding: 9px 16px; border-radius: 10px; border: 1px solid var(--line-2); background: var(--surface-2); cursor: pointer; }
+
+.pipeline-link { display: grid; grid-template-columns: auto 1fr auto; gap: 18px; align-items: center; margin-top: 40px; padding: 20px; border-radius: 18px; border: 1px solid var(--line); text-decoration: none; color: inherit;
+  background: linear-gradient(120deg, rgba(69,137,255,.12), rgba(165,110,255,.08)); }
+.pipeline-link:hover { border-color: var(--line-2); }
+.pipeline-link h3 { font-size: 1.05rem; font-weight: 500; }
+.pipeline-link p { color: var(--text-2); font-size: .82rem; margin-top: 3px; }
+
+footer { color: var(--text-3); font-size: .74rem; padding: 30px 0 60px; border-top: 1px solid var(--line); margin-top: 50px; display: grid; gap: 6px; }
+
+@media (max-width: 900px) {
+  .hero, .ov-in, .two { grid-template-columns: 1fr; }
+  .hero-art { max-width: 380px; margin: 0 auto; }
+  .steps { grid-template-columns: repeat(2, 1fr); }
+  .kpis { grid-template-columns: repeat(3, 1fr); }
+  .ov-list { display: none; }
+}
+@media (max-width: 560px) {
+  .modes { grid-template-columns: 1fr; }
+  .steps { grid-template-columns: 1fr; }
+  .kpis { grid-template-columns: repeat(2, 1fr); }
+  .verdict { grid-template-columns: 1fr; }
+  .cve .body { padding-left: 14px; }
+  .fn-row { grid-template-columns: 96px 1fr 44px; }
+  .pipeline-link { grid-template-columns: 1fr; }
+}
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
+
+/* ===== SKIN: our breach_radar.html design tokens (chen/frontend), light by default, dark with the system or the
+   toggle. Layout above is untouched; this block only re-colors and re-fonts it. ===== */
+:root {
+  --bg: #e9edf2; --panel: #ffffff; --ink: #0f1a2a; --muted: #586579; --line-c: #c3ccd8; --soft: #dde3eb; --grid: #d3dae4; --region: #f4f6f9;
+  --ibm: #2b59e0; --ibm-soft: #e2e9fc; --alert: #c4302b; --alert-soft: #f8e2e0; --ok: #1d7f55; --no: #8a93a3; --warn-c: #a8650a; --warn-soft: #fbefd9;
+  --display: "Archivo", "Arial Narrow", system-ui, sans-serif;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #070c13; --panel: #121c2a; --ink: #f2f6fb; --muted: #aebbd0; --line-c: #40536f; --soft: #1c2738; --grid: #1a2535; --region: #0d1520;
+  --ibm: #8eaaff; --ibm-soft: #1c2b55; --alert: #ff7b70; --alert-soft: #45201f; --ok: #4cc58f; --no: #6c7789; --warn-c: #ffb547; --warn-soft: #3a2a10; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #070c13; --panel: #121c2a; --ink: #f2f6fb; --muted: #aebbd0; --line-c: #40536f; --soft: #1c2738; --grid: #1a2535; --region: #0d1520;
+  --ibm: #8eaaff; --ibm-soft: #1c2b55; --alert: #ff7b70; --alert-soft: #45201f; --ok: #4cc58f; --no: #6c7789; --warn-c: #ffb547; --warn-soft: #3a2a10; color-scheme: dark }
+:root {
+  --bg-deep: var(--bg); --surface: var(--panel); --surface-2: var(--region); --surface-3: var(--soft);
+  --text: var(--ink); --text-2: var(--muted); --text-3: color-mix(in srgb, var(--muted) 75%, var(--bg));
+  --line: var(--line-c); --line-2: color-mix(in srgb, var(--line-c) 70%, var(--ink) 30%);
+  --s1: var(--ibm); --good: var(--ok); --bad: var(--alert); --warn: var(--warn-c);
+}
+body { background: var(--bg); }
+a { color: var(--ibm); }
+:focus-visible { outline-color: var(--ibm); }
+.glow { background: var(--bg); }
+.grid-bg { background-image: radial-gradient(var(--grid) 1.2px, transparent 1.3px); background-size: 26px 26px; opacity: 1; mask-image: none; }
+header.bar { background: color-mix(in srgb, var(--bg) 85%, transparent); border-bottom-color: var(--line); }
+.brand b, .hero h1, .section-title h2, .ov-title, .verdict h2, .pop-card h3, .step h3, .card-h h3, .pipeline-link h3, .kpi b, .prob b, .fn-row b, .pl .pkg, .hud b, .sp-sub b {
+  font-family: var(--display); font-stretch: 78%; font-weight: 800; letter-spacing: -.003em; }
+.brand { gap: 9px; } .brand b { text-transform: uppercase; letter-spacing: .06em; font-size: 1.05rem; }
+.brand b em, .sp-sub b em { font-style: normal; color: var(--alert); }
+.nav a { color: var(--ink); background: var(--panel); border-color: var(--line); }
+.nav a:hover, .nav button:hover { border-color: var(--ink); }
+.nav button { font-size: .76rem; padding: 6px 12px; border-radius: 999px; border: 1px solid var(--line); background: var(--panel); cursor: pointer; }
+.hero h1 { font-size: clamp(2.5rem, 5.8vw, 4.2rem); line-height: .95; letter-spacing: -.005em; font-stretch: 76%; }
+.hero h1 b { background: none; color: var(--alert); -webkit-text-fill-color: currentColor; font-weight: 800; }
+.hero .lead { color: var(--muted); }
+.section-title h2 { font-size: 2rem; }
+.eyebrow, .ov-count, .verdict .label, .hud { font-family: var(--mono); color: var(--muted); }
+.eyebrow .ibmtag { color: var(--ibm); border: 1px solid var(--ibm); border-radius: 4px; padding: 0 6px; margin-right: 10px; }
+.trust span { background: var(--panel); color: var(--ink); }
+.trust svg { color: var(--ibm); }
+.ov-title { font-size: clamp(2.2rem, 5vw, 3.6rem); line-height: 1; }
+.verdict h2 { font-size: clamp(1.8rem, 3.8vw, 2.7rem); line-height: 1.02; }
+.kpi b { font-size: 2.3rem; line-height: 1; } .prob b { font-size: 1.4rem; } .step h3 { font-size: 1.15rem; } .card-h h3 { font-size: 1.25rem; }
+.kpi.bad b { color: var(--alert); }
+/* flat panels like the deck's .hs cards */
+.panel, .step, .card, .pop-card, .kpi, .cve, .ov-list, .pl, .near div { background: var(--panel); box-shadow: none; border: 1px solid var(--line); border-radius: 10px; }
+.panel, .card { border-radius: 12px; }
+.step:hover { transform: translateY(-2px); border-color: var(--ibm); box-shadow: none; }
+.step .num { color: var(--muted); }
+.step .layer, .chip { font-family: var(--mono); color: var(--ibm); border: 1px solid var(--ibm); background: var(--ibm-soft); border-radius: 99px; }
+.mode { background: var(--panel); border-color: var(--line); }
+.mode[aria-pressed="true"] { background: var(--ink); border-color: var(--ink); color: var(--bg); }
+.mode[aria-pressed="true"] svg, .mode[aria-pressed="true"] span { color: var(--bg); }
+.gh-row, textarea#paste { background: var(--panel); border-color: var(--line); }
+.gh-row:focus-within { border-color: var(--ibm); }
+.drop { border-color: var(--line); background: var(--region); }
+.drop svg { stroke: var(--ibm); }
+.examples button { background: var(--panel); color: var(--ink); border-color: var(--line); }
+.examples button:hover { border-color: var(--ink); }
+.examples button.hot { border-color: var(--alert); }
+.examples .grp { font-family: var(--mono); font-size: .66rem; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); width: 100%; margin-top: 4px; }
+.scan-btn { background: var(--ink); color: var(--bg); border-color: var(--ink); box-shadow: none; border-radius: 8px; }
+.scan-btn:hover:not(:disabled) { background: var(--ibm); border-color: var(--ibm); color: #fff; box-shadow: none; transform: none; }
+.chip.red { color: var(--alert); border-color: var(--alert); background: var(--alert-soft); }
+.chip.src, .chip.dim { color: var(--muted); border-color: var(--line); background: transparent; }
+.flag { color: var(--muted); border-color: var(--line); }
+.flag.on { border-color: var(--alert); color: var(--alert); background: var(--alert-soft); font-weight: 600; }
+.info { background: var(--panel); color: var(--ink); border-color: var(--line); }
+.info:hover { border-color: var(--ink); }
+.tb .tr, .fn-bar, .meter, .ov-bar { background: var(--soft); }
+.tb .tr i { background: var(--ibm); } .tb.dem .tr i { background: var(--no); }
+.ov-bar i { background: var(--ibm); }
+.ver .old { color: var(--alert); text-decoration-color: var(--alert); }
+.verdict { border-radius: 12px; }
+.verdict.bad { background: var(--alert-soft); border-color: var(--alert); box-shadow: none; }
+.verdict.warn { background: var(--warn-soft); border-color: var(--warn-c); }
+.verdict.good { background: color-mix(in srgb, var(--ok) 12%, var(--panel)); border-color: var(--ok); }
+.cve.kev, .pl.kev, .near div.k { background: var(--alert-soft); border-color: var(--alert); }
+.pipeline-link { background: var(--ibm-soft); border-color: var(--ibm); }
+.pipeline-link .mono, .pipeline-link svg g { color: var(--ibm); stroke: var(--ibm); }
+#overlay { background: color-mix(in srgb, var(--bg) 96%, transparent); }
+#overlay { background-image: radial-gradient(var(--grid) 1.2px, transparent 1.3px); background-size: 26px 26px; }
+#pop { background: color-mix(in srgb, var(--ink) 35%, transparent); }
+.pop-card { border-radius: 14px; }
+.pop-card .x { background: var(--panel); border-color: var(--line); }
+#tip { background: var(--panel); border-color: var(--line); color: var(--ink); box-shadow: 0 10px 24px rgba(0,0,0,.18); }
+.card-h svg { color: var(--ibm); }
+.ov-list li.now { background: var(--ibm-soft); }
+.ov-list li.now .st { border-color: var(--ibm); border-top-color: transparent; }
+.ov-list li.done .st { background: var(--ok); border-color: var(--ok); }
+.ov-list li.done .st::after { border-color: var(--panel); }
+.ov-file { border-color: var(--line); background: var(--panel); }
+.ov-file i { background: var(--ok); box-shadow: none; }
+footer { border-top-color: var(--line); color: var(--muted); }
+
+/* icon tiles (style set by tint() in JS) */
+.ico, .ov-icon, .big-ico { border: 1px solid; }
+.ov-icon::after { opacity: .3; }
+
+/* ---- radar component, in the deck's tokens: panel disc, line rings, IBM-blue sweep, red for exploited ---- */
+.radar-wrap { position: relative; width: 100%; max-width: 460px; margin: 0 auto; }
+.radar { position: relative; aspect-ratio: 1; border-radius: 50%; overflow: hidden; background: radial-gradient(circle closest-side, var(--ibm-soft), var(--panel) 85%);
+  border: 1.5px solid var(--line-2); box-shadow: 0 0 0 8px color-mix(in srgb, var(--panel) 70%, transparent), 0 0 0 9px var(--line); }
+.r-rings { position: absolute; inset: 0; border-radius: 50%;
+  background: repeating-radial-gradient(circle closest-side, transparent 0 calc(25% - 1px), var(--line) calc(25% - 1px) 25%),
+    linear-gradient(to right, transparent calc(50% - .5px), var(--line) calc(50% - .5px) calc(50% + .5px), transparent 0),
+    linear-gradient(to bottom, transparent calc(50% - .5px), var(--line) calc(50% - .5px) calc(50% + .5px), transparent 0); }
+.r-ticks { position: absolute; inset: 0; width: 100%; height: 100%; color: var(--line-2); }
+.r-sweep { position: absolute; inset: 0; border-radius: 50%; animation: spin var(--sweep, 3.2s) linear infinite;
+  background: conic-gradient(from 0deg, transparent 0deg 285deg, color-mix(in srgb, var(--ibm) 8%, transparent) 300deg, color-mix(in srgb, var(--ibm) 42%, transparent) 359deg, var(--ibm) 359.6deg, transparent 360deg); }
+.r-core { position: absolute; left: 50%; top: 50%; width: 10px; height: 10px; margin: -5px; border-radius: 50%; background: var(--ink); box-shadow: 0 0 0 5px color-mix(in srgb, var(--ink) 12%, transparent); }
+.r-blips { position: absolute; inset: 0; }
+.blip { position: absolute; width: var(--sz, 8px); height: var(--sz, 8px); margin: calc(var(--sz, 8px) / -2); border-radius: 50%; background: var(--no); opacity: .45;
+  animation: flash var(--sweep, 3.2s) linear infinite; animation-delay: var(--d, 0s); cursor: default; }
+.blip.red { background: var(--alert); box-shadow: 0 0 0 3px var(--alert-soft); }
+.blip.kev { --sz: 14px; background: var(--alert); box-shadow: 0 0 0 4px var(--alert-soft); opacity: 1; animation: none; }
+.blip.kev::after { content: ""; position: absolute; inset: -3px; border-radius: 50%; border: 2px solid var(--alert); animation: ping 1.6s ease-out infinite; }
+.blip .lab { position: absolute; left: calc(100% + 8px); top: 50%; transform: translateY(-50%); white-space: nowrap; font-family: var(--mono); font-size: 10.5px; color: var(--alert);
+  background: var(--panel); border: 1px solid var(--alert); border-radius: 4px; padding: 0 6px; pointer-events: none; }
+.blip.left .lab { left: auto; right: calc(100% + 8px); }
+.blip:hover { z-index: 3; outline: 2px solid var(--ink); outline-offset: 2px; }
+@keyframes flash { 0% { opacity: 1; transform: scale(1.5); } 12% { opacity: 1; transform: scale(1); } 70%, 100% { opacity: .35; transform: scale(1); } }
+@keyframes ping { from { transform: scale(1); opacity: .9; } to { transform: scale(2.8); opacity: 0; } }
+.blip.new { animation: pop .5s cubic-bezier(.2,.9,.3,1.4) both, flash var(--sweep, 3.2s) linear infinite .5s; }
+@keyframes pop { from { transform: scale(0); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+.hud { position: absolute; font-size: .66rem; letter-spacing: .12em; text-transform: uppercase; line-height: 1.3; }
+.hud b { display: block; color: var(--ink); font-size: 1.6rem; letter-spacing: .01em; text-transform: none; }
+.hud.tl { left: 0; top: 0; } .hud.tr { right: 0; top: 0; text-align: right; } .hud.bl { left: 0; bottom: 0; } .hud.br { right: 0; bottom: 0; text-align: right; }
+.hud .live { color: var(--alert); } .hud .live::before { content: ""; display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: var(--alert); margin-right: 6px; box-shadow: 0 0 0 3px var(--alert-soft); animation: blink 1.2s steps(2) infinite; }
+@keyframes blink { 50% { opacity: .25; } }
+.hero-radar { padding: 34px 6px; }
+.hero-radar .radar { width: 84%; margin: 0 auto; }
+.ov-side { display: grid; gap: 14px; }
+.ov-radar .radar { width: 78%; margin: 0 auto; }
+.ov-radar .hud b { font-size: 1.3rem; }
+.threat { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 22px; align-items: center; margin-top: 14px; }
+.threat .radar-wrap { max-width: 420px; padding: 26px 0; }
+.legend { display: grid; gap: 8px; margin-top: 12px; font-size: .8rem; color: var(--muted); }
+.legend span { display: flex; align-items: center; gap: 10px; }
+.legend i { width: 10px; height: 10px; border-radius: 50%; flex: none; }
+.near { margin-top: 16px; display: grid; gap: 6px; }
+.near div { display: grid; grid-template-columns: 22px 1fr auto; gap: 10px; align-items: center; padding: 8px 10px; font-size: .78rem; }
+.near .n { font-family: var(--mono); color: var(--muted); }
+.near .c { font-family: var(--mono); color: var(--ink); min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.near .p { font-family: var(--mono); color: var(--alert); font-weight: 600; }
+
+/* logos */
+.logo-mark { flex: none; }
+.logo-mark .lm-sweep { transform-origin: 16px 16px; animation: spin 2.4s linear infinite; }
+.ibm-mark { display: inline-block; vertical-align: middle; }
+.ibm-mark rect { fill: currentColor; }
+.bar-in .ibm-mark { color: var(--ibm); }
+.x-sep { color: var(--muted); font-family: var(--mono); font-size: .8rem; }
+.ibm-badge { position: fixed; right: 16px; bottom: 16px; z-index: 30; display: flex; align-items: center; gap: 12px; padding: 9px 14px 9px 12px; border-radius: 10px; text-decoration: none;
+  background: var(--panel); border: 1px solid var(--line); box-shadow: 0 8px 24px rgba(15,26,42,.14); color: var(--ink); }
+.ibm-badge .ibm-mark { color: var(--ibm); }
+.ibm-badge span { display: grid; font-size: .7rem; line-height: 1.25; color: var(--muted); border-left: 1px solid var(--line); padding-left: 12px; }
+.ibm-badge span b { color: var(--ink); font-weight: 600; font-size: .74rem; }
+.ibm-badge:hover { border-color: var(--ibm); }
+
+/* load splash */
+#splash { position: fixed; inset: 0; z-index: 100; background: var(--bg); background-image: radial-gradient(var(--grid) 1.2px, transparent 1.3px); background-size: 26px 26px;
+  display: grid; place-items: center; transition: opacity .6s ease, visibility .6s; }
+#splash.gone { opacity: 0; visibility: hidden; }
+.sp-in { display: grid; justify-items: center; gap: 24px; }
+#splash .ibm-mark { color: var(--ink); width: min(340px, 70vw); height: auto; animation: tob .5s ease 1.2s forwards; }
+@keyframes tob { to { color: var(--ibm); } }
+#splash .ibm-mark rect { transform: scaleX(0); transform-origin: left center; transform-box: fill-box; animation: stripe .5s cubic-bezier(.7,0,.2,1) forwards; }
+#splash .ibm-mark rect:nth-child(odd) { transform-origin: right center; }
+@keyframes stripe { to { transform: scaleX(1); } }
+.sp-sub { display: flex; align-items: center; gap: 12px; opacity: 0; animation: fadein .5s ease 1.2s forwards; }
+.sp-sub b { font-size: 1.8rem; letter-spacing: .06em; text-transform: uppercase; }
+.sp-line { width: 240px; height: 3px; background: var(--soft); overflow: hidden; border-radius: 2px; opacity: 0; animation: fadein .3s ease 1.4s forwards; }
+.sp-line::after { content: ""; display: block; height: 100%; width: 40%; background: var(--ibm); animation: slide 1s ease-in-out infinite; }
+@keyframes slide { from { transform: translateX(-100%); } to { transform: translateX(250%); } }
+.sp-tag { font-family: var(--mono); font-size: .72rem; color: var(--muted); letter-spacing: .14em; text-transform: uppercase; opacity: 0; animation: fadein .4s ease 1.5s forwards; }
+@media (max-width: 900px) { .threat { grid-template-columns: 1fr; } .ov-list { display: none; } }
+@media (max-width: 560px) { .ibm-badge span { display: none; } .ibm-badge { padding: 8px 10px; } .hud b { font-size: 1.1rem; } }
+@media (prefers-reduced-motion: reduce) { #splash .ibm-mark rect { transform: none; } .sp-sub, .sp-line, .sp-tag { opacity: 1; } .blip { opacity: .8; } }
+.tourlink { margin-top: 14px; font: inherit; font-weight: 600; color: var(--ibm); background: none; border: 1.5px solid var(--ibm); border-radius: 999px; padding: 6px 14px; cursor: pointer }
+.pipeline-link .tourgo { color: var(--ibm); white-space: nowrap }
+</style>
+
+<div id="splash" aria-hidden="true"><div class="sp-in">
+  <svg class="ibm-mark" id="splash-mark" viewBox="0 0 300 120"></svg>
+  <div class="sp-sub"><svg class="logo-mark" width="34" height="34" viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="14.5" style="fill:var(--panel);stroke:var(--ink)" stroke-width="1.5"/><circle cx="16" cy="16" r="9.5" fill="none" style="stroke:var(--ink)" stroke-opacity=".35"/><circle cx="16" cy="16" r="4.5" fill="none" style="stroke:var(--ink)" stroke-opacity=".25"/><path class="lm-sweep" d="M16 16 L16 1.5 A14.5 14.5 0 0 1 28.6 8.8 Z" style="fill:var(--ibm)" fill-opacity=".45"/><circle cx="22.5" cy="10" r="2.4" style="fill:var(--alert)"/><circle cx="16" cy="16" r="1.6" style="fill:var(--ink)"/></svg><b>Breach <em>Radar</em></b></div>
+  <div class="sp-line"></div>
+  <div class="sp-tag">IBM track · Before the Breach · threat scan</div>
+</div></div>
+<a class="ibm-badge" href="https://www.ibm.com/granite" target="_blank" rel="noopener" aria-label="Built for the IBM track"><svg class="ibm-mark" id="badge-mark" width="58" height="23" viewBox="0 0 300 120"></svg><span><b>Built for the IBM track</b>Granite · watsonx</span></a>
+
+<div class="glow" aria-hidden="true"></div>
+<div class="grid-bg" aria-hidden="true"></div>
+
+<header class="bar"><div class="wrap bar-in">
+  <div class="brand"><svg class="logo-mark" width="28" height="28" viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="14.5" style="fill:var(--panel);stroke:var(--ink)" stroke-width="1.5"/><circle cx="16" cy="16" r="9.5" fill="none" style="stroke:var(--ink)" stroke-opacity=".35"/><circle cx="16" cy="16" r="4.5" fill="none" style="stroke:var(--ink)" stroke-opacity=".25"/><path class="lm-sweep" d="M16 16 L16 1.5 A14.5 14.5 0 0 1 28.6 8.8 Z" style="fill:var(--ibm)" fill-opacity=".45"/><circle cx="22.5" cy="10" r="2.4" style="fill:var(--alert)"/><circle cx="16" cy="16" r="1.6" style="fill:var(--ink)"/></svg><b>Breach <em>Radar</em></b><span class="x-sep">×</span><svg class="ibm-mark" id="hdr-mark" width="52" height="21" viewBox="0 0 300 120" role="img" aria-label="IBM"></svg></div>
+  <nav class="nav"><a href="#" data-tour>The model</a><a href="#scan">Scan a repo</a><button type="button" id="theme-btn" aria-label="Toggle light or dark theme">◐</button></nav>
+</div></header>
+
+<main class="wrap">
+  <section class="hero">
+    <div>
+      <div class="eyebrow"><span class="ibmtag">IBM track</span>Repo scanner · the model behind our Top 500</div>
+      <h1>Which of your dependencies will <b>attackers hit next?</b></h1>
+      <p class="lead">Give us a GitHub repo or a lockfile. We find every known CVE in your exact versions, flag the ones already
+        being exploited, and rank the rest by how likely they are to join CISA's exploited list. You get one upgrade per package, in priority order.</p>
+      <div class="trust">
+        <span><svg width="13" height="13" viewBox="0 0 16 16" fill="none"><path d="M8 1l6 2.5v4c0 4-2.7 6.8-6 7.5-3.3-.7-6-3.5-6-7.5v-4L8 1z" stroke="currentColor" stroke-width="1.4"/></svg>Only reads lockfiles</span>
+        <span><svg width="13" height="13" viewBox="0 0 16 16" fill="none"><path d="M3 4h10M6 4V2.5h4V4M4.5 4l.7 9.5h5.6l.7-9.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>Runs in your browser</span>
+        <span><svg width="13" height="13" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.4"/><path d="M8 4.5V8l2.5 1.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>About 10 seconds</span>
+      </div>
+    </div>
+    <div class="radar-wrap hero-radar" aria-label="Animated threat radar">
+      <div class="hud tl">Mode<b>Deps scan</b></div>
+      <div class="hud tr"><span class="live">Live</span><b>OSV · KEV</b></div>
+      <div class="hud bl">Threats<b id="hero-threats">3</b></div>
+      <div class="hud br">Sources<b>6</b></div>
+      <div class="radar" id="hero-radar"></div>
+    </div>
+  </section>
+
+  <div class="section-title"><h2>How a scan works</h2><p>Five steps, each one a stage of the Top 500 pipeline. Click any step for the details.</p></div>
+  <div class="steps" id="steps"></div>
+
+  <div class="section-title" id="scan"><h2>Scan</h2><p>Pick how you want to give us the dependencies.</p></div>
+  <div class="panel">
+    <div class="modes" role="group" aria-label="Input method">
+      <button type="button" class="mode" data-tab="github" aria-pressed="true">
+        <svg width="30" height="30" viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5a11.5 11.5 0 00-3.64 22.41c.58.1.79-.25.79-.56v-2c-3.2.7-3.88-1.37-3.88-1.37-.52-1.33-1.28-1.69-1.28-1.69-1.05-.71.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.24-1.28-5.24-5.68 0-1.26.45-2.28 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.17 1.18a11 11 0 015.77 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.83 1.19 3.09 0 4.41-2.69 5.38-5.25 5.67.41.36.78 1.06.78 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0012 .5z"/></svg>
+        <div><b>GitHub repo</b><span>Paste a public repo link</span></div></button>
+      <button type="button" class="mode" data-tab="drop" aria-pressed="false">
+        <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M14 3H7a2 2 0 00-2 2v14a2 2 0 002 2h10a2 2 0 002-2V8z"/><path d="M14 3v5h5M12 17v-6M9.5 13.5L12 11l2.5 2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <div><b>Upload a lockfile</b><span>package-lock.json or requirements.txt</span></div></button>
+      <button type="button" class="mode" data-tab="paste" aria-pressed="false">
+        <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V3h6v1M8.5 10h7M8.5 13.5h7M8.5 17h4" stroke-linecap="round"/></svg>
+        <div><b>Paste contents</b><span>Copy the file text in</span></div></button>
+    </div>
+
+    <div class="pane" id="tab-github">
+      <div class="gh-row">
+        <span class="mono" style="color:var(--text-3)">github.com/</span>
+        <input type="text" id="github-url" class="gh-input" placeholder="org/repo" autocomplete="off" spellcheck="false">
+      </div>
+      <p class="note">Public repos only. Your browser reads up to 8 <code>package-lock.json</code> /
+        <code>requirements.txt</code> files from the default branch through GitHub's API. Nothing is cloned or stored.</p>
+    </div>
+    <div class="pane" id="tab-drop" hidden>
+      <label class="drop" id="dropzone" tabindex="0">
+        <input type="file" id="file-input" accept=".json,.txt">
+        <svg width="54" height="54" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M7 18a4.5 4.5 0 01-.6-8.96A6 6 0 0118 9a4 4 0 01-1 7.9"/><path d="M12 12v8M9 15l3-3 3 3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <b>Drop your lockfile here</b><span style="font-size:.8rem">or click to pick one</span>
+        <div class="filename" id="filename" hidden></div>
+      </label>
+    </div>
+    <div class="pane" id="tab-paste" hidden>
+      <textarea id="paste" placeholder="Paste the full contents of package-lock.json or requirements.txt"></textarea>
+    </div>
+
+    <div class="examples">
+      <span class="grp">Sheridan Datathon 2026 · public repos</span>
+      <button type="button" class="hot" data-gh="seanyzlee/sheridan-datathon" title="web/package-lock.json · vite 6.0.3: CVE-2025-31125 on CISA KEV · 23 CVEs"><svg width="12" height="12" viewBox="0 0 16 16"><circle cx="8" cy="8" r="6" style="fill:var(--alert)"/></svg>seanyzlee/sheridan-datathon · exploited</button>
+      <button type="button" data-gh="Pranvos/GraniteWall---Sheridan-Datathon-2026" title="285 npm deps · 0 known CVEs"><svg width="12" height="12" viewBox="0 0 16 16"><circle cx="8" cy="8" r="6" style="fill:var(--ok)"/></svg>GraniteWall · clean</button>
+      <button type="button" data-gh="Solarcemir/Sheridan_Datathon_DATACENTERS" title="Our own repo: scans luis/repo_scanner/demo_repo, the mock vulnerable app"><svg width="12" height="12" viewBox="0 0 16 16"><circle cx="8" cy="8" r="6" style="fill:var(--ibm)"/></svg>our repo · demo_repo</button>
+      <span class="grp">IBM open source · archived</span>
+      <button type="button" class="hot" data-gh="IBM/MAX-Object-Detector" title="Pillow 8.3.2: a CVE already on CISA KEV · 266 CVEs"><svg width="12" height="12" viewBox="0 0 16 16"><circle cx="8" cy="8" r="6" style="fill:var(--alert)"/></svg>MAX-Object-Detector · exploited</button>
+      <button type="button" class="hot" data-gh="IBM/MAX-Image-Resolution-Enhancer" title="Pillow 6.2.2: CVE-2023-4863 on CISA KEV · 285 CVEs"><svg width="12" height="12" viewBox="0 0 16 16"><circle cx="8" cy="8" r="6" style="fill:var(--alert)"/></svg>MAX-Image-Resolution-Enhancer · exploited</button>
+      <button type="button" data-gh="IBM/ipfs-social-proof" title="1,506 npm deps · 270 CVEs · 116 high score"><svg width="12" height="12" viewBox="0 0 16 16"><circle cx="8" cy="8" r="6" style="fill:var(--warn-c)"/></svg>ipfs-social-proof · 270 CVEs</button>
+      <button type="button" data-gh="IBM/watson-speech-translator" title="730 npm deps · 145 CVEs · 49 high score"><svg width="12" height="12" viewBox="0 0 16 16"><circle cx="8" cy="8" r="6" style="fill:var(--warn-c)"/></svg>watson-speech-translator · 145 CVEs</button>
+      <button type="button" data-gh="IBM/watson-banking-chatbot" title="333 npm deps · 102 CVEs · 22 high score"><svg width="12" height="12" viewBox="0 0 16 16"><circle cx="8" cy="8" r="6" style="fill:var(--warn-c)"/></svg>watson-banking-chatbot · 102 CVEs</button>
+      <button type="button" data-gh="IBM/data-prep-kit" title="Active repo · 11 CVEs in examples"><svg width="12" height="12" viewBox="0 0 16 16"><circle cx="8" cy="8" r="6" style="fill:var(--ok)"/></svg>data-prep-kit · active</button>
+      <span class="grp">Paste a lockfile</span>
+      <button type="button" data-ex="pip"><svg width="12" height="12" viewBox="0 0 16 16"><circle cx="8" cy="8" r="6" style="fill:var(--ibm)"/></svg>old requirements.txt</button>
+      <button type="button" data-ex="npm"><svg width="12" height="12" viewBox="0 0 16 16"><circle cx="8" cy="8" r="6" style="fill:var(--ibm)"/></svg>old package-lock.json</button>
+    </div>
+
+    <div class="actions">
+      <button type="button" class="scan-btn" id="scan-btn">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4" stroke-linecap="round"/></svg>Scan dependencies</button>
+      <span class="note" style="margin:0">Results show up on this page. Nothing is saved.</span>
+    </div>
+    <div id="error" role="alert"></div>
+  </div>
+
+  <div id="results"></div>
+
+  <a class="pipeline-link" href="#" data-tour>
+    <svg width="54" height="54" viewBox="0 0 54 54" fill="none"><g stroke="#9cbcff" stroke-width="1.5"><circle cx="10" cy="14" r="4"/><circle cx="10" cy="40" r="4"/><circle cx="27" cy="27" r="5"/><circle cx="44" cy="14" r="4"/><circle cx="44" cy="40" r="4"/><path d="M14 15l9 9M14 39l9-9M31 24l9-8M31 30l9 8"/></g></svg>
+    <div><h3>How the model works</h3><p>Zoom out to the whole pipeline: the data, the clues, the three judges and how we picked our Top 500. Every score on this page comes from it.</p></div>
+    <span class="mono tourgo">Take the tour ⤢</span>
+  </a>
+</main>
+
+<footer class="wrap">
+  <div>Scores: our final Top 500 model (decision trees + linear model + fine-tuned IBM Granite 4.2 8B, with IBM Granite 4.2 30B's demotion rules), precomputed from the IBM datathon data only, for every CVE in it.</div>
+  <div>Live lookups, only to find which CVEs apply to you: <a href="https://osv.dev" target="_blank" rel="noopener">OSV.dev</a> (versions → CVEs) and GitHub (lockfiles).</div>
+</footer>
+
+<div id="overlay" aria-live="polite">
+  <div class="ov-in">
+    <div class="ov-stage" id="ov-stage"></div>
+    <div class="ov-side"><div class="radar-wrap ov-radar"><div class="hud tl"><span class="live">Scanning</span></div><div class="hud tr">Hits<b id="ov-hits">0</b></div><div class="radar" id="ov-radar"></div></div><ol class="ov-list" id="ov-list"></ol><div class="ov-bar"><i id="ov-bar"></i></div></div>
+  </div>
+</div>
+<div id="pop" role="dialog" aria-modal="true"><div class="pop-card" id="pop-card"></div></div>
+<div id="tip"></div>
+
+<script>
+(function () {
+  "use strict";
+  var $ = function (s, r) { return (r || document).querySelector(s); };
+  var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
+  /* IBM-style striped wordmark: 8 horizontal stripes clipped to bold "IBM" letters. Built in code, no image file. */
+  function ibmMark(el, uid) {
+    var h = 120, n = 8, gap = h / n, sw = gap * 0.62, rects = "";
+    for (var k = 0; k < n; k++) rects += '<rect x="0" y="' + (k * gap + (gap - sw) / 2).toFixed(2) + '" width="300" height="' + sw.toFixed(2) + '" style="animation-delay:' + (k * 0.09) + 's"/>';
+    el.innerHTML = '<defs><clipPath id="ibmclip' + uid + '"><text x="150" y="111" text-anchor="middle" font-family="IBM Plex Sans, Arial Black, sans-serif" font-weight="700" font-size="150" letter-spacing="2" textLength="296" lengthAdjust="spacingAndGlyphs">IBM</text></clipPath></defs>' +
+      '<g clip-path="url(#ibmclip' + uid + ')">' + rects + "</g>";
+  }
+  (function () {   /* theme toggle: remembered per browser, falls back to the system setting */
+    var root = document.documentElement, key = "br-theme";
+    try { var t = localStorage.getItem(key); if (t) root.setAttribute("data-theme", t); } catch (e) {}
+    document.getElementById("theme-btn").addEventListener("click", function () {
+      var cur = root.getAttribute("data-theme") || (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"), next = cur === "dark" ? "light" : "dark";
+      root.setAttribute("data-theme", next); try { localStorage.setItem(key, next); } catch (e) {}
+    });
+  })();
+  ibmMark(document.getElementById("splash-mark"), "s");
+  ibmMark(document.getElementById("hdr-mark"), "h");
+  ibmMark(document.getElementById("badge-mark"), "b");
+  (function () {   /* splash: stripes draw in, turn IBM blue, then fade once fonts are ready (at least 2.2 s so it's seen) */
+    var t0 = Date.now(), sp = document.getElementById("splash");
+    var go = function () { setTimeout(function () { sp.classList.add("gone"); }, Math.max(0, 2200 - (Date.now() - t0))); };
+    (document.fonts && document.fonts.ready ? document.fonts.ready : Promise.resolve()).then(go, go);
+    sp.addEventListener("click", function () { sp.classList.add("gone"); });
+  })();
+  var esc = function (s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); };
+
+  /* ---- radar component: rings + ticks + rotating sweep; blips flash when the sweep passes their angle ---- */
+  var SWEEP = 3.2;
+  function makeRadar(el) {
+    var t = "";
+    for (var k = 0; k < 72; k++) {
+      var a = k * 5 * Math.PI / 180, r1 = k % 6 ? 95 : 90, r2 = 99;
+      t += '<line x1="' + (100 + r1 * Math.sin(a)).toFixed(1) + '" y1="' + (100 - r1 * Math.cos(a)).toFixed(1) + '" x2="' + (100 + r2 * Math.sin(a)).toFixed(1) + '" y2="' + (100 - r2 * Math.cos(a)).toFixed(1) + '"/>';
+    }
+    el.innerHTML = '<div class="r-rings"></div><svg class="r-ticks" viewBox="0 0 200 200" stroke="currentColor" stroke-width=".8">' + t + '</svg><div class="r-sweep"></div><div class="r-blips"></div><i class="r-core"></i>';
+    return el.querySelector(".r-blips");
+  }
+  function addBlip(layer, angleDeg, r, cls, label, isNew) {
+    var a = angleDeg * Math.PI / 180, b = document.createElement("span");
+    b.className = "blip " + (cls || "") + (isNew ? " new" : "") + (angleDeg > 180 ? " left" : "");
+    b.style.left = (50 + 46 * r * Math.sin(a)) + "%"; b.style.top = (50 - 46 * r * Math.cos(a)) + "%";
+    b.style.setProperty("--d", ((angleDeg / 360) * SWEEP - SWEEP).toFixed(2) + "s");
+    if (label) b.innerHTML = '<span class="lab">' + esc(label) + "</span>";
+    layer.appendChild(b); return b;
+  }
+  function hash(str) { var h = 2166136261; for (var i = 0; i < str.length; i++) { h ^= str.charCodeAt(i); h = Math.imul(h, 16777619); } return (h >>> 0) / 4294967296; }
+
+  var heroL = makeRadar(document.getElementById("hero-radar"));
+  [[38, .28, "kev", "Pillow 6.2.2 · KEV"], [150, .36, "red", ""], [222, .5, "red", "tar-fs 1.16.3"], [300, .22, "red", ""],
+   [80, .62, "", ""], [110, .82, "", ""], [190, .74, "", ""], [262, .88, "", ""], [330, .66, "", ""], [12, .9, "", ""], [170, .58, "", ""], [245, .3, "", ""]]
+    .forEach(function (b) { addBlip(heroL, b[0], b[1], b[2], b[3]); });
+
+  var ovL = makeRadar(document.getElementById("ov-radar")), ovHits = 0;
+  function ovBlips(n) {
+    for (var k = 0; k < n; k++) {
+      var p = Math.random(), hot = p > .75;
+      addBlip(ovL, Math.random() * 360, .15 + Math.random() * .8, hot ? "red" : "", "", true);
+      if (hot) { ovHits++; document.getElementById("ov-hits").textContent = ovHits; }
+    }
+  }
+  function ovReset() { ovL.innerHTML = ""; ovHits = 0; document.getElementById("ov-hits").textContent = "0"; }
+
+  function buildThreatRadar(rows, kev) {
+    var L = makeRadar(document.getElementById("res-radar")), tip = document.getElementById("tip");
+    var items = kev.map(function (r) { return { r: r, kev: true, p: 1 }; }).concat(rows.slice(0, 140).map(function (r) { return { r: r, kev: false, p: r.probability }; }));
+    items.forEach(function (it, i) {
+      var pkg = it.r.packages[0] ? it.r.packages[0].package : "", ang = (hash(pkg) * 360 + (hash(it.r.cve_id) - .5) * 40 + 360) % 360;
+      var dist = it.kev ? .1 + hash(it.r.cve_id) * .1 : .18 + (1 - it.p) * .8;
+      var cls = it.kev ? "kev" : it.p >= .7 && !it.r.demoted ? "red" : "";
+      var label = it.kev ? pkg + " · KEV" : (i === kev.length && cls === "red" ? it.r.cve_id : "");
+      var b = addBlip(L, ang, Math.min(dist, .98), cls, label);
+      if (!cls) b.style.setProperty("--sz", "6px");
+      b.addEventListener("mousemove", function (e) {
+        tip.innerHTML = "<b>" + esc(it.r.cve_id) + "</b> · " + it.r.packages.map(pk).join(", ") + "<br>" + (it.kev ? "on CISA KEV: already exploited" : "score " + it.p.toFixed(3) + " · EPSS " + epssT(it.r));
+        tip.style.display = "block"; tip.style.left = Math.min(e.clientX + 14, innerWidth - 300) + "px"; tip.style.top = (e.clientY + 14) + "px";
+      });
+      b.addEventListener("mouseleave", function () { tip.style.display = "none"; });
+    });
+    var near = items.slice(0, 6);
+    document.getElementById("near").innerHTML = near.map(function (it, i) {
+      return '<div class="' + (it.kev ? "k" : "") + '"><span class="n">' + (i + 1) + '</span><span class="c">' + esc(it.r.cve_id) + " · " + it.r.packages.map(pk).join(", ") + '</span><span class="p">' + (it.kev ? "KEV" : it.p.toFixed(2)) + "</span></div>";
+    }).join("");
+  }
+
+  /* icons (inline SVG, stroke = currentColor) */
+  var I = {
+    clone: '<circle cx="6" cy="6" r="2.5"/><circle cx="6" cy="18" r="2.5"/><circle cx="18" cy="7" r="2.5"/><path d="M6 8.5v7M18 9.5c0 4.5-4 6-9.5 7.5"/>',
+    file: '<path d="M14 2.5H6.5a2 2 0 00-2 2v15a2 2 0 002 2h11a2 2 0 002-2V8z"/><path d="M14 2.5V8h5.5"/><path d="M10 12.5l-2 2.25 2 2.25M14 12.5l2 2.25-2 2.25"/>',
+    match: '<path d="M3 7.5V5a2 2 0 012-2h2.5M16.5 3H19a2 2 0 012 2v2.5M21 16.5V19a2 2 0 01-2 2h-2.5M7.5 21H5a2 2 0 01-2-2v-2.5"/><circle cx="11.5" cy="11.5" r="3.75"/><path d="M14.3 14.3l2.7 2.7"/>',
+    db: '<ellipse cx="12" cy="5.5" rx="7.5" ry="2.75"/><path d="M4.5 5.5v13c0 1.5 3.4 2.75 7.5 2.75s7.5-1.25 7.5-2.75v-13M4.5 12c0 1.5 3.4 2.75 7.5 2.75s7.5-1.25 7.5-2.75"/>',
+    fire: '<path d="M12 21.5a7 7 0 007-7c0-2.6-1.3-4.4-2.6-5.8-.4 1.6-1.3 2.6-2.4 3 .5-3.3-1-6.5-4-8.7.2 3-1.6 4.9-3 6.6A8 8 0 005 14.5a7 7 0 007 7z"/><path d="M12 21.5c-1.7 0-3-1.3-3-3 0-1.9 1.6-2.8 2.4-4.5 1.6 1.1 3.6 2.4 3.6 4.5 0 1.7-1.3 3-3 3z"/>',
+    bug: '<rect x="7" y="7.5" width="10" height="12.5" rx="5"/><path d="M9.5 7.5V6a2.5 2.5 0 015 0v1.5M12 11v9M7 13H3.5M20.5 13H17M7.4 9.6L4.5 7.8M16.6 9.6l2.9-1.8M7.4 17l-2.9 1.8M16.6 17l2.9 1.8"/>',
+    pulse: '<path d="M2.5 12h4l2.5-7 5 14 2.5-7h5"/>',
+    brain: '<rect x="5.5" y="5.5" width="13" height="13" rx="2"/><rect x="9.25" y="9.25" width="5.5" height="5.5" rx="1"/><path d="M9.5 2.5v3M14.5 2.5v3M9.5 18.5v3M14.5 18.5v3M2.5 9.5h3M2.5 14.5h3M18.5 9.5h3M18.5 14.5h3"/>',
+    rank: '<path d="M3.5 3.5v17h17"/><path d="M8 16.5v-4M12.5 16.5V8M17 16.5v-6.5"/>',
+    wrench: '<path d="M14.6 6.4a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.4-3.4a5.75 5.75 0 01-7.6 7.6l-6.6 6.6a2.1 2.1 0 01-3-3l6.6-6.6a5.75 5.75 0 017.6-7.6z"/>',
+    alert: '<path d="M12 21.5s7.5-3.6 7.5-9.5V5.5L12 2.5l-7.5 3V12c0 5.9 7.5 9.5 7.5 9.5z"/><path d="M12 8v4.5M12 16v.01"/>',
+    ok: '<path d="M12 21.5s7.5-3.6 7.5-9.5V5.5L12 2.5l-7.5 3V12c0 5.9 7.5 9.5 7.5 9.5z"/><path d="M8.75 12l2.25 2.25 4.25-4.5"/>',
+    pkg: '<path d="M20.5 16.2V7.8a1.7 1.7 0 00-.85-1.47l-6.8-3.9a1.7 1.7 0 00-1.7 0l-6.8 3.9A1.7 1.7 0 003.5 7.8v8.4a1.7 1.7 0 00.85 1.47l6.8 3.9a1.7 1.7 0 001.7 0l6.8-3.9a1.7 1.7 0 00.85-1.47z"/><path d="M3.8 7L12 11.8 20.2 7M12 21.5v-9.7M7.8 4.6l8.3 4.8"/>',
+    trash: '<path d="M4 6.5h16M9.5 6.5V4h5v2.5M6 6.5l1 14h10l1-14"/>',
+    clock: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.25 2"/>',
+    radar: '<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><path d="M12 12l6.4-6.4"/><circle cx="12" cy="12" r="1.2"/>'
+  };
+  function svg(name, size, color) { return '<svg width="' + size + '" height="' + size + '" viewBox="0 0 24 24" fill="none" stroke="' + (color || "currentColor") + '" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">' + I[name] + "</svg>"; }
+  function tint(c) {   /* c: a token name (ibm / alert / ok / warn) or a legacy hex mapped to one */
+    var m = { "#fa4d56": "alert", "#ff3b47": "alert", "#f1c21b": "warn", "#42be65": "ok", "#ffffff": "ok" }, k = m[c] || c;
+    var fg = { ibm: "var(--ibm)", alert: "var(--alert)", ok: "var(--ok)", warn: "var(--warn-c)" }[k] || "var(--ibm)";
+    var bg = { ibm: "var(--ibm-soft)", alert: "var(--alert-soft)", ok: "color-mix(in srgb, var(--ok) 14%, var(--panel))", warn: "var(--warn-soft)" }[k] || "var(--ibm-soft)";
+    return "background:" + bg + ";color:" + fg + ";border-color:" + fg;
+  }
+
+  /* The five steps: shown on the page, and replayed full-screen during a scan. `file` = the code that runs it,
+     `layer` = the Top 500 pipeline stage it reuses. */
+  var STEPS = [
+    { icon: "file", c: "ibm", t: "Read the lockfile", short: "Exact package versions, nothing else.",
+      big: "Reading your dependency list", text: "We pull out every package name and its exact pinned version. That's all we read, never your source code.",
+      file: "lockfile_parse.py", layer: "Input" },
+    { icon: "match", c: "ibm", t: "Match known CVEs", short: "OSV.dev, version by version.",
+      big: "Matching each version against known vulnerabilities", text: "OSV.dev tells us which CVEs affect exactly the versions you run, and which version fixes each one.",
+      file: "OSV.dev, called from your browser", layer: "Input" },
+    { icon: "bug", c: "alert", t: "Already exploited?", short: "CISA KEV goes straight to the top.",
+      big: "Checking what attackers already use", text: "Anything already on CISA's Known Exploited list goes straight to the top: nothing to predict, patch it first.",
+      file: "CISA KEV, from the dataset", layer: "Exploit signals" },
+    { icon: "brain", c: "ibm", t: "Score with the model", short: "The exact Top 500 model.",
+      big: "Scoring with the model behind our Top 500", text: "Every CVE in the dataset was scored ahead of time by the same three judges and IBM Granite rules that picked our Top 500, so the score you see is that model's verdict.",
+      file: "precomputed: trees + linear + Granite 8B + Granite 30B rules", layer: "Voters" },
+    { icon: "wrench", c: "ok", t: "Rank + upgrade plan", short: "One fix per package, in order.",
+      big: "Building your upgrade plan", text: "We rank every CVE, then combine them per package: the one version upgrade that clears all of them, exploited packages first.",
+      file: "in your browser", layer: "Final ranking" }
+  ];
+  var STEPS_GH = [{ icon: "clone", c: "ibm", t: "Fetch lockfiles", big: "Reading the repository", text: "We list the default branch through GitHub's API and download only its package-lock.json / requirements.txt files. Nothing is cloned or stored.", file: "GitHub API, from your browser", layer: "Input" }].concat(STEPS);
+
+  $("#steps").innerHTML = STEPS.map(function (s, i) {
+    return '<button type="button" class="step" data-step="' + i + '"><span class="num">0' + (i + 1) + '</span>' +
+      '<div class="ico" style="' + tint(s.c) + '">' + svg(s.icon, 22) + "</div><h3>" + esc(s.t) + "</h3><p>" + esc(s.short) + "</p>" +
+      '<span class="layer">pipeline: ' + esc(s.layer) + "</span></button>";
+  }).join("");
+  var STAGE = { "Input": "data", "Exploit signals": "features", "Voters": "voters", "Final ranking": "top500" };
+  $$(".step").forEach(function (b) { b.addEventListener("click", function () { var s = STEPS[+b.dataset.step]; openPop(s.icon, s.c, s.big, s.text, s.file + " · Top 500 stage: " + s.layer);
+    if (window.parent !== window) { var go = document.createElement("button"); go.type = "button"; go.className = "tourlink"; go.textContent = "See this stage in the tour →";
+      go.addEventListener("click", function () { closePop(); toDeck({ go: STAGE[s.layer] }); }); $("#pop-card").appendChild(go); } }); });
+
+  /* popups */
+  var lastFocus = null;
+  function openPop(icon, color, title, text, foot) {
+    lastFocus = document.activeElement;
+    $("#pop-card").innerHTML = '<button class="x" type="button" aria-label="Close">' + '<svg width="14" height="14" viewBox="0 0 16 16"><path d="M3 3l10 10M13 3L3 13" stroke="currentColor" stroke-width="1.6"/></svg></button>' +
+      '<div class="ico" style="' + tint(color) + '">' + svg(icon, 30) + "</div><h3>" + esc(title) + "</h3><p>" + text + "</p>" + (foot ? '<div class="layer">' + esc(foot) + "</div>" : "");
+    $("#pop").classList.add("on"); $(".x", $("#pop")).focus();
+    $(".x", $("#pop")).addEventListener("click", closePop);
+  }
+  function closePop() { $("#pop").classList.remove("on"); if (lastFocus) lastFocus.focus(); }
+  $("#pop").addEventListener("click", function (e) { if (e.target.id === "pop") closePop(); });
+  document.addEventListener("keydown", function (e) { if (e.key === "Escape") closePop(); });
+  var INFO = {
+    radar: ["radar", "alert", "Reading the threat radar", "Every dot is one CVE in your dependencies. Distance from the center is urgency: exploited CVEs sit in the middle, then the model's high scores, then the rest. All CVEs from one package share a direction, so a cluster means one upgrade clears many of them. Hover a dot for details."],
+    funnel: ["rank", "ibm", "From dependencies to what matters", "Most dependencies have no known CVE. Of those that do, only a few are already exploited (on CISA KEV). The model ranks everything in between."],
+    top: ["brain", "ibm", "What the score means", "The same score our Top 500 is built from: three judges (decision trees, a linear model and a fine-tuned IBM Granite 8B) plus IBM Granite 30B's demotion rules, precomputed for every CVE in the dataset as if it were brand new. 0.70 or more means it would rank inside our 2026 Top 500 (the riskiest 0.7% of new bugs). Grey bars were demoted by Granite: only crashes the service, unlikely target, low attacker appeal, or a WordPress add-on."],
+    plan: ["wrench", "ibm", "The upgrade plan", "One line per package: the smallest version that clears every known CVE in it. Red cards contain a CVE that is already exploited, so do those first. If a package has no fix, replace it or isolate it."],
+    ranked: ["pulse", "alert", "Every CVE, ranked", "Pink tags mean public exploit code exists (Exploit-DB, Nuclei templates, GitHub PoCs). EPSS is shown where the dataset has it (2024–26 bugs, as of their first month). Open any row for the reason and the fixed version."]
+  };
+
+  /* input */
+  var EXAMPLES = {
+    npm: { filename: "package-lock.json", content: JSON.stringify({ name: "demo", lockfileVersion: 3, packages: { "": { name: "demo" },
+      "node_modules/lodash": { version: "4.17.4" }, "node_modules/minimist": { version: "0.0.8" }, "node_modules/node-fetch": { version: "2.6.0" }, "node_modules/express": { version: "4.16.0" } } }, null, 2) },
+    pip: { filename: "requirements.txt", content: "Django==1.11.0\nPyYAML==5.1\nPillow==8.2.0\nFlask==0.12\nrequests==2.19.0\nurllib3==1.24.1\nJinja2==2.10\n" },
+    gh: { url: "IBM/MAX-Image-Resolution-Enhancer" }, gh2: { url: "IBM/data-prep-kit" }
+  };
+  var state = { mode: "github", filename: "", content: "", githubUrl: "" };
+  $$(".mode").forEach(function (b) { b.addEventListener("click", function () { selectTab(b.dataset.tab); }); });
+  function selectTab(tab) {
+    state.mode = tab;
+    $$(".mode").forEach(function (x) { x.setAttribute("aria-pressed", x.dataset.tab === tab); });
+    ["github", "drop", "paste"].forEach(function (t) { $("#tab-" + t).hidden = t !== tab; });
+  }
+  var dz = $("#dropzone"), fi = $("#file-input");
+  dz.addEventListener("keydown", function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); fi.click(); } });
+  ["dragenter", "dragover"].forEach(function (ev) { dz.addEventListener(ev, function (e) { e.preventDefault(); dz.classList.add("over"); }); });
+  ["dragleave", "drop"].forEach(function (ev) { dz.addEventListener(ev, function (e) { e.preventDefault(); dz.classList.remove("over"); }); });
+  dz.addEventListener("drop", function (e) { var f = e.dataTransfer.files[0]; if (f) readFile(f); });
+  fi.addEventListener("change", function () { if (fi.files[0]) readFile(fi.files[0]); });
+  function readFile(f) {
+    var r = new FileReader();
+    r.onload = function () { state.filename = f.name; state.content = r.result; $("#filename").hidden = false; $("#filename").textContent = "✓ " + f.name + " · " + f.size.toLocaleString() + " bytes"; };
+    r.readAsText(f);
+  }
+  $("#paste").addEventListener("input", function () { state.filename = ""; state.content = $("#paste").value; });
+  $("#github-url").addEventListener("input", function () { state.githubUrl = $("#github-url").value; });
+  $("#github-url").addEventListener("keydown", function (e) { if (e.key === "Enter") $("#scan-btn").click(); });
+  $$("[data-ex],[data-gh]").forEach(function (b) {
+    b.addEventListener("click", function () {
+      var ex = b.dataset.gh ? { url: b.dataset.gh } : EXAMPLES[b.dataset.ex];
+      if (ex.url) { selectTab("github"); $("#github-url").value = ex.url; state.githubUrl = ex.url; }
+      else { selectTab("paste"); $("#paste").value = ex.content; state.filename = ex.filename; state.content = ex.content; }
+    });
+  });
+
+  function showError(msg) { var el = $("#error"); el.textContent = msg; el.style.display = "block"; }
+  $("#scan-btn").addEventListener("click", function (e) {
+    $("#error").style.display = "none";
+    if (state.mode === "github") { if (!state.githubUrl.trim()) return showError("Type a GitHub repo like org/repo, or click one of the examples."); }
+    else if (!state.content || !state.content.trim()) return showError("Upload a lockfile, paste one, or click an example first.");
+    var r = e.currentTarget.getBoundingClientRect();
+    runScan(r.left + r.width / 2, r.top + r.height / 2);
+  });
+
+  /* overlay walkthrough: each step stays up at least MIN_MS so it can be read; the last step holds until the API answers */
+  var MIN_MS = 2200, ovTimer = null, ovIdx = 0, ovSteps = [];
+  function showStep(i) {
+    ovIdx = i; var s = ovSteps[i];
+    $("#ov-stage").innerHTML = '<div class="fade-in"><div class="ov-icon" style="' + tint(s.c) + '">' + svg(s.icon, 56) + '</div>' +
+      '<div class="ov-count">STEP ' + (i + 1) + " OF " + ovSteps.length + '</div><h2 class="ov-title">' + esc(s.big) + '</h2><p class="ov-text">' + esc(s.text) + "</p>" +
+      '<div class="ov-file"><i></i>' + esc(s.file) + " · pipeline stage: " + esc(s.layer) + "</div></div>";
+    $$("#ov-list li").forEach(function (li, k) { li.className = k < i ? "done" : k === i ? "now" : ""; });
+    $("#ov-bar").style.width = Math.round(100 * i / ovSteps.length) + "%";
+    ovBlips(i === 0 ? 3 : 5);
+  }
+  function openOverlay(x, y, gh) {
+    ovSteps = gh ? STEPS_GH : STEPS;
+    $("#ov-list").innerHTML = ovSteps.map(function (s) { return '<li><span class="st"></span>' + esc(s.t) + "</li>"; }).join("");
+    var ov = $("#overlay"); ov.style.setProperty("--cx", x + "px"); ov.style.setProperty("--cy", y + "px");
+    ov.style.display = "block"; requestAnimationFrame(function () { requestAnimationFrame(function () { ov.classList.add("on"); }); });
+    ovReset(); showStep(0);
+    ovTimer = setInterval(function () { if (ovIdx < ovSteps.length - 1) showStep(ovIdx + 1); }, MIN_MS);
+  }
+  function closeOverlay(done) {
+    clearInterval(ovTimer);
+    var finish = function () {
+      $$("#ov-list li").forEach(function (li) { li.className = "done"; }); $("#ov-bar").style.width = "100%";
+      setTimeout(function () { var ov = $("#overlay"); ov.classList.remove("on"); setTimeout(function () { ov.style.display = "none"; done(); }, 600); }, 450);
+    };
+    /* walk the remaining steps quickly so nothing is skipped silently */
+    (function next() { if (ovIdx < ovSteps.length - 1) { showStep(ovIdx + 1); setTimeout(next, 500); } else finish(); })();
+  }
+
+  /* ===== In-browser scan engine (replaces the Python server). Scores come from scan_data/: the final Top-500 model
+     (trees + unified LR + Granite 8B LoRA, Granite 30B demotion rules), precomputed from the IBM data for every CVE in
+     the dataset. Live calls only find WHICH CVEs apply: GitHub (lockfiles) and OSV.dev (versions -> CVEs). */
+  var META = null, YEARS = {};
+  function getJSON(u, opt) { return fetch(u, opt).then(function (r) { if (!r.ok) throw new Error(u.split("?")[0] + " → HTTP " + r.status); return r.json(); }); }
+  function loadMeta() {   /* scores not built yet -> every CVE shows as "not scored" instead of the scan failing */
+    return META ? Promise.resolve(META) : getJSON("scan_data/meta.json").then(function (m) { META = m; return m; },
+      function () { META = { years: [], cats: { product_type: [], impact: [], typical_attacker: [], attacker_appeal: [] }, top500_min_score: 99.3, missing: true }; return META; });
+  }
+  function loadYears(ids) {
+    var need = {}; ids.forEach(function (c) { var y = c.split("-")[1]; if (!YEARS[y] && META.years.indexOf(y) >= 0) need[y] = 1; });
+    return Promise.all(Object.keys(need).map(function (y) { return getJSON("scan_data/" + y + ".json").then(function (d) { YEARS[y] = d; }); }));
+  }
+  function rec(cve) { var p = cve.split("-"), d = YEARS[p[1]]; return d ? d[p[2]] || null : null; }
+  function pool(items, n, fn) {   /* run fn over items with at most n in flight */
+    var out = new Array(items.length), i = 0;
+    function next() { if (i >= items.length) return Promise.resolve(); var k = i++; return fn(items[k]).then(function (v) { out[k] = v; }, function () { out[k] = null; }).then(next); }
+    var w = []; for (var j = 0; j < Math.min(n, items.length); j++) w.push(next());
+    return Promise.all(w).then(function () { return out; });
+  }
+  var PIP = /^\s*([A-Za-z0-9][A-Za-z0-9_.\-]*)\s*==\s*([0-9][0-9A-Za-z.\-+_!]*)/;
+  function parseLock(filename, text) {
+    var name = (filename || "").toLowerCase(), deps = {};
+    if (/package-lock\.json$/.test(name) || (/^\s*\{/.test(text) && text.indexOf('"lockfileVersion"') >= 0)) {
+      var data = JSON.parse(text);
+      if (data.packages) Object.keys(data.packages).forEach(function (p) { var info = data.packages[p]; if (p && info.version) deps[p.split("node_modules/").pop()] = info.version; });
+      else (function walk(node) { Object.keys(node || {}).forEach(function (k) { var info = node[k]; if (info.version) deps[k] = info.version; if (info.dependencies) walk(info.dependencies); }); })(data.dependencies);
+      return { eco: "npm", deps: deps };
+    }
+    text.split(/\r?\n/).forEach(function (line) { line = line.split("#")[0].trim(); if (!line || line[0] === "-") return; var m = PIP.exec(line); if (m) deps[m[1]] = m[2]; });
+    if (Object.keys(deps).length) return { eco: "PyPI", deps: deps };
+    throw new Error("Unrecognized lockfile. This build reads package-lock.json (npm) and requirements.txt (PyPI, pinned versions only).");
+  }
+  function vkey(s) { var n = (String(s).match(/\d+/g) || []).slice(0, 4).map(Number); while (n.length < 4) n.push(0); return n; }
+  function vcmp(a, b) { var x = vkey(a), y = vkey(b); for (var i = 0; i < 4; i++) if (x[i] !== y[i]) return x[i] - y[i]; return 0; }
+  function lowestFixAbove(installed, fixes) { var above = fixes.filter(function (f) { return vcmp(f, installed) > 0; }); return above.length ? above.sort(vcmp)[0] : null; }
+  var OSV_CACHE = {};
+  function osvVuln(id) {
+    if (OSV_CACHE[id]) return OSV_CACHE[id];
+    return (OSV_CACHE[id] = getJSON("https://api.osv.dev/v1/vulns/" + encodeURIComponent(id)).then(function (v) {
+      if (v.withdrawn) return null;
+      var cve = /^CVE-\d{4}-\d+$/.test(v.id) ? v.id : (v.aliases || []).filter(function (a) { return /^CVE-\d{4}-\d+$/.test(a); })[0];
+      if (!cve) return null;
+      var fixed = {};
+      (v.affected || []).forEach(function (a) { var pk = ((a.package || {}).name || "").toLowerCase();
+        (a.ranges || []).forEach(function (r) { (r.events || []).forEach(function (e) { if (e.fixed) (fixed[pk] = fixed[pk] || []).push(e.fixed); }); }); });
+      return { cve_id: cve, summary: v.summary || (v.details || "").slice(0, 300), published: v.published || "", fixed: fixed };
+    }));
+  }
+  function osvBatch(deps, eco) {
+    var items = Object.keys(deps).map(function (n) { return [n, deps[n]]; }), chunks = [];
+    for (var i = 0; i < items.length; i += 500) chunks.push(items.slice(i, i + 500));
+    return Promise.all(chunks.map(function (ch) {
+      return getJSON("https://api.osv.dev/v1/querybatch", { method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ queries: ch.map(function (x) { return { package: { name: x[0], ecosystem: eco }, version: x[1] }; }) }) })
+        .then(function (j) { return ch.map(function (x, k) { return [x[0], x[1], ((j.results || [])[k] || {}).vulns || []]; }); });
+    })).then(function (parts) {
+      var pairs = [].concat.apply([], parts), ids = [];
+      pairs.forEach(function (p) { p[2].forEach(function (v) { ids.push(v.id); }); });
+      var uniq = ids.filter(function (x, i) { return ids.indexOf(x) === i; });
+      return pool(uniq, 16, osvVuln).then(function (recs) {
+        var byId = {}; uniq.forEach(function (id, i) { byId[id] = recs[i]; });
+        var out = {};
+        pairs.forEach(function (p) {
+          out[p[0]] = out[p[0]] || [];
+          p[2].forEach(function (v) { var r = byId[v.id]; if (!r) return;
+            var fx = r.fixed[p[0].toLowerCase()] || [].concat.apply([], Object.keys(r.fixed).map(function (k) { return r.fixed[k]; }));
+            out[p[0]].push({ cve_id: r.cve_id, summary: r.summary, published: r.published, fixed_in: lowestFixAbove(p[1], fx) }); });
+        });
+        return out;
+      });
+    });
+  }
+  var HUMAN = { remote_code_execution: "remote code execution", authentication_bypass: "authentication bypass", privilege_escalation: "privilege escalation",
+    sensitive_data_disclosure: "data disclosure", file_write_or_upload: "file write / upload", client_side_script_injection: "script injection (XSS)",
+    denial_of_service: "denial of service", ransomware_or_extortion_groups: "ransomware gangs", state_sponsored_espionage: "state-sponsored spies",
+    botnets: "botnets", opportunistic_criminals: "opportunistic criminals", unlikely_target: "unlikely target" };
+  var hum = function (s) { return HUMAN[s] || String(s || "").replace(/_/g, " "); };
+  function cat(r, k, i) { var v = r[i]; return v >= 0 ? META.cats[k][v] : null; }
+  function toProb(score) { var t = META.top500_min_score / 100, k = Math.log(0.7) / Math.log(t); return Math.max(0, Math.min(1, Math.pow(Math.max(score, 0) / 100, k))); }
+  function reasonFor(r) {
+    var s = r[0] / 10, parts = [], code = [], imp = cat(r, "impact", 6), att = cat(r, "typical_attacker", 8), app = cat(r, "attacker_appeal", 9);
+    parts.push((r[1] & 1 ? "Would make our 2026 Top 500: " : "") + "riskier than " + Math.floor(s) + "% of 2026's new bugs");
+    parts.push("judges: trees " + r[3] + " · linear " + r[4] + " · Granite 8B " + r[5]);
+    if (imp && imp !== "other") parts.push("Granite reads it as " + hum(imp) + (att && att !== "unlikely_target" ? ", typically hit by " + hum(att) : ""));
+    if (app === "high") parts.push("high attacker appeal");
+    [["Exploit-DB", 8], ["Metasploit", 16], ["Nuclei", 32], ["GitHub PoC", 64]].forEach(function (f) { if (r[1] & f[1]) code.push(f[0]); });
+    if (code.length) parts.push("public exploit code in its first month (" + code.join(", ") + ")");
+    return parts.join("; ") + ".";
+  }
+  function demotedWhy(r) {
+    var w = [];
+    if (cat(r, "impact", 6) === "denial_of_service") w.push("only crashes the service");
+    if (cat(r, "typical_attacker", 8) === "unlikely_target") w.push("unlikely target");
+    if (cat(r, "attacker_appeal", 9) === "low") w.push("low attacker appeal");
+    if (cat(r, "product_type", 7) === "wordpress_plugin_or_theme") w.push("WordPress add-on");
+    return "Granite: " + (w.join(", ") || "demoted");
+  }
+  function scanLockfile(filename, text) {
+    var t0 = Date.now(), lf = parseLock(filename, text);
+    return Promise.all([loadMeta(), osvBatch(lf.deps, lf.eco)]).then(function (res) {
+      var osv = res[1], cves = {};
+      Object.keys(osv).forEach(function (name) { osv[name].forEach(function (v) {
+        var e = cves[v.cve_id] = cves[v.cve_id] || { v: v, pk: {} }, key = name + "@" + lf.deps[name];
+        if (!e.pk[key] || (!e.pk[key].fixed_in && v.fixed_in)) e.pk[key] = { package: name, version: lf.deps[name], fixed_in: v.fixed_in };
+      }); });
+      var ids = Object.keys(cves);
+      return loadYears(ids).then(function () {
+        var kev = [], rows = [], unscored = 0;
+        ids.forEach(function (id) {
+          var e = cves[id], pkgs = Object.keys(e.pk).map(function (k) { return e.pk[k]; }), r = rec(id), base = { cve_id: id, packages: pkgs, published: String(e.v.published).slice(0, 10), description: e.v.summary };
+          if (r && (r[1] & 4)) { kev.push(base); return; }
+          if (!r || r[0] < 0) { unscored++; rows.push(Object.assign(base, { score: -1, probability: 0, epss: null, flags: {}, demoted: false, demoted_reason: "",
+            reason: META.missing ? "Model scores are still being published; check back shortly." : "Not in the IBM dataset (published after the snapshot), so the model has no score for it yet.", unscored: true })); return; }
+          var p = toProb(r[0] / 10), dem = !!(r[1] & 2);
+          rows.push(Object.assign(base, { score: r[0] / 10 - (dem ? 50 : 0), probability: dem ? Math.min(p, 0.05) : p, epss: r[2] >= 0 ? r[2] / 1000 : null,
+            flags: { exploitdb: !!(r[1] & 8), metasploit: !!(r[1] & 16), nuclei: !!(r[1] & 32), poc_github: !!(r[1] & 64) },
+            demoted: dem, demoted_reason: dem ? demotedWhy(r) : "", reason: reasonFor(r), top500: !!(r[1] & 1) }));
+        });
+        rows.sort(function (a, b) { return b.score - a.score; });
+        rows.forEach(function (r, i) { r.rank = i + 1; });
+        return { ecosystem: lf.eco, elapsed_s: Math.round((Date.now() - t0) / 100) / 10,
+          summary: { dependencies: Object.keys(lf.deps).length, dependencies_with_cves: Object.keys(osv).filter(function (n) { return osv[n].length; }).length,
+            cves_found: ids.length, already_in_kev: kev.length, scored: rows.length - unscored, unscored: unscored, demoted: rows.filter(function (r) { return r.demoted; }).length },
+          already_in_kev: kev, rows: rows, upgrade_plan: upgradePlan(rows, kev) };
+      });
+    });
+  }
+  function upgradePlan(rows, kevRows) {
+    var plan = {};
+    rows.map(function (r) { return [r, false]; }).concat(kevRows.map(function (r) { return [r, true]; })).forEach(function (x) {
+      var row = x[0], onKev = x[1];
+      row.packages.forEach(function (p) {
+        var k = p.package + "@" + p.version, e = plan[k] = plan[k] || { package: p.package, version: p.version, cves: 0, on_kev: 0, top_probability: 0, top_cve: null, fixes: [], unfixed: [], source_lockfile: row.source_lockfile };
+        e.cves++; e.on_kev += onKev ? 1 : 0;
+        var prob = onKev ? 1 : row.probability || 0;
+        if (prob >= e.top_probability) { e.top_probability = prob; e.top_cve = row.cve_id; }
+        (p.fixed_in ? e.fixes : e.unfixed).push(p.fixed_in || row.cve_id);
+      });
+    });
+    return Object.keys(plan).map(function (k) { var e = plan[k]; e.upgrade_to = e.cves > e.unfixed.length ? e.fixes.sort(vcmp).pop() : null; delete e.fixes; return e; })
+      .sort(function (a, b) { return (b.on_kev - a.on_kev) || (b.top_probability - a.top_probability) || (b.cves - a.cves); });
+  }
+  function scanGithub(input) {
+    var m = String(input).trim().replace(/^https?:\/\//, "").replace(/^github\.com\//, "").replace(/\.git$/, "").replace(/\/+$/, "").match(/^([\w.-]+)\/([\w.-]+)/);
+    if (!m) return Promise.reject(new Error('Expected a GitHub repo: "org/repo" or a github.com link.'));
+    var repo = m[1] + "/" + m[2], t0 = Date.now(), branch;
+    return getJSON("https://api.github.com/repos/" + repo).then(function (info) {
+      branch = info.default_branch;
+      return getJSON("https://api.github.com/repos/" + repo + "/git/trees/" + encodeURIComponent(branch) + "?recursive=1");
+    }).then(function (tree) {
+      var files = (tree.tree || []).filter(function (f) { return f.type === "blob" && /(^|\/)(package-lock\.json|requirements\.txt)$/.test(f.path) && !/node_modules\//.test(f.path); })
+        .map(function (f) { return f.path; }).slice(0, 8);
+      if (!files.length) throw new Error("No package-lock.json or requirements.txt found in " + repo + " (default branch).");
+      return pool(files, 4, function (path) {
+        return fetch("https://raw.githubusercontent.com/" + repo + "/" + encodeURIComponent(branch) + "/" + path.split("/").map(encodeURIComponent).join("/"))
+          .then(function (r) { return r.text(); }).then(function (text) { return scanLockfile(path, text).then(function (res) { return { path: path, res: res }; }, function () { return null; }); });
+      });
+    }).then(function (per) {
+      per = per.filter(Boolean);
+      var rows = [], kev = [], seen = {};
+      per.forEach(function (f) { f.res.rows.forEach(function (r) { r.source_lockfile = f.path; rows.push(r); }); f.res.already_in_kev.forEach(function (r) { r.source_lockfile = f.path; kev.push(r); }); });
+      rows.sort(function (a, b) { return b.score - a.score; }); rows.forEach(function (r, i) { r.rank = i + 1; });
+      var sum = function (k) { return per.reduce(function (a, f) { return a + (f.res.summary[k] || 0); }, 0); };
+      return { repo: repo, lockfiles_found: per.map(function (f) { return f.path; }), elapsed_s: Math.round((Date.now() - t0) / 100) / 10,
+        summary: { dependencies: sum("dependencies"), dependencies_with_cves: sum("dependencies_with_cves"), cves_found: sum("cves_found"), already_in_kev: kev.length,
+          scored: rows.length, demoted: rows.filter(function (r) { return r.demoted; }).length, lockfiles: per.length },
+        already_in_kev: kev, rows: rows, upgrade_plan: upgradePlan(rows, kev) };
+    });
+  }
+  /* the outer deck listens for these */
+  function toDeck(msg) { if (window.parent !== window) window.parent.postMessage(Object.assign({ kevcast: 1 }, msg), "*"); }
+
+  function runScan(x, y) {
+    var gh = state.mode === "github";
+    $("#scan-btn").disabled = true; $("#results").style.display = "none";
+    openOverlay(x, y, gh);
+    var t0 = Date.now();
+    var job; try { job = gh ? scanGithub(state.githubUrl) : scanLockfile(state.filename, state.content); } catch (err) { job = Promise.reject(err); }
+    job.then(function (res) { after(function () { render(res); }); })
+      .catch(function (err) { after(function () { showError("Scan failed: " + err.message); }); });
+    function after(fn) {
+      var wait = Math.max(0, MIN_MS * 2 - (Date.now() - t0));
+      setTimeout(function () { closeOverlay(function () { $("#scan-btn").disabled = false; fn(); }); }, wait);
+    }
+  }
+
+  /* results */
+  var FLAG_NAMES = [["exploitdb", "Exploit-DB"], ["nuclei", "Nuclei"], ["poc_github", "GitHub PoC"], ["metasploit", "Metasploit"]];
+  function probColor(p) { return p >= 0.7 ? "var(--alert)" : p >= 0.4 ? "var(--warn-c)" : "var(--ibm)"; }
+  function pk(p) { return esc(p.package) + "@" + esc(p.version); }
+  function info(key) { return '<button type="button" class="info" data-info="' + key + '" aria-label="What is this?">?</button>'; }
+
+  function render(d) {
+    var s = d.summary, plan = d.upgrade_plan || [], rows = d.rows, kev = d.already_in_kev;
+    var hot = rows.filter(function (r) { return r.probability >= 0.7 && !r.demoted; });
+    var v, html = "";
+    if (kev.length) {
+      var kp = plan.filter(function (e) { return e.on_kev; })[0];
+      v = { cls: "bad", icon: "alert", c: "#fa4d56", label: "Patch now",
+        h: kev.length + " CVE" + (kev.length > 1 ? "s" : "") + " in your dependencies " + (kev.length > 1 ? "are" : "is") + " already being exploited",
+        p: kp ? "Start with " + esc(kp.package) + " " + esc(kp.version) + (kp.upgrade_to ? " → " + esc(kp.upgrade_to) : " (no fix published: replace or isolate it)") + ". Then work down the plan below." : "See the exploited list below." };
+    } else if (hot.length) {
+      v = { cls: "warn", icon: "fire", c: "#f1c21b", label: "Watch closely",
+        h: "Nothing exploited yet, but " + hot.length + " CVE" + (hot.length > 1 ? "s look" : " looks") + " like the ones that get exploited",
+        p: plan.length ? "Top action: " + esc(plan[0].package) + (plan[0].upgrade_to ? " → " + esc(plan[0].upgrade_to) : " (no fix: replace it)") + "." : "" };
+    } else if (rows.length) {
+      v = { cls: "good", icon: "ok", c: "#42be65", label: "Low risk", h: "No exploited CVEs and nothing scores high", p: rows.length + " known CVE" + (rows.length > 1 ? "s" : "") + ", all low priority. A routine dependency bump covers them." };
+    } else {
+      v = { cls: "good", icon: "ok", c: "#42be65", label: "Clean", h: "No known CVEs in these dependency versions", p: "Checked " + s.dependencies + " dependencies against OSV.dev." };
+    }
+    html += '<section class="verdict ' + v.cls + ' fade-in"><div class="big-ico" style="' + tint(v.c) + '">' + svg(v.icon, 44) + '</div><div>' +
+      '<div class="label">' + v.label + "</div><h2>" + v.h + "</h2><p>" + v.p + "</p>" +
+      (d.repo ? '<div class="repo-line">' + esc(d.repo) + " · " + d.lockfiles_found.length + " lockfile" + (d.lockfiles_found.length === 1 ? "" : "s") + ": " + d.lockfiles_found.map(esc).join(", ") + "</div>" : "") +
+      "</div></section>";
+
+    html += '<div class="kpis">' + kpi("pkg", s.dependencies, "dependencies") + kpi("match", s.cves_found, "CVEs found") +
+      kpi("alert", s.already_in_kev, "already exploited", s.already_in_kev ? "bad" : "") + kpi("fire", hot.length, "Top-500 level") +
+      kpi("wrench", plan.length, "packages to upgrade") + kpi("clock", d.elapsed_s + "s", "scan time") + "</div>";
+    html += '<div class="card threat"><div class="radar-wrap"><div class="hud tl"><span class="live">Threat map</span></div><div class="hud tr">Plotted<b>' + (kev.length + Math.min(rows.length, 140)) + '</b></div>' +
+      '<div class="hud bl">Exploited<b style="color:var(--alert)">' + kev.length + '</b></div><div class="hud br">High<b>' + hot.length + '</b></div><div class="radar" id="res-radar"></div></div>' +
+      '<div><div class="card-h">' + svg("radar", 18) + "<h3>Threat radar</h3>" + info("radar") + '</div><p class="sub">Your repo is the center. The closer a dot, the more urgent the CVE. Each package keeps its own direction.</p>' +
+      '<div class="legend"><span><i style="background:var(--alert);box-shadow:0 0 0 3px var(--alert-soft)"></i>Already exploited (CISA KEV)</span><span><i style="background:var(--alert)"></i>Top-500 level score</span><span><i style="background:var(--no)"></i>Lower score</span></div>' +
+      '<div class="near" id="near"></div></div></div>';
+
+    /* funnel + top 10 */
+    var depsWith = s.dependencies_with_cves != null ? s.dependencies_with_cves : plan.length;
+    var fmax = Math.max(s.dependencies, s.cves_found, 1);
+    var fun = [["Dependencies", s.dependencies, "var(--no)"], ["With a CVE", depsWith, "var(--ink)"], ["CVEs found", s.cves_found, "var(--ibm)"],
+               ["Top-500 level", hot.length, "var(--warn-c)"], ["Exploited (KEV)", kev.length, "var(--alert)"]];
+    html += '<div class="two"><div class="card"><div class="card-h">' + svg("rank", 18) + "<h3>What we found</h3>" + info("funnel") + '</div><p class="sub">From everything you depend on down to what\'s urgent.</p><div class="funnel">' +
+      fun.map(function (f) { return '<div class="fn-row"><span>' + f[0] + '</span><div class="fn-bar"><i data-w="' + Math.max(f[1] ? 2 : 0, 100 * f[1] / fmax) + '" style="background:' + f[2] + '"></i></div><b>' + f[1] + "</b></div>"; }).join("") + "</div></div>";
+    var top = rows.slice(0, 10);
+    html += '<div class="card"><div class="card-h">' + svg("brain", 18) + "<h3>Top " + top.length + " by model score</h3>" + info("top") + '</div><p class="sub">Our Top-500 model\'s score. 0.70+ means it would make our 2026 Top 500.</p><div class="tbars">' +
+      (top.length ? top.map(function (r, i) {
+        return '<div class="tb' + (r.demoted ? " dem" : "") + '" data-i="' + i + '"><span class="id">' + esc(r.cve_id) + '</span><div class="tr"><i data-w="' + (100 * r.probability) + '"></i></div><span class="v">' + r.probability.toFixed(2) + "</span></div>";
+      }).join("") : '<p class="sub">Nothing to score.</p>') + "</div></div></div>";
+
+    /* upgrade plan */
+    if (plan.length) {
+      html += '<div class="card" style="margin-top:14px"><div class="card-h">' + svg("wrench", 18) + "<h3>Your upgrade plan</h3>" + info("plan") + '</div><p class="sub">Do these in order. Each upgrade clears every known CVE in that package.</p><div class="plan">' +
+        plan.map(function (e, i) {
+          var c = e.on_kev ? "var(--bad)" : probColor(e.top_probability);
+          return '<div class="pl' + (e.on_kev ? " kev" : "") + '"><span class="pri" style="color:' + (e.on_kev ? "#ff9aa0" : "var(--text-3)") + '">' + (e.on_kev ? "EXPLOITED" : "#" + (i + 1)) + "</span>" +
+            '<div class="pkg">' + esc(e.package) + "</div>" +
+            '<div class="ver"><span class="old">' + esc(e.version) + "</span>→" + (e.upgrade_to ? '<span class="new">' + esc(e.upgrade_to) + "</span>" : '<span style="color:var(--warn)">no fix: replace</span>') + "</div>" +
+            '<div class="meter"><i style="width:' + (100 * e.top_probability) + "%;background:" + c + '"></i></div>' +
+            '<div class="meta">' + e.cves + " CVE" + (e.cves === 1 ? "" : "s") + " · top score " + e.top_probability.toFixed(2) + (e.unfixed && e.unfixed.length && e.upgrade_to ? " · " + e.unfixed.length + " still unfixed" : "") + "</div></div>";
+        }).join("") + "</div></div>";
+    }
+
+    /* exploited + ranked */
+    html += '<div class="card" style="margin-top:14px"><div class="card-h">' + svg("pulse", 18) + "<h3>Every CVE, ranked</h3>" + info("ranked") + '</div><p class="sub">Already-exploited first, then by model score. Open a row for the reason and the fix.</p>';
+    kev.forEach(function (r) {
+      html += '<details class="cve kev"><summary><span class="rk" style="color:var(--bad)">' + svg("alert", 16) + '</span><div class="mid"><div class="top"><span class="cid">' + esc(r.cve_id) + '</span><span class="chip red">ON CISA KEV</span>' +
+        r.packages.map(function (p) { return '<span class="chip">' + pk(p) + "</span>"; }).join("") + (r.source_lockfile ? '<span class="chip src">' + esc(r.source_lockfile) + "</span>" : "") +
+        '</div></div><div class="prob"><b style="color:var(--bad)">exploited</b><span>patch first</span></div></summary><div class="body"><p>Already exploited in the wild, so there is nothing to predict. Patch it first.</p>' +
+        fixLine(r.packages) + "</div></details>";
+    });
+    html += '<div id="ranked"></div>' + (rows.length > 25 ? '<button type="button" class="more" id="more">Show all ' + rows.length + "</button>" : "") +
+      (!rows.length && !kev.length ? '<p class="sub">No CVEs to rank.</p>' : "") + "</div>";
+
+    $("#results").innerHTML = html;
+    $("#results").style.display = "block";
+    buildThreatRadar(rows, kev);
+    renderRows(rows.slice(0, 25));
+    if ($("#more")) $("#more").addEventListener("click", function () { renderRows(rows); this.remove(); });
+    $$(".info").forEach(function (b) { b.addEventListener("click", function () { var x = INFO[b.dataset.info]; openPop(x[0], x[1], x[2], x[3]); }); });
+    requestAnimationFrame(function () { setTimeout(function () { $$("[data-w]").forEach(function (el) { el.style.width = el.dataset.w + "%"; }); }, 60); });
+    /* tooltip on top bars */
+    var tip = $("#tip");
+    $$(".tb").forEach(function (el) {
+      var r = top[+el.dataset.i];
+      el.addEventListener("mousemove", function (e) {
+        tip.innerHTML = "<b>" + esc(r.cve_id) + "</b> · " + r.packages.map(pk).join(", ") + "<br>score " + r.probability.toFixed(3) + " · EPSS " + epssT(r) + (r.demoted ? "<br>demoted: " + esc(r.demoted_reason) : "");
+        tip.style.display = "block"; tip.style.left = Math.min(e.clientX + 14, innerWidth - 300) + "px"; tip.style.top = (e.clientY + 14) + "px";
+      });
+      el.addEventListener("mouseleave", function () { tip.style.display = "none"; });
+    });
+    $("#results").scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  $$("[data-tour]").forEach(function (a) { a.addEventListener("click", function (e) { e.preventDefault(); if (window.parent !== window) toDeck({ tour: 1 }); }); });
+  function epssT(r) { return r.epss == null ? "n/a" : r.epss.toFixed(3); }
+  function fixLine(pkgs) {
+    var f = pkgs.filter(function (p) { return p.fixed_in; });
+    return f.length ? '<div class="fix">Fix: upgrade to ' + f.map(function (p) { return esc(p.package) + "@" + esc(p.fixed_in); }).join(", ") + "</div>" : '<div class="fix" style="color:var(--warn)">No fixed version published.</div>';
+  }
+  function renderRows(list) {
+    $("#ranked").innerHTML = list.map(function (r) {
+      var c = r.demoted ? "#7c7c90" : probColor(r.probability);
+      return '<details class="cve"><summary><span class="rk">' + r.rank + '</span><div class="mid"><div class="top"><span class="cid">' + esc(r.cve_id) + "</span>" +
+        r.packages.map(function (p) { return '<span class="chip">' + pk(p) + "</span>"; }).join("") +
+        (r.demoted ? '<span class="chip dim">' + esc(r.demoted_reason) + "</span>" : "") + (r.source_lockfile ? '<span class="chip src">' + esc(r.source_lockfile) + "</span>" : "") +
+        '</div><div class="flags">' + FLAG_NAMES.filter(function (f) { return f[0] !== "metasploit" || r.flags.metasploit; }).map(function (f) { return '<span class="flag' + (r.flags[f[0]] ? " on" : "") + '">' + f[1] + "</span>"; }).join("") +
+        '<span class="flag">EPSS ' + epssT(r) + "</span></div></div>" +
+        '<div class="prob"><b style="color:' + c + '">' + r.probability.toFixed(2) + '</b><div class="meter"><i style="width:' + (100 * r.probability) + "%;background:" + c + '"></i></div><span>' + (r.unscored ? "not in dataset" : r.top500 ? "Top-500 level" : "model score") + '</span></div></summary>' +
+        '<div class="body"><p>' + esc(r.reason) + "</p>" + fixLine(r.packages) + '<p class="desc">' + esc(r.description) + "</p></div></details>";
+    }).join("");
+  }
+  function kpi(icon, val, label, cls) { return '<div class="kpi' + (cls ? " " + cls : "") + '">' + svg(icon, 18) + "<b>" + val + "</b><span>" + label + "</span></div>"; }
+})();
+</script>

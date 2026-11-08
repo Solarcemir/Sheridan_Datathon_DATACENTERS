@@ -36,13 +36,15 @@ def load_target(name: str) -> pd.DataFrame:
         return hist[hist.snapshot_month.between("2024-01", "2024-12")]
     if name == "scoreboard":
         return prompts.add_epss_percentile(pd.read_parquet(PROC / "scoreboard_2026_view.parquet"))
+    if name == "allcves":   # repo-scanner lookup table: every other CVE (scripts/all_cves.py)
+        return prompts.add_epss_percentile(pd.read_parquet(PROC / "allcves_view.parquet"))
     raise ValueError(name)
 
 
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--mode", choices=["zero", "many"], required=True)
-    ap.add_argument("--target", choices=["holdout", "val2024", "all2024", "scoreboard", "ids"], default="holdout")
+    ap.add_argument("--target", choices=["holdout", "val2024", "all2024", "scoreboard", "allcves", "ids"], default="holdout")
     ap.add_argument("--model", default="ibm-granite/granite-4.2-30b")
     ap.add_argument("--shots-file", help="parquet from select_shots.py (required for --mode many)")
     ap.add_argument("--seed", type=int, default=0)

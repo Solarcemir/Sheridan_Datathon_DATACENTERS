@@ -29,7 +29,7 @@ import os as _os
 
 def _both(proc, name: str) -> pd.DataFrame:
     """Historical + scoreboard versions of a per-CVE table (CVE ids don't overlap)."""
-    parts = [proc / f"{name}_historical.parquet", proc / f"{name}_scoreboard.parquet"]
+    parts = [proc / f"{name}_historical.parquet", proc / f"{name}_scoreboard.parquet", proc / f"{name}_allcves.parquet"]
     return pd.concat([pd.read_parquet(x) for x in parts if x.exists()], ignore_index=True).drop_duplicates("cve_id")
 
 FORWARD = _os.environ.get("CV_FORWARD") == "1"
@@ -165,8 +165,9 @@ LUIS_SIB = ["n_same_day", "sib_flags", "sib_max_epss_pct", "n_adjacent_ids"]
 
 def luis_feats(h: pd.DataFrame, cols=None) -> pd.DataFrame:
     """Luis's safe features from his shared Parquet (txt_in_wild and the hidden-KEV columns dropped)."""
+    extra = [pd.read_parquet(PROC / "luis_feat_allcves.parquet")] if (PROC / "luis_feat_allcves.parquet").exists() else []
     f = pd.concat([pd.read_parquet(LUIS_DIR / "luis_features_hist_2024_2025.parquet"),
-                   pd.read_parquet(LUIS_DIR / "luis_features_scoreboard_2026.parquet")]).drop_duplicates("cve_id")
+                   pd.read_parquet(LUIS_DIR / "luis_features_scoreboard_2026.parquet")] + extra).drop_duplicates("cve_id")
     f = f.set_index("cve_id").reindex(h.cve_id)
     cols = cols or [c for c in f.columns if c not in LUIS_DROP]
     X = f[cols].astype(float)

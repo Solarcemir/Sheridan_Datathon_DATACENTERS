@@ -19,7 +19,7 @@ from sklearn.preprocessing import StandardScaler
 
 def _both(proc, name: str) -> pd.DataFrame:
     """Historical + scoreboard versions of a per-CVE table (CVE ids don't overlap)."""
-    parts = [proc / f"{name}_historical.parquet", proc / f"{name}_scoreboard.parquet"]
+    parts = [proc / f"{name}_historical.parquet", proc / f"{name}_scoreboard.parquet", proc / f"{name}_allcves.parquet"]
     return pd.concat([pd.read_parquet(x) for x in parts if x.exists()], ignore_index=True).drop_duplicates("cve_id")
 
 

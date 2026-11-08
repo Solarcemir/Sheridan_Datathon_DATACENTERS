@@ -98,12 +98,19 @@ def targets() -> pd.DataFrame:
     return t.sort_values("cve_id").reset_index(drop=True)
 
 
+def targets_all() -> pd.DataFrame:
+    """Every CVE in the IBM snapshot that Granite hasn't read yet (for the repo-scanner lookup table)."""
+    v = pd.read_csv(DATA / "vulnerabilities.csv", usecols=["cve_id", "assigner", "cwe_ids", "description"])
+    done = set(pd.read_parquet(PROC / "llm_extract.parquet", columns=["cve_id"]).cve_id)
+    return v[~v.cve_id.isin(done) & v.description.notna()].sort_values("cve_id").reset_index(drop=True)
+
+
 def run(args) -> None:
     from transformers import AutoTokenizer
     from vllm import LLM, SamplingParams
     from vllm.sampling_params import StructuredOutputsParams
     cwe = prompts.load_cwe_names(DATA)
-    t = targets()
+    t = targets_all() if args.all else targets()
     if args.ids:
         t = t[t.cve_id.isin(set(Path(args.ids).read_text().split()))]
     t = t.iloc[args.shard::args.nshards]
@@ -149,5 +156,6 @@ if __name__ == "__main__":
     ap.add_argument("--out")
     ap.add_argument("--ids", help="text file of cve_ids to extract (default: all targets)")
     ap.add_argument("--merge", action="store_true")
+    ap.add_argument("--all", action="store_true", help="every not-yet-read CVE in vulnerabilities.csv (scanner table)")
     a = ap.parse_args()
     merge() if a.merge else run(a)

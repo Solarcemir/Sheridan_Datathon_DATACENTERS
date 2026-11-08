@@ -1,3 +1,7 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Breach Radar</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -256,9 +260,41 @@ table.t tr.hl td { background: var(--ibm-soft) }
 .zoomed .title, .zoomed .heros, .zoomed .region .rl { opacity: 0 }
 .hush .slide.on { z-index: 20 }
 .hush .bub.in, .hush .sat.in, .hush .edge.in, .hush .port.on { transition: opacity .12s !important }
+
+/* Granite's analyst questions: small orbiting chips */
+.sat { background: var(--ibm-soft); border: 1px solid color-mix(in srgb, var(--ibm) 55%, transparent); border-radius: 999px; padding: 1px 7px 2px; font-size: 10.5px; font-weight: 500; box-shadow: 0 3px 8px -6px rgba(15,26,42,.6) }
+.sat::before { display: none }
+.spinning .sat:not(.gone) { transition: opacity .4s }
+.spinning .edge.sat:not(.gone) { transition: opacity .4s }
+.edge.sat { opacity: .3 }
+
+.sat, .spinning .sat:not(.gone) { transition: opacity .4s }
+.edge.sat, .spinning .edge.sat:not(.gone) { transition: opacity .4s; stroke: var(--ibm); stroke-width: 1.6; opacity: .62; stroke-dasharray: 3 3 }
+.edge.sat.gone { opacity: 0 }
+.zoomed .edge.sat.in { opacity: .5 }
+.hush .sat.in, .hush .edge.sat.in { opacity: .06 }
+.co.card .cs { font-size: 11.5px; line-height: 1.28 } .co.card .ct { line-height: 1.28 }
+
+/* the demo: its own layer (never rebuilt, so a scan survives resizes), moved with the camera */
+#demoLayer { position: absolute; left: 0; top: 0; transform-origin: 0 0; pointer-events: none; z-index: 2 }
+#demoBox { position: absolute; transform-origin: 0 0; border-radius: 18px; overflow: hidden; background: var(--bg); pointer-events: auto;
+  box-shadow: 0 0 0 3px var(--ibm), 0 30px 60px -30px rgba(15,26,42,.7); transition: border-radius .4s, box-shadow .4s }
+#demo { border: 0; display: block; background: var(--bg) }
+#demoCatch { position: absolute; inset: 0; border: 0; background: transparent; cursor: zoom-in }
+.demolab { position: absolute; font-family: var(--f-mono); font-size: 13px; letter-spacing: .1em; text-transform: uppercase; color: var(--ibm); white-space: nowrap; transition: opacity .35s }
+.demolab b { color: var(--ink) }
+.zoomed .demolab, .zoomed .demo-wire { opacity: 0 }
+.locked #demoCatch { display: none }
+.locked #demoBox { border-radius: 0; box-shadow: none }
+.locked .hud, .locked .prog, .locked .hint { opacity: 0; pointer-events: none }
+.hint { transition: opacity .35s }
+.landed #world { opacity: 0 }
+#world { transition: opacity .35s }
+.hud, .prog { transition: opacity .35s }
+#demoBtn { font-size: 13px !important; font-weight: 600; color: var(--ibm) }
 </style>
 
-<div id="stage" aria-label="Zoomable presentation canvas"><div id="world"></div></div>
+<div id="stage" aria-label="Zoomable presentation canvas"><div id="world"></div><div id="demoLayer"><div id="demoBox"><iframe id="demo" src="scan.html" title="Repo scanner demo"></iframe><button type="button" id="demoCatch" aria-label="Open the demo"></button></div></div></div>
 <div class="prog" id="prog" style="width:0"></div>
 <nav class="hud" aria-label="Presentation controls">
   <button type="button" id="home" aria-label="Overview" title="Overview (Esc)">⌂</button>
@@ -266,6 +302,7 @@ table.t tr.hl td { background: var(--ibm-soft) }
   <div class="where" id="where">Overview</div>
   <button type="button" id="next" aria-label="Next" title="Next (→)">›</button>
   <button type="button" class="play" id="play">Start</button>
+  <button type="button" id="demoBtn" title="Back to the demo">Demo ⤡</button>
 </nav>
 <div class="hint">→ / space next · ← back · Esc overview · click any stage</div>
 
@@ -402,78 +439,79 @@ table.t tr.hl td { background: var(--ibm-soft) }
       co: [["vulns", "l", "", "Every bug's description, severity and weakness type.", "Today's versions, so some fields were filled in after attacks.", "", ["icon","db"]],
            ["sig", "l", "98%", "of 2026 bugs score under 0.01 on EPSS, the industry's exploit-probability score.", "", "", ["waffle",98,"ink"]],
            ["kev", "l", "1,484", "bugs CISA confirmed exploited, up to Dec 31, 2025: our answer key.", "", "red", ["icon","shield","red"]],
-           ["scoreboard", "r", "6–8", "of the 500 are right for the standard rankings.", (D.share_code_all || 2.3) + "% of the 72,670 have public exploit code.", "red", ["dots",7,500,"red"]]],
-      more: [["Standard rankings on 2026", function () { return table(["Ranking (README)", "Hits in top 500"], [["Exploit code first, then EPSS", "8"], ["CVSS severity first", "7"], ["EPSS first", "6"]]) + '<p class="note">Our projection for 2026: about 12 (80% range 7–22).</p>'; }],
+           ["scoreboard", "r", "6–8", "exploited bugs is all the dataset README’s three standard rankings catch in their top 500.", "Ours is expected to catch about 12.", "red", null, "The bar to beat"]],
+      more: [["Standard rankings on 2026", function () { return "<p>The dataset’s README scores three simple ways to pick 500 bugs. A <b>hit</b> is a pick that CISA adds to its exploited list (KEV) by Nov 4, 2026, the same rule we are judged on.</p>" + table(["Ranking (README)", "How it picks", "Hits in top 500"], [["Exploit code, then EPSS", "bugs with public exploit code first, ties by EPSS", "8"], ["CVSS first", "most severe first", "7"], ["EPSS first", "highest exploit-probability score first", "6"]]) +
+          ul(["<b>Our forecast: about 12 hits</b> (80% range 7–22).", "How: on 2024–25 practice data the README’s best ranking found 19 exploited bugs and our model about 30, so ours finds ≈ 1.6× as many. Applied to the README’s 8 on 2026, that gives ≈ 12.", "The range is wide because the counts are small: a handful of hits either way moves it a lot."]); }],
         ["The data files", function () { return ul(["<b>vulnerabilities.csv</b>: 401,082 NIST records (description, CVSS, CWE, dates).", "<b>exploit_signals_2024/2025</b>: monthly EPSS and exploit-code flags (Exploit-DB, Metasploit, Nuclei, GitHub PoC).", "<b>known_exploited.csv</b>: 1,484 CISA KEV entries with the date added.", "<b>scoreboard_2026.csv</b>: the 72,670 CVEs with EPSS and flags at the end of their month (June uses a July snapshot). No outside data."]); }],
         ["Why it's hard", function () { var b = (D.epss_buckets || {}).all || [35.9, 62.1, 1.9, 0.1]; return bars("2026 bugs by EPSS at the end of their month", [["< 0.001", b[0], b[0] + "%", "grey"], ["0.001–0.01", b[1], b[1] + "%", "grey"], ["0.01–0.1", b[2], b[2] + "%"], ["≥ 0.1", b[3], b[3] + "%", "red"]]) + ul(["58% of the bugs CISA added in 2024–25 had no public exploit signal at publish time.", "One vendor release can flood a ranking: Oracle published 1,097 CVEs on one day in July 2026."]); }]] },
     { id: "data", t: "Honest practice data", stage: "Practice data", ibm: 1,
-      bubbles: [["leak", "After-the-fact fields", "removed", .26, .3, .42, .19, "red"], ["probe", "Memorization probe", "0 of 122", .74, .3, .42, .19, "ibm"], ["snap", "Month-end snapshot", "what was public then", .5, .59, .46, .21], ["hist", "KEV history", "to last year-end", .5, .86, .46, .19]],
+      bubbles: [["snap", "Month-end snapshot", "what was public then", .57, .3, .56, .22], ["hist", "KEV history", "to last year-end", .57, .57, .5, .19], ["leak", "Leaky fields", "filled in after attacks", .19, .84, .34, .19, "red"], ["probe", "Memory probe", "0 of 122", .72, .84, .4, .19, "ibm"]],
       focus: { snap: [560, 300, 240, 66], hist: [560, 470, 240, 66], leak: [830, 300, 230, 66], probe: [830, 470, 230, 66] },
-      h: "Practice on 2024–25, rewound to day one",
-      lede: "2026's answers are secret, so we practice on 2024 and 2025, rebuilt exactly as each bug looked the month it came out.",
-      co: [["snap", "l", "75,148", "practice bugs, each as of the end of its month: EPSS, exploit code, description.", "119 were later exploited.", "", ["icon","camera"]],
-           ["hist", "l", "", "CISA's list only up to the previous year, as 2026 sees it.", "", "", ["icon","rewind"]],
-           ["leak", "r", "100%", "of exploited practice bugs had a NIST “analyzed” status. Fields like that were removed.", "", "red", ["waffle",100,"red"]],
-           ["probe", "r", "0 of 122", "exploited bugs Granite could name from the ID alone. No memorized answers.", "", "blue", ["dots",0,122,"blue"]]],
+      h: "Train on the past as if it were brand new",
+      lede: "2026’s bugs are scored the month they come out, when almost nothing is known. So our model only ever learns from practice bugs seen at that same moment.",
+      co: [["snap", "l", "75,148", "practice bugs from 2024–25, each frozen the month it came out: the exact view 2026 gets.", "Otherwise the model learns from clues new bugs don’t have yet.", "", null, "Same moment"],
+           ["hist", "l", "", "The model only knows CISA’s list up to last year, just like it will in 2026.", "", "", null, "Same blind spot"],
+           ["leak", "r", "100%", "of exploited practice bugs carry a NIST tag added after the attack. Keeping it is data leakage: great test scores, useless on new bugs.", "So every after-the-fact field is removed.", "red", null, "No data leakage"],
+           ["probe", "r", "0 of 122", "exploited bugs Granite could name from the ID alone, so its answers come from reading, not memory.", "", "blue", null, "No memory"]],
       more: [["What the models may see", function () { return table(["Information", ""], [["Exploit code and EPSS score, as of that month", Y], ["CISA's list, up to the previous year only", Y], ["The full description, severity and weakness type", Y], ["Fields NIST fills in after an attack (review status, product lists, link counts)", N], ["“Exploited in the wild” wording", N]]); }],
         ["Exact columns removed", function () { return ul(["nvd_status, n_affected_cpes, n_references, cvss3_source, last_modified, CVSS 2; affected_products.csv and references.csv for the CVE itself.", "CVSS 4 exploit-maturity (E) metric."]); }],
         ["The cohort rule", function () { return ul(["A CVE enters in its publish month with that month's EPSS and flags; CVEs already on KEV by the end of that month are removed (196 in 2024–25), as on the scoreboard.", "Headline label: KEV by Nov 4 of the publish year (75 positives). Training label: KEV by Dec 31, 2025 (119).", "KEV history stops at the previous year-end, matching 2026's staleness."]); }]] },
     { id: "features", t: "Five ways to read a bug", stage: "Clues", ibm: 1,
       bubbles: [["signals", "Exploit code, EPSS & severity", "4 code flags · CVSS", .2, .27, .32, .15], ["text", "What the description says", "vs past exploited text", .2, .52, .32, .15], ["history", "Who published it", "track record · patch days", .2, .77, .32, .15],
         ["granite30", "Granite 4.2 30B reading", "11 analyst questions", .64, .42, .3, .16, "ibm main"], ["embed", "Granite Embedding r2", "closest past attack", .64, .84, .3, .14, "ibm"]],
-      sats: { on: "granite30", rx: .24, ry: .26, grid: [790, 398, 116, 23], items: ["product type", "internet exposure", "install base", "who uses it", "precondition", "impact", "end-of-life", "fix status", "typical attacker", "exploit style", "attacker appeal"] },
+      sats: { on: "granite30", rx: .225, ry: .27, grid: [790, 398, 116, 23], items: ["product type", "internet exposure", "install base", "who uses it", "precondition", "impact", "end-of-life", "fix status", "typical attacker", "exploit style", "attacker appeal"] },
       focus: { signals: [505, 270, 232, 60], text: [505, 380, 232, 60], history: [505, 490, 232, 60], granite30: [770, 335, 200, 66], embed: [770, 515, 200, 56] },
       h: "Five ways to read a bug",
       lede: "For every bug we collect what was public, plus what IBM Granite 4.2 30B concludes after reading it like a security analyst.",
-      co: [["signals", "l", share("signals") + "%", "Exploit code and industry scores: the standard signals.", "Only 2.3% of bugs have exploit code.", "", ["share","signals","ink"]],
-           ["text", "l", share("text") + "%", "Does it read like bugs attackers used before?", "The best single clue on its own.", "", ["share","text","ink"]],
-           ["history", "l", share("history") + "%", "The publisher's track record, giant patch days, emergency releases.", "", "", ["share","history","ink"]],
-           ["granite30", "r", share("granite") + "%", "of the decisions come from Granite's answers to 11 analyst questions.", "Only 5 of 27,716 bugs it called unappealing were exploited.", "blue", ["share","granite","blue"]],
-           ["embed", "r", String(D.near_kev_085 || 457), "of our 500 matched to a near-identical past attack, to explain each pick.", "", "blue", ["dots",D.near_kev_085||457,500,"blue"]]],
+      co: [["signals", "l", share("signals") + "%", "Exploit code and industry risk scores.", "e.g. a public Metasploit module (only 2.3% of bugs have code).", "", ["share","signals","ink"], "Exploit signals"],
+           ["text", "l", share("text") + "%", "Does it read like past attacked bugs?", "e.g. “unauthenticated remote code execution”.", "", ["share","text","ink"], "Description"],
+           ["history", "l", share("history") + "%", "Publisher track record, patch days, emergency fixes.", "e.g. emergency patches: 5.5× more often exploited.", "", ["share","history","ink"], "Publisher"],
+           ["granite30", "r", share("granite") + "%", "of the decisions come from Granite’s 11 analyst answers.", "e.g. “Who would attack this?” → “ransomware gangs”.", "blue", ["share","granite","blue"], "Granite 30B"],
+           ["embed", "r", String(D.near_kev_085 || 457), "of our 500 match a near-identical past attack.", "e.g. pick #2 is 0.92 similar to a KEV bug. Used to explain, not to score.", "blue", ["dots",D.near_kev_085||457,500,"blue"], "Granite Embedding"]],
       more: [["Strongest clues", function () { return drivers((D.drivers || []).slice(0, 12)); }],
         ["How sharp Granite is", function () { return table(["Granite says…", "Exploit rate vs average"], [["email server", "5.8×"], ["remote access / IT management", "5.6×"], ["high attacker appeal", "2.9×"], ["low attacker appeal", "5 of 27,716"], ["unlikely target", "1 of 15,294"], ["only crashes the service", "0 of 12,047"]]) + '<p class="note">2024–25 practice bugs.</p>'; }],
-        ["How Granite 30B ran", function () { return ul(["147,818 descriptions in 38 minutes on 3 H100s with vLLM and JSON-schema constrained decoding; 111 unparsable replies left blank.", "Granite sees only the description, publisher and weakness names, never EPSS, exploit flags, dates or the CVE ID, so it can't leak the answer.", "The answers become 55 model inputs (one-hot categories plus 0–3 scales)."]); }],
+        ["How Granite 30B ran", function () { return ul(["Granite 4.2 30B read all 147,818 descriptions and answered in a fixed JSON format (schema-constrained); 111 unreadable replies were left blank.", "Granite sees only the description, publisher and weakness names, never EPSS, exploit flags, dates or the CVE ID, so it can't leak the answer.", "The answers become 55 model inputs (one-hot categories plus 0–3 scales)."]); }],
         ["The other groups, technically", function () { return ul(["<b>Description:</b> TF-IDF logistic model trained only on past KEV descriptions (AUC 0.91 alone) plus regex flags: end-of-life 13×, authentication bypass 9.5×, unknown CWE 0 of 3,551.", "<b>Publisher and release:</b> assigner / product / vendor KEV history, batch size, out-of-band 5.5×, Patch Tuesday, VulnCheck 14×, WordPress CNA 0 of 17,291.", "<b>Exploit code and EPSS:</b> 4 flags, EPSS percentile within month, CVSS base metrics.", "<b>Granite Embedding r2:</b> nearest past KEV entry by cosine similarity; as model inputs it added nothing."]); }],
         ["What didn't work", function () { return ul(["Granite 30B as a direct judge (“will this be exploited?”, zero- and many-shot): worse than the standard ranking.", "Embeddings as inputs: no gain; removing them raised AP 0.076 → 0.083.", "Borrowed EPSS from older bugs, days public, same-year hidden KEV: neutral or worse."]); }]] },
     { id: "voters", t: "Three judges vote", stage: "Three judges", ibm: 1,
-      bubbles: [["xgb", "Decision trees", "XGBoost · 40 runs", .24, .27, .4, .19], ["lr", "Linear model", "118 clues", .24, .53, .4, .19], ["lora", "Granite 4.2 8B", "fine-tuned · 4 runs", .24, .79, .4, .19, "ibm"], ["avg", "Average of ranks", "3 equal votes", .76, .53, .38, .24, "main"]],
+      bubbles: [["xgb", "Decision trees", "classic ML · XGBoost", .24, .27, .4, .19], ["lr", "Linear model", "classic ML · 118 clues", .24, .53, .4, .19], ["lora", "Granite 4.2 8B", "IBM AI · fine-tuned", .24, .79, .4, .19, "ibm"], ["avg", "Average of ranks", "3 equal votes", .76, .53, .38, .24, "main"]],
       focus: { xgb: [545, 275, 232, 62], lr: [545, 390, 232, 62], lora: [545, 505, 232, 62], avg: [815, 390, 212, 86] },
       h: "Three judges that make different mistakes",
-      lede: "Three models each rank every bug and we average their rankings. Each one catches exploited bugs the others miss.",
+      lede: "Two classic machine-learning models and one new IBM Granite AI model each rank every bug; we average the three. Each catches exploited bugs the others miss.",
       cardLayout: "sum",
-      co: [["xgb", "l", "24", "Spots sharp combinations: exploit code + firewall + no login.", "", "", null],
-           ["lr", "l", "26", "Adds up 118 weak clues.", "", "", null],
-           ["lora", "l", "25", "Fine-tuned to answer: will attackers use this bug?", "", "blue", null],
+      co: [["xgb", "l", "24", "Spots sharp combinations: exploit code + firewall + no login.", "", "", null, "Classic ML · trees"],
+           ["lr", "l", "26", "Adds up 118 weak clues.", "", "", null, "Classic ML · linear"],
+           ["lora", "l", "25", "Fine-tuned to answer: will attackers use this bug?", "", "blue", null, "IBM Granite AI · 8B"],
            ["avg", "r", "33", "of 75 exploited practice bugs found when the three vote together, after the clean-up rules.", "Each judge alone finds 24–26.", "red", null, "Together"]],
       more: [["The three models, technically", function () { return ul(["<b>XGBoost</b> on our leak-free features, default settings, 40 seeds averaged.", "<b>Unified logistic regression:</b> 118 standardized inputs from all our clue sets, L2 with C = 1e-4 chosen by inner grouped CV, balanced class weights.", "<b>Granite 4.2 8B + LoRA</b> (rank 16, alpha 32): prompt = description, CWE, CVSS vector, EPSS percentile, exploit flags; score = logit(Yes) − logit(No); BCE loss; 20 random negatives per positive per epoch, 3 epochs; 4 seeds averaged (two single runs share only 135–264 of their top 500).", "Rank average with equal weights."]); }],
         ["How different they are", function () { return table(["Pair (2026 scores)", "Rank correlation"], [["Trees · linear", String(corr["tree-linear"])], ["Trees · Granite", String(corr["tree-llm"])], ["Linear · Granite", String(corr["linear-llm"])]]) + '<p class="note">Of our 500: ' + (agree["3"] || 111) + " were in all three judges' own top 500, " + (agree["2"] || 102) + " in two, " + (agree["1"] || 131) + " in one, and " + (agree["0"] || 156) + " in none (they made it on the combined vote).</p>"; }],
         ["Choosing the linear model", function () { return "<p>Three versions were fixed in advance and all are reported; adopt only if within 1 hit or better on both checks.</p>" + table(["Linear judge in the ensemble", "5-fold", "Forward"], [["Average of the two earlier LRs", "32", "27"], ["Unified, curated union, L2 (adopted)", "33", "27"], ["Unified, group-balanced L2", "30", "27"], ["Unified, elastic net", "31", "26"]], [1]); }],
         ["What lost", function () { return table(["Variant", "Alone", "Ensemble"], [["Granite 4.2 30B LoRA (bigger)", "19", "29"], ["8B with Granite 30B's answers in the prompt", "23", "29"], ["Tuned XGBoost (nested search, 60 settings)", "24", "29–30"], ["LightGBM instead of XGBoost", "24", "tie"], ["CatBoost (memorized publisher IDs)", "14", "–"]]) + '<p class="note">With about 100 exploited examples per training fold, bigger models and tuning fit noise.</p>'; }]] },
-    { id: "cleanup", t: "Two sanity rules", stage: "Clean-up", ibm: 1,
-      bubbles: [["demote", "Granite demotion", "4 rules", .29, .56, .42, .3, "ibm"], ["cap", "Vendor cap", "≤ 3 per month", .75, .56, .38, .3]],
+    { id: "cleanup", t: "Two final filters", stage: "Clean-up", ibm: 1,
+      bubbles: [["demote", "Granite demotion", "not worth attacking", .29, .56, .42, .3, "ibm"], ["cap", "Vendor cap", "≤ 3 per month", .75, .56, .38, .3]],
       focus: { demote: [560, 390, 240, 84], cap: [830, 390, 220, 84] },
-      h: "Two sanity rules",
-      lede: "Push down what no attacker would bother with, then stop any one vendor from flooding the list.",
-      co: [["demote", "l", (D.demoted_share || 49.4) + "%", "of 2026 bugs pushed down: Granite says they only crash, nobody targets them, attackers don't care, or they're WordPress plugins.", "Only 1 of 75 exploited practice bugs was caught by mistake.", "blue", ["waffle",Math.round(D.demoted_share||49),"blue"]],
-           ["cap", "r", "≤ 3", "bugs per publisher per month.", "Oracle released 1,097 bugs on one day in July 2026; " + (D.top_oracle || 19) + " made our 500.", "", ["cap"]]],
+      h: "Two final filters",
+      lede: "After the vote we apply two simple rules: move bugs nobody would bother attacking to the bottom, and stop one vendor’s huge release from filling the list.",
+      co: [["demote", "l", (D.demoted_share || 49.4) + "%", "of 2026 bugs go to the bottom. Granite flags them as: only crashes the service, unlikely target, low appeal to attackers, or a WordPress add-on.", "Check on practice data: only 1 of 75 exploited bugs was flagged.", "blue", null, "Rule 1 · Not worth attacking"],
+           ["cap", "r", "≤ 3", "bugs per vendor per month in our 500, so one mass release can’t crowd out everyone else.", "e.g. Oracle released 1,097 bugs in one day in July 2026; " + (D.top_oracle || 19) + " made our 500 in total.", "", null, "Rule 2 · Vendor cap"]],
       more: [["The four rules, checked first", function () { return table(["Rule", "2024", "2025"], [["Impact: denial of service only", "0 / 5,935", "0 / 5,639"], ["Typical attacker: unlikely target", "0 / 6,505", "0 / 8,032"], ["Attacker appeal: low", "1 / 12,797", "1 / 13,495"], ["Product: WordPress plugin or theme", "0 / 9,120", "0 / 9,922"], ["Install base small or niche (rejected: 0.36× the average)", "4 / 10,101", "6 / 12,875"]]) + '<p class="note">Exploited / CVEs per training year. A rule was kept only if its rate was below a quarter of the average. Effect: +0 to +2 hits. The one exploited CVE caught was Rejetto HFS (CVE-2024-23692).</p>'; }],
         ["The vendor cap", function () { return ul(["At most 3 CVEs per assigner per snapshot month; " + (D.cap_pushed_out || 212) + " CVEs were pushed out of our top 500 by it.", "On 2024–25: +3 hits for the exploit-then-EPSS baseline, +0 to +3 for single models, flat (±1) for the best ensembles. Caps from 3 to 8 perform the same.", "Kept as insurance for the 2026 Oracle batch, which 2024–25 never had."]); }]] },
     { id: "top500", t: "Our 500", stage: "The answer",
       bubbles: [["out", "top500.csv", "500 bugs", .3, .56, .44, .32, "red main"], ["reasons", "A reason each", "signals + Granite", .76, .56, .4, .3]],
       focus: { out: [560, 390, 240, 92], reasons: [830, 390, 220, 84] },
       h: "The 500 we'd patch first",
-      lede: "Enterprise servers, firewalls and remote code execution, each with a plain-language reason.",
+      lede: "Enterprise servers, firewalls and remote code execution, each with a plain-language reason. The same model scored every other CVE in the dataset too.",
       co: [["out", "l", Math.round((D.top_code || 270) / 5) + "%", "have public exploit code, vs " + (D.share_code_all || 2.3) + "% of all bugs.", (D.top_assigners || 118) + " different publishers. Expected: about 12 exploited by Nov 4, vs 8.", "red", ["waffle",Math.round((D.top_code||270)/5),"red"]],
-           ["reasons", "r", "", "#2 · ServiceNow AI Platform", "Public exploit code; EPSS top 1%; remote code execution; ransomware-gang target; resembles a past KEV bug (0.92).", "", ["icon","chat"]]],
+           ["reasons", "r", "401,082", "CVEs in the dataset carry this same score and a reason, not just the 500. That is what the demo looks up for your code.", "e.g. #2 · ServiceNow AI Platform: public exploit code; EPSS top 1%; remote code execution.", "", ["icon","chat"]]],
       more: [["Browse all 500", function () { return '<div class="tools"><input class="q" type="search" placeholder="Search a CVE, product or reason…" aria-label="Search our 500"><select class="mf" aria-label="Month"><option value="">All months</option>' + Object.keys((D.months || {}).top || {}).map(function (k) { return "<option>" + k + "</option>"; }).join("") + '</select></div><div class="cves"></div><button class="btn more" type="button">Show more</button><p class="note">Red tags: public exploit code (E Exploit-DB, M Metasploit, N Nuclei, G GitHub PoC).</p>'; }, "list"],
         ["What they are", function () { return pairs("Product type, according to Granite", (D.product_type || []).slice(0, 6)) + pairs("What an attacker gets", (D.impact || []).slice(0, 5)); }]] },
     { id: "proof", t: "Conclusion", stage: "Conclusion", cardLayout: "row",
       bubbles: [["cv", "5-fold test", "33 vs 20", .2, .55, .29, .24, "main"], ["fwd", "Forward-only", "27 vs 18", .5, .55, .29, .24], ["ab", "Year-swap exam", "32 vs 20", .8, .55, .29, .24]],
       h: "It finds 65% more exploited bugs",
-      lede: "We never peeked at 2026. Three separate tests on 2024–25, each predicting later bugs from earlier ones, all agree.",
+      lede: "We never tuned anything on 2026. We trained on older 2024–25 bugs and tested on newer ones, three different ways. All three show the same gain.",
       co: [["cv", "l", "+65%", "more exploited bugs than the standard ranking: 33 vs 20 of 75.", "", "green", null, "Our edge"],
            ["fwd", "l", "+5 to +20", "hits: the 95% range of our lead over the standard ranking.", "Paired bootstrap, 1,000 resamples.", "", null, "Not luck"],
-           ["ab", "r", "≈ 12 vs 8", "exploited bugs expected in our 2026 top 500, vs the best standard ranking.", "80% range 7–22.", "red", null, "2026 forecast"]],
+           ["ab", "r", "Your code", "Scan any GitHub repo or lockfile with the exact model behind these numbers.", "Next stop: the live demo.", "", null, "Try it"]],
       more: [["How each idea added up", function () { return bars("Practice, out of 75", [["Standard ranking: exploit code, then EPSS", 20, null, "grey"], ["Our linear model", 26], ["+ fine-tuned Granite judge", 30], ["+ decision trees", 31], ["+ Granite rules, one combined linear model", 33, null, "red"]], { max: 36, note: "About 40 of the 75 exploited bugs look ordinary at publish time; no model we built found them." }); }],
         ["The three tests", function () { return ul(["<b>5-fold purged CV:</b> 5 publish-date blocks of 75,148 CVEs; 26 hand-made groups of related CVEs never split across train and test. K = 517.", "<b>Forward-only:</b> blocks 1–4 each scored by models trained only on earlier blocks, LoRA included (K = 414, 66 positives).", "<b>Year-swap exam:</b> the benchmark rebuilt on 2024 and 2025, each scored by a model trained on the other year (top 441, 75 positives)."]); }],
         ["Statistics", function () { return ul(["Ensemble vs baseline: paired bootstrap 95% CI +5 to +20 hits.", "On the year-swap exam the only Holm-significant combination includes the Granite LoRA (p = 0.03).", "Between our ensembles the differences are noise (±3 hits; Romano–Wolf: all tied with the best).", "2026 projection: about 12 hits (80% range 7–22) vs 8."]); }],
@@ -503,14 +541,33 @@ table.t tr.hl td { background: var(--ibm-soft) }
 
   /* ---------- geometry */
   var stage = $("#stage"), world = $("#world"), portrait = false, SW = 1280, SH = 720, R = {}, B0 = {}, B1 = {}, WB = {}, regionOf = {};
+  var DW = 1280;
+  function demoRect() {   // same aspect as the screen, so the locked demo fills it exactly
+    var a = vh() / vw();
+    if (!portrait) { var w = 640, h = w * a; return { x: 1990, y: Math.max(250, 512 - h / 2), w: w, h: h }; }
+    var w2 = WB.w - 36; return { x: 18, y: WB.h - 40, w: w2, h: w2 * a };
+  }
+  function placeDemo() {
+    R.demo = demoRect(); DW = portrait ? 720 : 1280;
+    var box = $("#demoBox"), fr = $("#demo"), k = R.demo.w / DW;
+    box.style.left = R.demo.x + "px"; box.style.top = R.demo.y + "px"; box.style.width = DW + "px"; box.style.height = (R.demo.h / k) + "px"; box.style.transform = "scale(" + k + ")";
+    fr.style.width = DW + "px"; fr.style.height = (R.demo.h / k) + "px";
+    if (portrait) WB.h = R.demo.y + R.demo.h + 60;
+    var lab = world.querySelector(".demolab");
+    if (lab) { lab.style.left = R.demo.x + "px"; lab.style.top = (R.demo.y - 30) + "px"; }
+    world.querySelectorAll(".demo-wire").forEach(function (p) {
+      var a2 = R[p.getAttribute("data-from")], x1 = a2.x + a2.w, y1 = a2.y + a2.h / 2, x2 = R.demo.x - 6, y2 = R.demo.y + R.demo.h / 2, m = (x1 + x2) / 2;
+      p.setAttribute("d", "M" + x1 + "," + y1 + " C" + m + "," + y1 + " " + m + "," + y2 + " " + x2 + "," + y2);
+    });
+  }
   function layout() {
     portrait = stage.clientWidth < stage.clientHeight * 0.9;
     document.body.classList.toggle("portrait", portrait);
     SW = portrait ? 720 : 1280; SH = portrait ? 1280 : 720; R = {}; B0 = {}; B1 = {};
     if (!portrait) {
-      var L = { problem: [40, 330, 340], data: [70, 575, 340], features: [450, 345, 570], voters: [1085, 290, 440], cleanup: [1105, 595, 330], top500: [1580, 340, 330], proof: [1470, 640, 440] };
+      var L = { problem: [40, 280, 360], data: [40, 520, 360], features: [440, 330, 600], voters: [1080, 280, 400], cleanup: [1080, 520, 400], top500: [1520, 280, 400], proof: [1520, 520, 400] };
       Object.keys(L).forEach(function (k) { R[k] = { x: L[k][0], y: L[k][1], w: L[k][2], h: L[k][2] * 9 / 16 }; });
-      WB = { w: 1960, h: 900, title: { x: 40, y: 34, w: 860 }, heros: { x: 1010, y: 52, w: 880 } };
+      WB = { w: 2660, h: 800, title: { x: 40, y: 34, w: 860 }, heros: { x: 1010, y: 52, w: 880 } };
     } else {
       var pw = 200, ph = pw * 16 / 9, Wv = 460, y0 = 430;
       PATH.forEach(function (id, i) { var c = i % 2; R[id] = { x: c ? Wv - 18 - pw : 18, y: y0 + Math.floor(i / 2) * (ph + 30) + (c ? 56 : 0), w: pw, h: ph }; });
@@ -543,6 +600,7 @@ table.t tr.hl td { background: var(--ibm-soft) }
       out[b[0]] = { cx: BX[0] + b[3] * (BX[1] - BX[0]), cy: BY[0] + fy * (BY[1] - BY[0]), w: Math.min(236, b[5] * (BX[1] - BX[0]) * .8), h: main ? 54 : 48 };
     });
     var ids = s.co.map(function (c) { return c[0]; }).sort(function (a, b) { return out[a].cx - out[b].cx || out[a].cy - out[b].cy; });
+    if (s.id === "data") ids = ["snap", "hist", "leak", "probe"];
     if (s.id === "proof") {   // conclusion: the three tests in a row, each over its result bars
       [["cv", 240], ["fwd", 640], ["ab", 1040]].forEach(function (q) { out[q[0]] = { cx: q[1], cy: 192, w: 236, h: 52 }; });
       ids = ["cv", "fwd", "ab"];
@@ -557,22 +615,96 @@ table.t tr.hl td { background: var(--ibm-soft) }
     } else if (s.cardLayout === "row") {
       ids.forEach(function (id, i) { out[id].cardX = X0; out[id].cardY = CARD_Y + i * 92; out[id].cardW = W; });
     } else {
-      var cols = n > 2 ? 2 : 1, rows = Math.ceil(n / cols), cw = (W - (cols - 1) * gx) / cols, rh = 276 / rows;
+      var cols = n > 2 ? 2 : 1, rows = Math.ceil(n / cols), cw = (W - (cols - 1) * gx) / cols, rh = 284 / rows;
       ids.forEach(function (id, i) { out[id].cardX = X0 + (i % cols) * (cw + gx); out[id].cardY = CARD_Y + Math.floor(i / cols) * rh; out[id].cardW = cw; });
     }
     return out;
   }
   var focusId = null, leaving = null;   // leaving: the slide we fly away from keeps its small bubbles until the camera lands
   function box(id) { return regionOf[id] === focusId || regionOf[id] === leaving ? B1[id] : B0[id]; }
+  var OBS = [];   // boxes a wire must not cross in the current view
+  var BAND = null;
+  function setObstacles() {
+    OBS = []; BAND = null;
+    if (focusId && !portrait) { var rr = R[focusId], s0 = rr.w / SW; BAND = [rr.y + (BY[0] - 26) * s0, rr.y + (BY[1] + 26) * s0]; }
+    Object.keys(regionOf).forEach(function (id) {
+      if (focusId && regionOf[id] !== focusId) return;
+      var b = focusId ? B1[id] : B0[id]; if (b) OBS.push({ id: id, x: b.x, y: b.y, w: b.w, h: b.h });
+    });
+    if (focusId) ports.forEach(function (pt) { if (pt.s.id === focusId && pt.box) OBS.push({ id: "port " + pt.dir + " " + pt.other, x: pt.box.x, y: pt.box.y, w: pt.box.w, h: pt.box.h }); });
+  }
+  function bz(s, t) { var u = 1 - t; return [u * u * u * s[0][0] + 3 * u * u * t * s[1][0] + 3 * u * t * t * s[2][0] + t * t * t * s[3][0], u * u * u * s[0][1] + 3 * u * u * t * s[1][1] + 3 * u * t * t * s[2][1] + t * t * t * s[3][1]]; }
+  function segsOf(P, horiz) {   // smooth curve through the points; ends leave/enter straight (horizontal or vertical)
+    var n = P.length, T = [];
+    for (var i = 0; i < n; i++) {
+      if (i === 0 || i === n - 1) { var A = i === 0 ? P[0] : P[n - 2], B = i === 0 ? P[1] : P[n - 1]; T.push(horiz ? [1.5 * (B[0] - A[0]), 0] : [0, 1.5 * (B[1] - A[1])]); }
+      else T.push([(P[i + 1][0] - P[i - 1][0]) / 2, (P[i + 1][1] - P[i - 1][1]) / 2]);
+    }
+    var S2 = [];
+    for (var j = 0; j < n - 1; j++) S2.push([P[j], [P[j][0] + T[j][0] / 3, P[j][1] + T[j][1] / 3], [P[j + 1][0] - T[j + 1][0] / 3, P[j + 1][1] - T[j + 1][1] / 3], P[j + 1]]);
+    return S2;
+  }
+  function split(s) { var m = function (a, b) { return [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2]; }, a1 = m(s[0], s[1]), b1 = m(s[1], s[2]), c1 = m(s[2], s[3]), a2 = m(a1, b1), b2 = m(b1, c1), mid = m(a2, b2); return [[s[0], a1, a2, mid], [mid, b2, c1, s[3]]]; }
+  function cost(P, horiz, used) {   // crossings dominate, then length
+    var S2 = segsOf(P, horiz), hits = 0, len = 0, prev = P[0];
+    for (var si = 0; si < S2.length; si++) for (var k = 1; k <= 14; k++) {
+      var pt = bz(S2[si], k / 14); len += Math.hypot(pt[0] - prev[0], pt[1] - prev[1]); prev = pt;
+      for (var oi = 0; oi < OBS.length; oi++) {
+        var o = OBS[oi], m = Math.min(o.h * .18, 7);
+        if (!used[o.id] && pt[0] > o.x - m && pt[0] < o.x + o.w + m && pt[1] > o.y - m && pt[1] < o.y + o.h + m) hits++;
+      }
+    }
+    if (BAND) for (var si2 = 0; si2 < S2.length; si2++) for (var k2 = 1; k2 < 10; k2++) { var p2 = bz(S2[si2], k2 / 10); if (p2[1] < BAND[0] || p2[1] > BAND[1]) hits += .3; }   // stay inside the slide's flow band
+    return hits * 1000 + len;
+  }
+  function dodge(p, q, horiz, skip) { return pathOf(plan(p, q, horiz, skip)); }
+  function plan(p, q, horiz, skip) {   // try detour points beside nearby nodes and in the gaps between them; keep the cheapest smooth curve
+    var used = {}; skip.forEach(function (k) { used[k] = 1; });
+    var P = [p, q], best = cost(P, horiz, used);
+    if (best >= 1000) {
+      var x0 = Math.min(p[0], q[0]), x1 = Math.max(p[0], q[0]), y0 = Math.min(p[1], q[1]), y1 = Math.max(p[1], q[1]), pad = 80;
+      var near = OBS.filter(function (o) { return !used[o.id] && o.x < x1 + pad && o.x + o.w > x0 - pad && o.y < y1 + pad && o.y + o.h > y0 - pad; }), C = [];
+      near.forEach(function (o) {
+        var g = Math.max(o.h * .5, 8), cx = o.x + o.w / 2, cy = o.y + o.h / 2;
+        C.push([cx, o.y - g], [cx, o.y + o.h + g], [o.x - g, cy], [o.x + o.w + g, cy], [o.x - g, o.y - g], [o.x + o.w + g, o.y - g], [o.x - g, o.y + o.h + g], [o.x + o.w + g, o.y + o.h + g]);
+        near.forEach(function (o2) {   // the gap between two stacked nodes
+          if (o2 === o || o2.y <= o.y + o.h || o2.x > o.x + o.w || o2.x + o2.w < o.x) return;
+          C.push([(Math.max(o.x, o2.x) + Math.min(o.x + o.w, o2.x + o2.w)) / 2, (o.y + o.h + o2.y) / 2]);
+        });
+      });
+      C = C.filter(function (c) { return horiz ? c[0] > x0 - 40 && c[0] < x1 + 40 : c[1] > y0 - 40 && c[1] < y1 + 40; });   // detours never go behind the start or past the end
+      var scored = C.map(function (c) { return [cost([p, c, q], horiz, used), c]; }).sort(function (a, b) { return a[0] - b[0]; });
+      if (scored.length && scored[0][0] < best) { best = scored[0][0]; P = [p, scored[0][1], q]; }
+      if (best >= 1000) {   // two detours
+        var top = scored.slice(0, 14).map(function (s) { return s[1]; }), dx = q[0] - p[0], dy = q[1] - p[1];
+        var along = function (c) { return (c[0] - p[0]) * dx + (c[1] - p[1]) * dy; };
+        for (var i = 0; i < top.length; i++) for (var j = 0; j < top.length; j++) {
+          if (i === j || along(top[i]) >= along(top[j])) continue;
+          var c2 = cost([p, top[i], top[j], q], horiz, used);
+          if (c2 < best) { best = c2; P = [p, top[i], top[j], q]; }
+        }
+      }
+    }
+    return { P: P, horiz: horiz, cost: best };
+  }
+  function pathOf(pl) {
+    var segs = segsOf(pl.P, pl.horiz);
+    while (segs.length < 4) {   // pad to 4 segments so every path has the same shape and can morph smoothly
+      var li = 0, best = -1;
+      segs.forEach(function (s, i) { var L = Math.hypot(s[3][0] - s[0][0], s[3][1] - s[0][1]); if (L > best) { best = L; li = i; } });
+      var two = split(segs[li]); segs.splice(li, 1, two[0], two[1]);
+    }
+    var f1 = function (v) { return v[0].toFixed(1) + "," + v[1].toFixed(1); };
+    return "M" + f1(segs[0][0]) + segs.map(function (s) { return " C" + f1(s[1]) + " " + f1(s[2]) + " " + f1(s[3]); }).join("");
+  }
   function wire(a, b) {
     var A = box(a), C = box(b), ax = A.x + A.w / 2, ay = A.y + A.h / 2, cx = C.x + C.w / 2, cy = C.y + C.h / 2, dx = cx - ax, dy = cy - ay;
-    if (Math.abs(dx) > Math.abs(dy) * 0.7) {
-      var s = dx > 0 ? 1 : -1, p = [ax + s * A.w / 2, ay], q = [cx - s * C.w / 2, cy], m = (p[0] + q[0]) / 2;
-      return "M" + p.join(",") + " C" + m + "," + p[1] + " " + m + "," + q[1] + " " + q.join(",");
-    }
-    var t = dy > 0 ? 1 : -1, p2 = [ax, ay + t * A.h / 2], q2 = [cx, cy - t * C.h / 2], m2 = (p2[1] + q2[1]) / 2;
-    return "M" + p2.join(",") + " C" + p2[0] + "," + m2 + " " + q2[0] + "," + m2 + " " + q2.join(",");
+    var s = dx > 0 ? 1 : -1, t = dy > 0 ? 1 : -1;
+    var H = plan([ax + s * A.w / 2, ay], [cx - s * C.w / 2, cy], true, [a, b]), V = plan([ax, ay + t * A.h / 2], [cx, cy - t * C.h / 2], false, [a, b]);
+    var horizFirst = Math.abs(dx) > Math.abs(dy) * 0.7, pick = horizFirst ? (V.cost < H.cost - 999 ? V : H) : (H.cost < V.cost - 999 ? H : V);   // switch sides only if it removes a crossing
+    return pathOf(pick);
   }
+
 
   /* ---------- one signature visual per slide (top right, 420 x 184) */
   function T(x, y, s, cls, anchor) { return '<text x="' + x + '" y="' + y + '" class="' + (cls || "hl") + '"' + (anchor ? ' text-anchor="' + anchor + '"' : "") + ">" + s + "</text>"; }
@@ -583,8 +715,8 @@ table.t tr.hl td { background: var(--ibm-soft) }
         var x = 6 + (i % cols) * 8.9, y = 8 + Math.floor(i / cols) * 9;
         o += red[i] ? '<circle cx="' + x + '" cy="' + y + '" r="4.2" fill="var(--alert)"/>' : '<circle cx="' + x + '" cy="' + y + '" r="2.3" fill="' + (i % 7 === 3 ? "var(--teal)" : "var(--muted)") + '" opacity="' + (i % 7 === 3 ? .45 : .42) + '"/>';
       }
-      return o + T(0, 160, "<tspan class='hb'>72,670</tspan> new bugs · each dot = 100") + T(420, 160, "<tspan class='hb red'>500</tspan> we pick", "hl", "end") +
-        T(0, 180, "≈ 12 of our 500 expected on CISA’s list by Nov 4, vs 8 for the standard", "hs");
+      return o + T(0, 160, "<tspan class='hb'>72,670</tspan> new bugs · 1 dot = 100") + T(420, 160, "we pick <tspan class='hb red'>500</tspan>", "hl", "end") +
+        T(0, 180, "Expected on CISA’s list by Nov 4: ≈ 12 of ours vs 8 for the README’s best", "hs");
     },
     data: function () {   // one bug's life: what the model may see, and what is cut off
       var o = '<rect x="214" y="14" width="206" height="124" rx="10" fill="var(--alert-soft)" opacity=".7"/>' +
@@ -596,15 +728,17 @@ table.t tr.hl td { background: var(--ibm-soft) }
           '<line x1="' + x + '" y1="' + (up ? 68 : 84) + '" x2="' + x + '" y2="' + (up ? 54 : 98) + '" stroke="' + e[2] + '" stroke-width="1.2"' + (hid ? ' opacity=".6"' : "") + "/>" +
           T(k === 2 ? x + 2 : x, up ? 48 : 112, e[1], hid ? "hs red" : "hs", k === 0 ? "start" : k === 5 || k === 2 ? "end" : "middle");
       });
-      return o + T(0, 160, "Frozen at the end of its <tspan class='hb'>publish month</tspan>") + T(0, 180, "75,148 practice bugs from 2024–25, rebuilt exactly as 2026’s look", "hs");
+      return o + T(0, 160, "<tspan class='hb'>Point-in-time</tspan> data: what was known that month") + T(0, 180, "Left of the line is used; right of it is cut, so no look-ahead bias", "hs");
     },
     features: function () {   // donut: who drives the decision
       var ws = D.weights || [], tot = ws.reduce(function (a, g) { return a + g.share; }, 0) || 100, a0 = -Math.PI / 2, o = "", cx = 86, cy = 88, R = 76, r = 50;
+      var LN = { granite: "Granite 30B", text: "Description", signals: "Exploit signals", history: "Publisher", cvss: "CVSS severity" }, LI = { granite: "spark", text: "doc", signals: "code", history: "building", cvss: "shield" };
       var colr = { granite: "var(--ibm)", text: "var(--violet)", history: "var(--teal)", signals: "var(--alert)", cvss: "var(--amber)" };
       ws.forEach(function (g, k) {
         var a1 = a0 + g.share / tot * 2 * Math.PI, L = a1 - a0 > Math.PI ? 1 : 0, p = function (rr, a) { return (cx + rr * Math.cos(a)).toFixed(1) + "," + (cy + rr * Math.sin(a)).toFixed(1); };
         o += '<path d="M' + p(R, a0) + " A" + R + "," + R + " 0 " + L + " 1 " + p(R, a1) + " L" + p(r, a1) + " A" + r + "," + r + " 0 " + L + " 0 " + p(r, a0) + 'Z" fill="' + colr[g.g] + '" stroke="var(--panel)" stroke-width="2"/>';
-        o += '<rect x="196" y="' + (14 + k * 30) + '" width="12" height="12" rx="3" fill="' + colr[g.g] + '"/>' + T(216, 25 + k * 30, "<tspan class='hb2'>" + Math.round(g.share) + "%</tspan>  " + g.name.replace("Granite 30B reading", "Granite 30B’s reading").replace("History & release", "Publisher & release"));
+        o += '<rect x="196" y="' + (14 + k * 30) + '" width="12" height="12" rx="3" fill="' + colr[g.g] + '"/>' + T(216, 25 + k * 30, "<tspan class='hb2'>" + Math.round(g.share) + "%</tspan>  " + LN[g.g]) +
+          '<svg x="' + (216 + 44 + LN[g.g].length * 7.4) + '" y="' + (12 + k * 30) + '" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="' + colr[g.g] + '" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">' + IC[LI[g.g]] + "</svg>";
       });
       return o + T(cx, cy - 2, Math.round((ws[0] || {}).share || 39) + "%", "hb blue", "middle") + T(cx, cy + 16, "Granite", "hs", "middle") + T(0, 184, "Share of the linear model’s decision, by kind of clue", "hs");
     },
@@ -751,6 +885,9 @@ table.t tr.hl td { background: var(--ibm-soft) }
       });
     });
     world.querySelectorAll("[data-r], [data-s]").forEach(function (el) { el.style.setProperty("--acc", "var(--a-" + (el.getAttribute("data-r") || el.getAttribute("data-s")) + ")"); });
+    var dl = document.createElement("div"); dl.className = "demolab"; dl.innerHTML = "8 · <b>Try it on your code</b> · live demo"; world.appendChild(dl);
+    if (!portrait) ["top500", "proof"].forEach(function (f) { var p = document.createElementNS(NS, "path"); p.setAttribute("class", "edge pulse demo-wire"); p.setAttribute("data-from", f); svg.appendChild(p); });
+    placeDemo();
     buildPorts();
     place();
   }
@@ -769,6 +906,7 @@ table.t tr.hl td { background: var(--ibm-soft) }
       pt.el.style.left = pt.box.x + "px"; pt.el.style.top = pt.box.y + "px"; pt.el.style.transform = "scale(" + k + ")";
       if (!on) pt.el.classList.remove("on"); pt.el.classList.toggle("in", on);
     });
+    setObstacles();
     var route = focusId && !portrait ? routes(focusId) : {};
     wires.forEach(function (w, wi) {
       var a = w.e[0], b = w.e[1], ia = regionOf[a] === focusId, ib = regionOf[b] === focusId, d = wire(a, b), show = true, ext = false;
@@ -778,17 +916,31 @@ table.t tr.hl td { background: var(--ibm-soft) }
       } else if (focusId) show = false;
       [w.p, w.q].forEach(function (el) { if (!el) return; setPath(el, d); el.classList.toggle("in", !!focusId && show); el.classList.toggle("gone", !show); el.classList.toggle("ext", ext); if (ext && !el.classList.contains("ext-shown")) el.classList.add("wait"); if (!ext) el.classList.remove("wait", "ext-shown"); });
     });
+    placeSats();
+  }
+  function placeSats() {   // ring follows the Granite bubble as it is drawn right now, so zooming never tears it off
+    if (!sats.length) return;
+    var wr = world.getBoundingClientRect(), wsc = wr.width / (world.offsetWidth || 1);
     sats.forEach(function (o) {
-      var s = o.s, r = R[s.id], inF = s.id === focusId, c = box(s.sats.on), sc = r.w / SW, n = s.sats.items.length;
-      var cx = c.x + c.w / 2, cy = c.y + c.h / 2, x, y, k;
-      if (inF) { var a1 = -Math.PI / 2 + (o.j + .5) * 2 * Math.PI / n; x = cx + Math.cos(a1) * s.sats.rx * (BX[1] - BX[0]) * sc; y = cy + Math.sin(a1) * s.sats.ry * (BY[1] - BY[0]) * 1.15 * sc; k = sc * .95; }
-      else { var a = -Math.PI / 2 + (o.j + .5) * 2 * Math.PI / n; x = cx + Math.cos(a) * s.sats.rx * r.w; y = cy + Math.sin(a) * s.sats.ry * r.h; k = 8 / 11; }
+      var s = o.s, r = R[s.id], inF = s.id === focusId, sc = r.w / SW, n = s.sats.items.length, el = world.querySelector('.bub[data-b="' + s.sats.on + '"]');
+      if (!el) return;
+      var br = el.getBoundingClientRect(), bx = (br.left - wr.left) / wsc, by = (br.top - wr.top) / wsc, bw = br.width / wsc, bh = br.height / wsc;
+      var fs = bh / (el.offsetHeight || 1), fF = sc * 1.05, pr = Math.max(0, Math.min(1, (fs - 1) / (fF - 1)));
+      var rx = (1 - pr) * s.sats.rx * r.w + pr * s.sats.rx * (BX[1] - BX[0]) * sc, ry = (1 - pr) * s.sats.ry * r.h + pr * s.sats.ry * (BY[1] - BY[0]) * 1.15 * sc;
+      var cx = bx + bw / 2, cy = by + bh / 2, a = -Math.PI / 2 + (o.j + .5) * 2 * Math.PI / n + orbit, x = cx + Math.cos(a) * rx, y = cy + Math.sin(a) * ry, k = fs * .74;
       var wpx = o.d.offsetWidth || 80, hpx = o.d.offsetHeight || 14;
       o.d.style.left = (x - wpx * k / 2) + "px"; o.d.style.top = (y - hpx * k / 2) + "px"; o.d.style.transform = "scale(" + k + ")";
-      setPath(o.p, "M" + cx + "," + cy + " L" + x + "," + y);
-      o.d.classList.toggle("in", inF); o.d.classList.toggle("gone", inF); o.p.classList.toggle("in", inF); o.p.classList.toggle("gone", inF);
+      setPath(o.p, "M" + cx.toFixed(1) + "," + cy.toFixed(1) + " L" + x.toFixed(1) + "," + y.toFixed(1));
+      var show = !focusId || inF;
+      o.d.classList.toggle("in", inF); o.d.classList.toggle("gone", !show); o.p.classList.toggle("in", inF); o.p.classList.toggle("gone", !show);
     });
   }
+  var orbit = 0, spinT = null;   // Granite's 11 questions circle slowly so none hides a wire for long
+  function spin(now) {
+    if (spinT !== null && !portrait) { if (!reduce) orbit += Math.min(50, now - spinT) / 1000 * 2 * Math.PI / 120; placeSats(); }
+    spinT = now; requestAnimationFrame(spin);
+  }
+  requestAnimationFrame(spin);
   function rounded(pts, rr) {   // polyline with rounded corners
     var d = "M" + pts[0][0] + "," + pts[0][1];
     for (var i = 1; i < pts.length - 1; i++) {
@@ -807,9 +959,8 @@ table.t tr.hl td { background: var(--ibm-soft) }
       var pt = portFor(sid, ia ? b : a, ia ? "out" : "in"); if (!pt) return;
       var M = B1[ia ? a : b], P = pt.box, y1 = M.y + M.h / 2, y2 = P.y + P.h / 2, x1, x2;
       if (ia) { x1 = M.x + M.w; x2 = P.x; } else { x1 = P.x + P.w; x2 = M.x; }
-      var mx = (x1 + x2) / 2;
-      out[wi] = ia ? "M" + x1 + "," + y1 + " C" + mx + "," + y1 + " " + mx + "," + y2 + " " + x2 + "," + y2
-                   : "M" + x1 + "," + y2 + " C" + mx + "," + y2 + " " + mx + "," + y1 + " " + x2 + "," + y1;
+      var me = ia ? a : b, pk = "port " + pt.dir + " " + pt.other;
+      out[wi] = ia ? dodge([x1, y1], [x2, y2], true, [me, pk]) : dodge([x1, y2], [x2, y1], true, [me, pk]);
     });
     return out;
   }
@@ -866,7 +1017,7 @@ table.t tr.hl td { background: var(--ibm-soft) }
   /* ---------- camera: smooth zoom (van Wijk & Nuij); cam = {x, y, w}: centre and visible width in world units */
   var cam = null, anim = null, reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   function vw() { return stage.clientWidth; } function vh() { return stage.clientHeight; }
-  function apply(c) { var k = vw() / c.w; world.style.transform = "translate(" + (vw() / 2 - c.x * k) + "px," + (vh() / 2 - c.y * k) + "px) scale(" + k + ")"; }
+  function apply(c) { var k = vw() / c.w, tf = "translate(" + (vw() / 2 - c.x * k) + "px," + (vh() / 2 - c.y * k) + "px) scale(" + k + ")"; world.style.transform = tf; $("#demoLayer").style.transform = tf; }
   function fitRect(r, m, padBottom) {
     var avH = vh() - padBottom, need = Math.max(r.w, r.h * vw() / avH) * m;
     return { x: r.x + r.w / 2, y: r.y + r.h / 2 + (padBottom / 2) * need / vw(), w: need };
@@ -896,30 +1047,40 @@ table.t tr.hl td { background: var(--ibm-soft) }
 
   /* ---------- navigation */
   var idx = -1;
-  function targetFor(step) { return step < 0 ? fitRect({ x: 0, y: 0, w: WB.w, h: WB.h }, 1.02, 64) : fitRect(R[PATH[step]], 1.03, 64); }
+  var DEMO = PATH.length, locked = false;
+  function targetFor(step) { return step === DEMO ? fitRect(R.demo, 1, 0) : step < 0 ? fitRect({ x: 0, y: 0, w: WB.w, h: WB.h }, 1.02, 64) : fitRect(R[PATH[step]], 1.03, 64); }
+  function setLocked(on) { locked = on; document.body.classList.toggle("locked", on); if (!on) document.body.classList.remove("landed"); }
   function go(step) {
-    step = Math.max(-1, Math.min(PATH.length - 1, step)); idx = step;
-    var id = step >= 0 ? PATH[step] : null;
+    step = Math.max(-1, Math.min(DEMO, step)); idx = step;
+    var id = step >= 0 && step < DEMO ? PATH[step] : null;
+    setLocked(step === DEMO);
     world.querySelectorAll(".slide, .slidebg").forEach(function (n) { if (n.closeDetails) n.closeDetails(); n.classList.remove("on"); });
     world.querySelectorAll(".region").forEach(function (n) { n.classList.toggle("focus", n.getAttribute("data-r") === id); });
     world.querySelectorAll(".edge.ext-shown").forEach(function (e) { e.classList.remove("ext-shown"); });
     leaving = focusId && id && focusId !== id ? focusId : null;
     focusId = id; world.classList.toggle("zoomed", !!id); place();   // bubbles start shrinking into the slide while the camera flies
-    fly(targetFor(step), function () { if (leaving) { leaving = null; place(); } if (id) { world.querySelectorAll('[data-s="' + id + '"]').forEach(function (n) { n.classList.add("on"); }); if (!portrait) ports.forEach(function (pt) { if (pt.s.id === id) pt.el.classList.add("on"); }); world.querySelectorAll(".edge.wait").forEach(function (e) { e.classList.remove("wait"); e.classList.add("ext-shown"); }); var n = world.querySelector('.slide[data-s="' + id + '"]'); if (n) { n.tabIndex = -1; n.focus({ preventScroll: true }); } } });
-    $("#where").innerHTML = id ? "<b>" + (step + 1) + " / " + PATH.length + "</b>" + esc(byId[id].t) : "Overview";
-    $("#play").textContent = step < 0 ? "Start" : step === PATH.length - 1 ? "Overview" : "Next";
+    fly(targetFor(step), function () { if (leaving) { leaving = null; place(); } if (step === DEMO && idx === DEMO) document.body.classList.add("landed"); if (id) { world.querySelectorAll('[data-s="' + id + '"]').forEach(function (n) { n.classList.add("on"); }); if (!portrait) ports.forEach(function (pt) { if (pt.s.id === id) pt.el.classList.add("on"); }); world.querySelectorAll(".edge.wait").forEach(function (e) { e.classList.remove("wait"); e.classList.add("ext-shown"); }); var n = world.querySelector('.slide[data-s="' + id + '"]'); if (n) { n.tabIndex = -1; n.focus({ preventScroll: true }); } } });
+    $("#where").innerHTML = id ? "<b>" + (step + 1) + " / " + PATH.length + "</b>" + esc(byId[id].t) : step === DEMO ? "Demo" : "Overview";
+    $("#play").textContent = step < 0 ? "Start the tour" : step === DEMO - 1 ? "Try it →" : "Next";
     $("#prog").style.width = (100 * (step + 1) / PATH.length) + "%";
     try { history.replaceState(null, "", id ? "#" + id : location.pathname + location.search); } catch (e) {}
   }
   $("#home").addEventListener("click", function () { go(-1); });
   $("#prev").addEventListener("click", function () { go(idx - 1); });
   $("#next").addEventListener("click", function () { go(idx + 1); });
-  $("#play").addEventListener("click", function () { go(idx >= PATH.length - 1 ? -1 : idx + 1); });
-  stage.addEventListener("click", function () { if (idx >= 0) go(-1); });
+  $("#play").addEventListener("click", function () { go(idx + 1); });
+  $("#demoBtn").addEventListener("click", function () { go(DEMO); });
+  $("#demoCatch").addEventListener("click", function (e) { e.stopPropagation(); go(DEMO); });
+  stage.addEventListener("click", function () { if (idx >= 0 && !locked) go(-1); });
+  window.addEventListener("message", function (e) {   // from the demo page (scan.html)
+    var m = e.data || {}; if (!m.kevcast) return;
+    if (m.tour) go(-1);
+    else if (m.go && PATH.indexOf(m.go) >= 0) go(PATH.indexOf(m.go));
+  });
   document.addEventListener("keydown", function (e) {
     var tg = e.target || {};
     if (/INPUT|SELECT|TEXTAREA|BUTTON/.test(tg.tagName || "") && (e.key === " " || e.key === "Enter")) return;
-    if (/INPUT|SELECT|TEXTAREA/.test(tg.tagName || "")) return;
+    if (/INPUT|SELECT|TEXTAREA/.test(tg.tagName || "") || locked) return;
     if (e.key === "ArrowRight" || e.key === "PageDown" || e.key === " ") { e.preventDefault(); go(idx + 1); }
     else if (e.key === "ArrowLeft" || e.key === "PageUp") { e.preventDefault(); go(idx - 1); }
     else if (e.key === "Escape") { var on = world.querySelector(".slide.on"); if (on && world.classList.contains("hush")) on.closeDetails(); else go(-1); }
@@ -947,14 +1108,14 @@ table.t tr.hl td { background: var(--ibm-soft) }
 
   /* ---------- boot */
   build();
-  go(-1);
   var start = PATH.indexOf((location.hash || "").replace("#", ""));
-  if (start >= 0) go(start);
+  if (start >= 0) { go(-1); go(start); }
+  else { idx = DEMO; setLocked(true); document.body.classList.add("landed"); cam = targetFor(DEMO); apply(cam); $("#where").textContent = "Demo"; }
   var rt, wasPortrait = portrait;
   window.addEventListener("resize", function () { clearTimeout(rt); rt = setTimeout(function () {
     var p = stage.clientWidth < stage.clientHeight * 0.9;
     if (p !== wasPortrait) { wasPortrait = p; var keep = idx; build(); cam = null; go(-1); if (keep >= 0) go(keep); }
-    else { cam = targetFor(idx); apply(cam); }
+    else { placeDemo(); cam = targetFor(idx); apply(cam); }
   }, 120); });
 })();
 </script>
