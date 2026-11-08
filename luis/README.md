@@ -8,7 +8,7 @@ Team hub (Top 500 table with Granite reasons, rules, data map, shared notes): ht
 |---|---|
 | `analysis/` | All code, in run order (below) |
 | `reports/` | Evidence for the findings: result tables (`*.csv`, `density_check.txt`) and charts (`figures/`) |
-| `submissions/` | Candidate 2026 `top500` files (one column, `cve_id`). Current pick: `top500_v2.csv` |
+| `submissions/` | Candidate 2026 `top500` files (one column, `cve_id`). **Team final: `top500_final.csv`** (XGBoost + Luis & Chen LRs + Chen's Granite LoRA, Granite filters, cap 3) |
 | `derived/` | Feature dictionaries, full 2026 rankings with reasons, row-by-row A/B backtest rankings, Granite Instruct answers |
 | `site/` | Source of the team hub page and its `top500.json` |
 | `received/` | Snapshots of teammates' docs this work refers to (Chen's GPU-box context) |
@@ -42,7 +42,8 @@ python -E -P luis/analysis/postprocess.py --score-2026     # current pick: submi
 python -E -P luis/analysis/team_merge.py --score-2026 --ranking derived/scored_2026_v4f.csv rank_v4f v4f   # explain v4f
 python -E -P luis/analysis/stats_review.py         # seed variability, Holm tests, Romano-Wolf set, power, 2026 projection (~7 min)
 python -E -P luis/analysis/nested_tuning.py        # grid search inside training only (~4 min): doesn't help, keep defaults
-python -E -P luis/analysis/final_build.py          # THE FINAL: submissions/top500_final.csv (+ Chen's voters when his files exist)
+python -E -P luis/analysis/final_build.py          # THE FINAL: submissions/top500_final.csv (Chen's LoRA + LR voters are in since Nov 7)
+python -E -P luis/analysis/chen_round3.py          # Chen's 3rd push on our A/B: final recipe, LoRA 30B / llmx, sensitivity (~3 min)
 ```
 
 Environment notes and known install issues: `context_Luis.md` §12.

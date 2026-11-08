@@ -1,10 +1,10 @@
 # Project context · Luis · IBM "Before the Breach" (Sheridan Datathon 2026)
 
-Luis's handoff document (folder `luis/`; paths below are relative to it unless they start with `luis/`). Last updated **Nov 7, 2026, ~9:30 pm**. Written so a teammate can pick up the work without re-deriving anything. Every number comes from a script in `luis/analysis/` and is backed by a file listed in **§13 Evidence index**. Companion: `chen/context_Chen.md` (Chen's GPU-box workstream).
+Luis's handoff document (folder `luis/`; paths below are relative to it unless they start with `luis/`). Last updated **Nov 7, 2026, evening, after Chen's 3rd push (§14.15)**. Written so a teammate can pick up the work without re-deriving anything. Every number comes from a script in `luis/analysis/` and is backed by a file listed in **§13 Evidence index**. Companion: `chen/context_Chen.md` (Chen's GPU-box workstream).
 
 - **Team hub (web):** https://claude.ai/artifact/Np2SfMguMKySJnBfvNfnjR (ranked Top 500 table explained by IBM Granite, rules, CSV/column explorer, data map, shared notes; code in `site/breach-hub.html`)
-- **Current pick: `submissions/top500_final.csv`**, built by one command, `python -E -P luis/analysis/final_build.py` (§14.14). Today it's v4f with 40 XGBoost seeds averaged (XGBoost big + LR, rank average, 4 Granite-30B demotion filters, cap 3 per assigner-month); explained in `reports/top500_final_explained.csv` and shown in the hub. **When Chen pushes his 2026 LoRA 8B and best-LR scores, re-running the same command adds them as voters** (message for Chen in §14.14).
-- **Practice-exam headline** (2024 + 2025 Jan–Sep pooled, top 441 of 64,120 = the scoreboard's selection rate, 75 exploited CVEs): exploit-then-EPSS **19** · v4 **26–28** (+1 to +16; varies by run) · v4f **27** pooled / **31** at density (A 20 of 48 + B 11 of 27) · v4 + Chen's LoRA **≈ 30** (+4 to +18; estimate, see §14.8).
+- **Current pick (team final): `submissions/top500_final.csv`**, built by one command, `python -E -P luis/analysis/final_build.py` (§14.14). **Chen's 2026 files are in**, so it is now the full 3-voter recipe: equal-weight rank average of **tree** (XGBoost big, 40 seeds) + **linear** (Luis's LR averaged with Chen's best LR) + **LLM** (Chen's Granite 4.2 8B LoRA), then 4 Granite-30B demotion filters and a cap of 3 per assigner-month. Explained in `reports/top500_final_explained.csv` and shown in the hub. Checked by both of us (§14.15, Chen §8.5); nothing Chen pushed on Nov 7 beats it.
+- **Practice-exam headline** (2024 + 2025 Jan–Sep pooled, top 441 of 64,120 = the scoreboard's selection rate, 75 exploited CVEs): exploit-then-EPSS **19–20** · v4 **26–28** (+1 to +16; varies by run) · v4f **27–30** pooled / **31** at density (A 20 of 48 + B 11 of 27) · **final recipe ≈ 32** (+4 to +20 vs exploit-then-EPSS; −5 to +9 vs v4f; estimate, uses Chen's out-of-fold scores, §14.15). On Chen's 5-fold CV (75 positives, top 517) the same recipe gets 32 vs 20 for the baseline.
 
 ---
 
@@ -12,7 +12,7 @@ Luis's handoff document (folder `luis/`; paths below are relative to it unless t
 
 1. **Task:** pick 500 of 72,670 CVEs (published Jan–Sep 2026). Score = how many CISA adds to KEV by Nov 4, 2026. Official baselines: 6–8 hits.
 2. **Local exam:** the 2026 answer is secret, so we rebuilt the benchmark on 2024 and 2025 ("replicas": same cohort rule, signals at the snapshot, labels = KEV by Nov 4 of that year). **A** = train 2024 → test 2025 (the realistic forward test). **B** = train 2025 → test 2024 (robustness only). Numbers are hits at the scoreboard's selection rate (A top 243, B top 198, pooled top 441).
-3. **Results ladder (pooled, 75 positives):** CVSS 5 · EPSS 11 · exploit-then-EPSS 19 · LightGBM 23 · LightGBM + LR 26 · **XGBoost + LR (v4) 28** · v4 + Chen's LoRA ≈ 30. Random would get 0.5.
+3. **Results ladder (pooled, 75 positives):** CVSS 5 · EPSS 11 · exploit-then-EPSS 19 · LightGBM 23 · LightGBM + LR 26 · XGBoost + LR (v4) 28 · v4f (+ Granite filters) 27–30 · **final: XGBoost + both LRs + Chen's LoRA ≈ 32** (estimate). Random would get 0.5. Everything above 26 is statistically tied (§14.12).
 4. **What works:** pairing one tree model with one linear model (they disagree on 2/3 of their picks); capping CVEs per assigner per month (plateau for caps 3–8); the TF-IDF model trained on past KEV descriptions (best single feature, AUC 0.91); Chen's Granite 8B LoRA as a third voter.
 5. **What doesn't:** heavier models alone, CatBoost with the raw assigner (memorizes), TF-IDF trained on the cohort's own positives, more training years without exploit signals (§14.9), a post-hoc sibling boost, "assigner heat" features, Granite embeddings as a ranker, and leak columns as a ranker (2–5 hits).
 6. **The ceiling:** across every model, only 35 of 75 positives ever reach a top 441. The other 40 had no public exploit code and an ordinary EPSS at the snapshot. More data and bigger models don't find them; they look ordinary when published.
@@ -53,25 +53,33 @@ Luis's handoff document (folder `luis/`; paths below are relative to it unless t
 | Nested hyperparameter tuning (random search over XGBoost / LightGBM grids, ensemble weight and cap, all chosen inside the training year) | inner AP 0.026 → 0.103, but test 31 → 28–29 at density and AP 0.065 → 0.055; choices flip between A and B | rejected: keep defaults | §14.13 |
 | Bagged final (40 XGBoost seeds averaged) | A/B: bagged v4f 29 (runs 29–31); 2026: shares 491 of 500 with v4f | **adopted in `top500_final.csv`** | §14.12, §14.14 |
 | **Time-series model on the exploit signals** (Granite TimeSeries TTM / 1D RNN) | every CVE has exactly 1 signal month at prediction time (0 of 72,670 scoreboard and 0 of 87,215 2024–25 CVEs have earlier rows) | **not feasible per CVE**; aggregate version low value | §14.11 |
+| **Final recipe with Chen's 2026 files** (XGBoost 40 seeds + avg(Luis LR, Chen LR) + Chen LoRA 8B, filters, cap 3) | our A/B ≈ 32 (+4 to +20 vs baseline; −5 to +9 vs v4f, P(better) 0.66); Chen's CV 32 vs his best 33 (tie) | **adopted: `top500_final.csv`** | §14.15 |
+| Granite 4.2 **30B** LoRA as the LLM voter (Chen) | our A/B 28 vs 32 with the 8B; Chen's CV 29 vs 32 | rejected (8B stays) | §14.15 |
+| 8B LoRA with Granite 30B answers written into the prompt ("llmx", Chen) | our A/B 28; Chen's CV 29 | rejected | §14.15 |
+| LLM voter = average of LoRAs (8B + 30B, or + llmx) | 31 / 30 vs 32 | no gain; Chen has no 2026 30B scores anyway | §14.15 |
+| 4 voters (add the 30B LoRA as its own voter) | 32 = tie | not worth a 30B scoring run | §14.15 |
+| Chen's nested XGBoost tuning (60 settings, inner purged CV) | inner AP 0.05 → 0.08, held-out tie (24 hits each) | rejected, same as §14.13 | Chen §8.3 |
+| Chen's check of our recipe on his CV (proxies) | ours 32–33 vs his 33; filters +1..+2 on XGBoost ensembles, catch 1 of 75 positives | agree | Chen §8.5, §14.15 |
+| Voter-normalization sensitivity (how each voter is put on 0–1 before averaging) | same recipes move 27–32 just from that choice | write-up material: ±3 hits is implementation noise | §14.15 |
 
 ### Not tested yet / pending
 
 | Idea | Status / plan | Owner |
 |---|---|---|
-| **Chen's 2026 voters for the final** | needs `chen/submissions/lora8b_scoreboard_2026.parquet` (`cve_id, lora_score`) and `chen/submissions/lr_best_scoreboard_2026.parquet` (`cve_id, lr_score`), trained on Chen's H100 box; message in §14.14. Then re-run `final_build.py` | Chen → Luis |
+| LoRA seed averaging (Chen's pushback 3: the tree voter averages 40 seeds, the LLM voter is one run) | optional; 3–4 LoRA seeds rank-averaged, no selection, ~25 min on 3 free H100s. Expected hit gain ≈ 0, but a steadier top-500 boundary. Push as the same `lora8b_scoreboard_2026.parquet` (averaged ranks in `lora_score`) and Luis re-runs `final_build.py` | Chen (optional) |
 | Aggregate time series with Granite TimeSeries TTM (monthly KEV additions per vendor, forecast into 2026) | optional IBM demo for the write-up only; history is 50 months and very sparse per vendor; expected ranking gain ≈ 0 (§14.11) | optional |
-| Hedge the 2026 shift: in 2026 CVSS-first (7) beats EPSS-first (6), the opposite of our replicas (5 vs 11), and v4 uses no CVSS | built into `final_build.py`: Chen's CVSS-aware LR is averaged into the linear voter as soon as his file exists | Chen → Luis |
 | Weighted ensembles | deliberately not done (selection bias) | – |
-| Forward-only LoRA folds; Granite 30B LoRA | Chen running / to-do | Chen |
+| Forward-only LoRA folds (makes the "+LoRA" A/B numbers strictly forward) | Chen to-do; his forward LR check showed no inflation, so the bias is probably small | Chen |
 | Month quotas / time-left adjustment | Chen tested: neutral; not repeated here | – |
 | Write-up (columns-used table with the traffic light, leak demo, A/B + CV methodology, insights), video script | not started | team |
-| Hub Top 500 table from the final ranking | shows v4 now; update when final | Luis |
 
-### Recommendation (Nov 7, ~9 pm), based on the statistical review (§14.12–14.13)
+Done since the last version: Chen's 2026 voters are in the final; the hub's Top 500 table shows the final; Chen's LR is in the linear voter (as a harmless hedge, not because of a proven 2026 CVSS shift, see §14.15).
 
-1. **Stop optimizing for +1–2 hits.** With 75 positives the smallest detectable gap between similar models is ~5 hits; every ML ensemble is statistically tied with the best, and a proper nested grid search made things worse. More tuning would fit noise.
-2. **Pick the final ranking on principles:** v4f with many seeds averaged (stable), **plus Chen's LoRA 8B** (the only addition that survives Holm correction), and optionally Chen's CVSS-aware LR as a third voter to hedge the 2026 shift.
-3. **Spend the remaining time on the write-up and the video** (Discovery 35% + Communication 25%). The strongest material: the leak demo, the invisible positives and the 35/75 ceiling, "more data and bigger models don't find them", the vendor cap and Granite filters, the memorization probe, and this power analysis.
+### Recommendation (Nov 7, evening), based on the statistical review (§14.12–14.13) and Chen's 3rd push (§14.15)
+
+1. **Stop optimizing for +1–2 hits.** With 75 positives the smallest detectable gap between similar models is ~5 hits; every ML ensemble is statistically tied with the best, and a proper nested grid search made things worse (Chen's nested search agrees). More tuning would fit noise.
+2. **Submit `luis/submissions/top500_final.csv`.** It is the recipe both workstreams agreed on before seeing the last results (tree + linear + Granite LoRA, Granite filters, cap 3), so picking it is not a winner's-curse choice. It is also the best point estimate on our A/B (32) and within 1 hit of Chen's best on his CV.
+3. **Spend the remaining time on the write-up and the video** (Discovery 35% + Communication 25%). The strongest material: the leak demo, the invisible positives and the 35/75 ceiling, "more data and bigger models don't find them" (now including a Granite 30B LoRA), the vendor cap and Granite filters, the memorization probe, and this power analysis.
 4. **Expectation to state honestly:** about 12 hits on 2026 (80% interval 7–22) vs 8 for the best README baseline.
 
 ---
@@ -413,6 +421,7 @@ Full rankings: `derived/scored_2026_v0.csv`, `derived/scored_2026_v1.csv` (rank,
 - Run scripts with `python -E -P` (with `-I`, a broken system copy of matplotlib loads).
 - TensorFlow is installed, so set `USE_TF=0` (scripts set it).
 - Set `OMP_WAIT_POLICY=PASSIVE` when LightGBM and the GPU share a process (scripts set it).
+- If XGBoost warns "No visible GPU is found, setting device to CPU" while `nvidia-smi` sees the card, `CUDA_VISIBLE_DEVICES` is set to an empty string in that shell (it was in the VS Code session on Nov 7 evening). Unset it (`Remove-Item Env:CUDA_VISIBLE_DEVICES`) or set it to `0`. On CPU the scripts still run, ~4 s per XGBoost fit instead of ~1 s.
 - On a fresh Linux lab PC: `pip install lightgbm sentence-transformers transformers torch pandas scikit-learn matplotlib` is enough; vLLM is optional.
 
 **Run order (from the repo root; the IBM data stays unzipped at the repo root in `IBM-20261107T174321Z-1-001/IBM/data/data/` and is never committed):**
@@ -451,6 +460,7 @@ python -E -P luis/analysis/export_top500_json.py   # site/top500.json for the hu
 | Statistical review: seed variability, Holm tests, Romano–Wolf set, power, 2026 projection (§14.12) | `analysis/stats_review.py`, `reports/stats_review_seed_variability.csv`, `reports/stats_review_paired_tests.csv`, `reports/stats_review_best_set.csv`, `reports/stats_review_projection_2026.csv`, `reports/stats_review_log.txt` |
 | Nested hyperparameter tuning (§14.13) | `analysis/nested_tuning.py`, `reports/nested_tuning_choices.csv`, `reports/nested_tuning_results.csv`, `reports/nested_tuning_bootstrap.csv`, `reports/nested_tuning_log.txt` |
 | Final build: voters, filters, cap, sanity checks (§14.14) | `analysis/final_build.py`, `derived/xgb_bag_2026.parquet`, `derived/scored_2026_final.csv`, `submissions/top500_final.csv`, `reports/final_build_info.txt`, `reports/final_build_log.txt`, `reports/top500_final_explained.csv` |
+| Chen's 3rd push on our A/B: final recipe with his voters, LoRA 30B / llmx, normalization sensitivity (§14.15) | `analysis/chen_round3.py`, `reports/chen_round3.csv`, `reports/chen_round3_log.txt`, `derived/xgb_bag_ab.parquet` (cache); Chen's side: `chen/reports/lora_cv_compare.txt`, `chen/reports/xgb_compare.txt`, `chen/reports/luis_recipe_check.txt` |
 | Static prior from 2022–2024 cohorts (§14.9) | `analysis/static_prior.py`, `derived/static/static_cohort_{2022,2023,2024}.parquet`, `reports/static_prior_results.csv`, `reports/static_prior_bootstrap.csv`, `reports/static_prior_invisible.csv`, `reports/static_prior_log.txt` |
 | Granite 30B demotion filters, vendor caps, v4f (§14.10) | `analysis/postprocess.py`, `reports/postprocess_filters_check.csv`, `reports/postprocess_results.csv`, `reports/postprocess_bootstrap.csv`, `reports/postprocess_log.txt`, `derived/ab_scores_v4.parquet`, `derived/scored_2026_v4f.csv`, `submissions/top500_v4f.csv`, `reports/top500_v4f_explained.csv` |
 | Luis + Chen combined on the forward test, LoRA estimate (§14.8) | `analysis/team_merge.py`, `analysis/common.py`, `reports/team_merge_results.csv`, `reports/team_merge_bootstrap.csv`, `reports/team_merge_log.txt` |
@@ -763,12 +773,16 @@ To avoid tuning on the exam, the search runs **inside the training year only**: 
 | Voter | What | Status |
 |---|---|---|
 | tree | XGBoost big on Luis's features, **40 seeds averaged** (8 GPU runs × 5; cached in `derived/xgb_bag_2026.parquet`, ~7 min to rebuild) | in |
-| linear | Luis's LR (safe + Chen-lite features); **plus Chen's best LR averaged in** once `chen/submissions/lr_best_scoreboard_2026.parquet` exists (CVSS-aware hedge for the 2026 shift) | Luis's in; Chen's pending |
-| LLM | Chen's Granite 4.2 8B LoRA, once `chen/submissions/lora8b_scoreboard_2026.parquet` exists (only addition that survives Holm correction, §14.12) | pending |
+| linear | Luis's LR (safe + Chen-lite features) **averaged with Chen's best LR** (`chen/submissions/lr_best_scoreboard_2026.parquet`, `lr_full_llmx_noemb`, 100 features incl. CVSS and Granite 30B) | **in** (Nov 7, Chen's push `7d78aa0`) |
+| LLM | Chen's Granite 4.2 8B LoRA (`chen/submissions/lora8b_scoreboard_2026.parquet`, `cv_control` recipe trained on all 75,148 CVEs of 2024-01..2025-09) | **in** |
 
 Then the 4 Granite-30B demotion filters and a cap of 3 per assigner-month. Outputs: `submissions/top500_final.csv`, `derived/scored_2026_final.csv`, `reports/final_build_info.txt`, `reports/top500_final_explained.csv`, and the hub's `site/top500.json` (republish the hub after running).
 
-**Today's build** (no Chen voters yet): 500 unique CVEs, 222 with public exploit code, 11 Oracle, 0 Granite-demoted, 144 assigners, max 3 per assigner-month; month mix Jan 44 · Feb 39 · Mar 57 · Apr 51 · May 68 · Jul 110 · Aug 68 · Sep 63; **shares 491 of 500 with `top500_v4f.csv`** (bagging stabilizes the boundary). Expected on 2026: ~12 hits (80% 7–22) vs 8 for the best README baseline (§14.12).
+**Final build with Chen's files (Nov 7, evening; `reports/final_build_info.txt`):** 500 unique CVEs, all in `scoreboard_2026.csv`, one column `cve_id`; **276 with public exploit code** (was 222 before the LoRA: the LoRA leans on exploit code, mean score −2.5 with code vs −6.5 without); 17 Oracle; 0 Granite-demoted; 120 assigners; max 3 per assigner-month; month mix Jan 38 · Feb 35 · Mar 43 · Apr 52 · May 63 · Jul 118 · Aug 83 · Sep 68 (June CVEs are scored in July's snapshot); median EPSS 0.004. Top assigners: VulnCheck 24, MITRE 24, Microsoft 23, Apache 21, GitHub 21, Oracle 17, Chrome 16, Fortinet 16.
+- **It moved a lot:** shares 317 of 500 with the build before Chen's files and 318 with `top500_v4f.csv`. That's expected: the LoRA is the least correlated voter (Spearman 0.56 with the tree, 0.48 with the linear voter; tree vs linear 0.75).
+- Vs a Chen-style ranking (his LR + LoRA + our tree, no filters, no cap): 278 shared; the gap is mostly the filters and the cap.
+- No NaN in any voter; Chen's files have 72,670 unique rows each.
+- Expected on 2026: ~12 hits (80% 7–22) vs 8 for the best README baseline (§14.12). The previous build (no Chen voters) is reproduced by moving the two Chen files away and re-running.
 
 **Where to train the LoRA: Chen's box.** Luis's laptop has an 8 GB RTX 4070; a Granite 4.2 8B LoRA needs ~16 GB in bf16 (4-bit QLoRA with bitsandbytes on Windows is fragile and much slower), and Granite 4.2 needs transformers 5.x, which broke Luis's environment. Chen has 4× H100, a tested recipe (~11 min per training) and vLLM scoring.
 
@@ -803,6 +817,64 @@ git push origin main, and tell Luis. He then runs `python -E -P luis/analysis/fi
 (tree XGBoost 40 seeds + linear Luis LR & your LR + LLM your LoRA, equal weights, Granite filters,
 cap 3) -> luis/submissions/top500_final.csv with explanations, and updates the team hub.
 ```
+
+Chen delivered both files on Nov 7 (`7d78aa0`); no 30B file, because his 30B LoRA didn't beat the 8B (§14.15).
+
+### 14.15 Chen's 3rd push (Nov 7, ~8 pm): anything better? (`analysis/chen_round3.py`)
+
+**What came in** (`f4fbd4c`, `7d78aa0`, `87801ac`):
+- the two 2026 score files for the final (§14.14);
+- out-of-fold scores for a Granite 4.2 **30B** LoRA (`cv_lora30b_f*`) and for an 8B LoRA with Granite 30B's answers written into the prompt (`cv_llmx8b_f*`);
+- the OOF of his final LR (`cv_oof_lr.lr_full_llmx_noemb`);
+- a nested XGBoost tuning (`cv_xgb.parquet`, `xgb_tune_trials.csv`);
+- a review of our final recipe on his CV (`reports/luis_recipe_check.txt`);
+- a governance package (`chen/governance/`: model card, feature schema, drift table), useful for the write-up.
+
+**Chen's own conclusions** (his 5-fold purged CV, 75 Nov-4 positives, top 517):
+- the 30B LoRA alone gets 19 hits vs 25 for the 8B;
+- in his 3-model average, the 30B gives 29 vs 32 with the 8B; it has the best AP when paired with the LR (0.101) but fewer hits in the top;
+- llmx8b gives 29;
+- tuned XGBoost ties fixed XGBoost and LightGBM (24 each), even though inner AP roughly doubled.
+
+**Re-checked on our forward A/B** (pooled 2024 + 2025 Jan–Sep, top 441 of 64,120, 75 positives, KEV by Nov 4; Granite filters + cap 3 unless stated):
+- Luis's voters are forward: XGBoost big with 20 seeds (CPU this time, see §12) and the LR, both trained on the other year.
+- Chen's voters are his 5-fold OOF, so not strictly forward (his pushback 2), which makes them estimates.
+- Normalization follows `stats_review.py`: Luis's voters are ranked within each split, Chen's OOF over the pooled rows, then the sum is re-ranked within the snapshot month.
+
+| Recipe | Hits | 95% CI | vs exploit+EPSS | vs v4f | P(better than v4f) | AP |
+|---|---|---|---|---|---|---|
+| Exploit code, then EPSS (no cap) | 20 | 12–29 | – | −18 to −3 | 0.00 | 0.038 |
+| v4f (XGBoost + Luis LR) = the final without Chen's files | 30 | 20–41 | +3 to +18 | – | – | 0.070 |
+| **Final: XGBoost + avg(Luis LR, Chen LR) + LoRA 8B** | **32** | 21–43 | **+4 to +20** | −5 to +9 | **0.66** | 0.073 |
+| same, no Granite filters | 31 | 21–42 | +3 to +19 | −6 to +8 | 0.56 | 0.070 |
+| same, Luis LR only as linear | 30 | 20–42 | +3 to +19 | −5 to +7 | 0.52 | 0.071 |
+| same, Chen LR only as linear | 30 | 20–41 | +3 to +18 | −6 to +6 | 0.47 | 0.062 |
+| XGBoost + avg LR, no LLM | 28 | 19–39 | +2 to +15 | −6 to +2 | 0.10 | 0.077 |
+| LLM voter = LoRA 30B | 28 | 19–39 | +1 to +15 | −8 to +5 | 0.25 | 0.067 |
+| LLM voter = LoRA 8B + Granite answers (llmx) | 28 | 19–39 | +2 to +15 | −8 to +4 | 0.22 | 0.076 |
+| LLM voter = avg(8B, 30B) | 31 | 20–41 | +3 to +18 | −6 to +7 | 0.49 | 0.074 |
+| LLM voter = avg(8B, 30B, llmx) | 30 | 20–41 | +3 to +17 | −6 to +6 | 0.40 | 0.082 |
+| 4 voters: + LoRA 30B as its own voter | 32 | 21–43 | +4 to +20 | −5 to +9 | 0.63 | 0.074 |
+| Chen's own OOF LR + LoRA + LightGBM | 29 | 19–39 | +1 to +16 | −9 to +6 | 0.36 | 0.055 |
+
+**What it says:**
+- **The final recipe is the best point estimate (32) and needs nothing new.** It ties the 4-voter version. No single change is significant (every "vs v4f" interval contains 0), as the power analysis predicts (minimum detectable gap ≈ 5).
+- **Bigger LLM, worse voter.** The 30B LoRA ranks like the 8B overall (Spearman 0.69) but finds fewer positives in the top. This agrees with Chen's CV and with our finding that heavier models don't reach the invisible positives (§10). Write-up line: "a 30B fine-tune didn't beat an 8B one".
+- **The LoRA earns its place only next to both LRs:**
+  - XGBoost + avg LR without the LoRA = 28;
+  - with the LoRA = 32;
+  - with Luis's LR alone, the LoRA adds 0 (30 → 30).
+  So Chen's LR and his LoRA work as a pair, which matches his CV (LR + LoRA was his best 2-model pair).
+- **Granite filters:** +1 here (31 → 32). Chen's CV: +0..+2, catching 1 of 75 positives (CVE-2024-23692, Rejetto HFS). Kept.
+- **Sensitivity check, important for the write-up.** The same recipes were re-scored with the other two ways of putting voters on 0–1 (all per split; all within month). Final 32 / 31 / 27; v4f 30 / 30 / 29; 4 voters 32 / 32 / 30. Two or three hits move just from that implementation detail, CPU vs GPU XGBoost, or the seed count. That's also why our earlier "v4f + LoRA = 30, Holm p = 0.03" (§14.12) should be read as "consistently a few hits above the baseline", not as a precise number.
+
+**Chen's pushbacks (his §8.5), and our answers:**
+1. *"2026 rewards CVSS" isn't evidence of a shift* (7 vs 6 hits is noise). **Agreed.** The write-up must not call it a finding. His LR is in the final because it costs nothing and pairs well with the LoRA (above), not because of a shift.
+2. *The "+LoRA" A/B numbers are slightly optimistic* (OOF, not strictly forward). **Agreed;** they're marked "est." everywhere. His forward-only LR check found no inflation.
+3. *The LLM voter is a single run.* Valid. Optional LoRA seed averaging is in the pending table; it doesn't block submission.
+4. *Check the final's composition before submitting.* Done above: Oracle 17 (cap holds, at most 3 per month), WordPress and other Granite-demoted 0, month mix spans Jan–Sep, 120 assigners.
+
+**Decision:** submit `top500_final.csv` as built. Nothing in Chen's 3rd push beats it, and it's the recipe both of us signed off on before seeing these numbers.
 
 ## 15. Research sources
 

@@ -7,11 +7,11 @@ Team repo. Goal: rank the 72,670 CVEs in `scoreboard_2026.csv` so the top 500 co
 | Folder | Owner | Start with |
 |---|---|---|
 | [`luis/`](luis/) | Luis | [`luis/context_Luis.md`](luis/context_Luis.md) |
-| `chen/` | Chen (GPU box: Granite 30B/8B, LoRA, purged CV) | `chen/context_Chen.md` (to be pushed) |
+| [`chen/`](chen/) | Chen (GPU box: Granite 30B/8B, LoRA, purged CV) | [`chen/context_Chen.md`](chen/context_Chen.md) |
 | `<name>/` | other teammates | `<name>/context_<Name>.md` |
 
 - **Team hub** (Top 500 table, rules, data map, shared notes): https://claude.ai/artifact/Np2SfMguMKySJnBfvNfnjR
-- **Team submission candidate:** `luis/submissions/top500_final.csv`, built by `python -E -P luis/analysis/final_build.py` (XGBoost 40 seeds + LR, Granite-30B demotion filters, cap 3). When Chen pushes `chen/submissions/lora8b_scoreboard_2026.parquet` and `lr_best_scoreboard_2026.parquet`, re-running the same command adds his LoRA and LR as voters. See `luis/context_Luis.md` §14.14.
+- **Team submission:** `luis/submissions/top500_final.csv`, built by `python -E -P luis/analysis/final_build.py`. Equal-weight rank average of XGBoost (40 seeds), Luis's and Chen's LRs, and Chen's Granite 4.2 8B LoRA (from `chen/submissions/`), then Granite-30B demotion filters and a cap of 3 per assigner-month. Checked by both workstreams: `luis/context_Luis.md` §14.14–14.15 and `chen/context_Chen.md` §8.5.
 
 ## Data
 
