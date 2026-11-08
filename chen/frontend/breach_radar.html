@@ -2,7 +2,7 @@
 <html lang="en">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Breach Radar</title>
+<title>KEVexploit</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -258,6 +258,8 @@ table.t tr.hl td { background: var(--ibm-soft) }
 .co.card.sum .cv { font-size: 44px }
 .title, .heros, .region .rl { transition: opacity .35s }
 .zoomed .title, .zoomed .heros, .zoomed .region .rl { opacity: 0 }
+.zoomed.between .region:not(.focus), .zoomed.between .bub:not(.in), .zoomed.between .sat:not(.in) { opacity: 1 }
+.zoomed.between .region .rl { opacity: 1 }
 .hush .slide.on { z-index: 20 }
 .hush .bub.in, .hush .sat.in, .hush .edge.in, .hush .port.on { transition: opacity .12s !important }
 
@@ -833,7 +835,7 @@ table.t tr.hl td { background: var(--ibm-soft) }
     world.style.width = WB.w + "px"; world.style.height = WB.h + "px";
     var t = document.createElement("div"); t.className = "title";
     t.style.left = WB.title.x + "px"; t.style.top = WB.title.y + "px"; t.style.width = WB.title.w + "px";
-    t.innerHTML = '<div class="brand"><span class="dot"></span>Breach Radar <span class="t">Team DATACENTERS · Sheridan Datathon 2026 · IBM track</span></div><h1>72,670 new bugs.<br>Patch <em>these 500</em> first.</h1><p>We predict which 2026 vulnerabilities attackers will exploit, using only what was public the month each one came out. Press Start, or click any part of the machine.</p>';
+    t.innerHTML = '<div class="brand"><span class="dot"></span>KEVexploit <span class="t">Team DATACENTERS · Sheridan Datathon 2026 · IBM track</span></div><h1>72,670 new bugs.<br>Patch <em>these 500</em> first.</h1><p>We predict which 2026 vulnerabilities attackers will exploit, using only what was public the month each one came out. Press Start, or click any part of the machine.</p>';
     world.appendChild(t);
     var h = document.createElement("div"); h.className = "heros";
     h.style.left = WB.heros.x + "px"; h.style.top = WB.heros.y + "px"; h.style.width = WB.heros.w + "px";
@@ -1033,20 +1035,21 @@ table.t tr.hl td { background: var(--ibm-soft) }
     }
     f.duration = Math.min(1900, Math.max(800, Math.abs(S2) * 850)); return f;
   }
-  function fly(target, done) {
+  function fly(target, done, at) {   // at: optional [fraction, fn], fn runs once the flight is that far along
     if (anim) cancelAnimationFrame(anim);
     if (!cam || reduce) { cam = target; apply(cam); if (done) done(); return; }
     var f = interp(cam, target), t0 = performance.now();
     function tick(now) {
       var t = Math.min(1, (now - t0) / f.duration), e = t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
       cam = f(e); apply(cam);
+      if (at && t >= at[0]) { var fn = at[1]; at = null; fn(); }
       if (t < 1) anim = requestAnimationFrame(tick); else { anim = null; cam = target; apply(cam); if (done) done(); }
     }
     anim = requestAnimationFrame(tick);
   }
 
   /* ---------- navigation */
-  var idx = -1;
+  var idx = -1, goSeq = 0;
   var DEMO = PATH.length, locked = false;
   function targetFor(step) { return step === DEMO ? fitRect(R.demo, 1, 0) : step < 0 ? fitRect({ x: 0, y: 0, w: WB.w, h: WB.h }, 1.02, 64) : fitRect(R[PATH[step]], 1.03, 64); }
   function setLocked(on) { locked = on; document.body.classList.toggle("locked", on); if (!on) document.body.classList.remove("landed"); }
@@ -1055,11 +1058,33 @@ table.t tr.hl td { background: var(--ibm-soft) }
     var id = step >= 0 && step < DEMO ? PATH[step] : null;
     setLocked(step === DEMO);
     world.querySelectorAll(".slide, .slidebg").forEach(function (n) { if (n.closeDetails) n.closeDetails(); n.classList.remove("on"); });
-    world.querySelectorAll(".region").forEach(function (n) { n.classList.toggle("focus", n.getAttribute("data-r") === id); });
+    var from = focusId, seq = ++goSeq; world.classList.remove("between");
+    function land() { if (seq !== goSeq) return; if (leaving) { leaving = null; place(); } if (step === DEMO && idx === DEMO) document.body.classList.add("landed"); if (id) { world.querySelectorAll('[data-s="' + id + '"]').forEach(function (n) { n.classList.add("on"); }); if (!portrait) ports.forEach(function (pt) { if (pt.s.id === id) pt.el.classList.add("on"); }); world.querySelectorAll(".edge.wait").forEach(function (e) { e.classList.remove("wait"); e.classList.add("ext-shown"); }); var n = world.querySelector('.slide[data-s="' + id + '"]'); if (n) { n.tabIndex = -1; n.focus({ preventScroll: true }); } } }
+    function focusOn() { world.querySelectorAll(".region").forEach(function (n) { n.classList.toggle("focus", n.getAttribute("data-r") === id); }); }
     world.querySelectorAll(".edge.ext-shown").forEach(function (e) { e.classList.remove("ext-shown"); });
-    leaving = focusId && id && focusId !== id ? focusId : null;
-    focusId = id; world.classList.toggle("zoomed", !!id); place();   // bubbles start shrinking into the slide while the camera flies
-    fly(targetFor(step), function () { if (leaving) { leaving = null; place(); } if (step === DEMO && idx === DEMO) document.body.classList.add("landed"); if (id) { world.querySelectorAll('[data-s="' + id + '"]').forEach(function (n) { n.classList.add("on"); }); if (!portrait) ports.forEach(function (pt) { if (pt.s.id === id) pt.el.classList.add("on"); }); world.querySelectorAll(".edge.wait").forEach(function (e) { e.classList.remove("wait"); e.classList.add("ext-shown"); }); var n = world.querySelector('.slide[data-s="' + id + '"]'); if (n) { n.tabIndex = -1; n.focus({ preventScroll: true }); } } });
+    if (from && id && from !== id && !reduce && !portrait) {
+      /* slide -> slide in three beats: (1) this slide unfolds back into the overview's big nodes with every wire showing,
+         (2) the camera travels along those wires, (3) the next slide's nodes fold into its layout, then its panel fades in */
+      leaving = null; focusId = null; world.classList.add("between"); place();
+      /* the beats overlap: the camera leaves while the nodes are still unfolding, and the next slide starts folding
+         in for the last part of the flight, so the whole move takes little longer than the flight itself */
+      var folded = 0, foldIn = function () {
+        if (seq !== goSeq) return;
+        world.classList.remove("between"); focusId = id; focusOn(); place(); folded = Date.now();
+      };
+      setTimeout(function () {
+        if (seq !== goSeq) return;
+        fly(targetFor(step), function () {
+          if (seq !== goSeq) return;
+          if (!folded) foldIn();
+          setTimeout(land, Math.max(0, 450 - (Date.now() - folded)));
+        }, [.55, foldIn]);
+      }, 300);
+    } else {
+      focusOn(); leaving = from && id && from !== id ? from : null;
+      focusId = id; world.classList.toggle("zoomed", !!id); place();   // bubbles start shrinking into the slide while the camera flies
+      fly(targetFor(step), land);
+    }
     $("#where").innerHTML = id ? "<b>" + (step + 1) + " / " + PATH.length + "</b>" + esc(byId[id].t) : step === DEMO ? "Demo" : "Overview";
     $("#play").textContent = step < 0 ? "Start the tour" : step === DEMO - 1 ? "Try it →" : "Next";
     $("#prog").style.width = (100 * (step + 1) / PATH.length) + "%";
@@ -1072,8 +1097,14 @@ table.t tr.hl td { background: var(--ibm-soft) }
   $("#demoBtn").addEventListener("click", function () { go(DEMO); });
   $("#demoCatch").addEventListener("click", function (e) { e.stopPropagation(); go(DEMO); });
   stage.addEventListener("click", function () { if (idx >= 0 && !locked) go(-1); });
+  function setTheme(t) {   // one theme for the whole page: the demo's toggle drives it, remembered under the demo's key
+    if (t !== "light" && t !== "dark") return;
+    document.documentElement.setAttribute("data-theme", t); try { localStorage.setItem("br-theme", t); } catch (e) {}
+  }
+  try { var t0 = localStorage.getItem("br-theme"); if (t0) document.documentElement.setAttribute("data-theme", t0); } catch (e) {}
   window.addEventListener("message", function (e) {   // from the demo page (scan.html)
     var m = e.data || {}; if (!m.kevcast) return;
+    if (m.theme) { setTheme(m.theme); return; }
     if (m.tour) go(-1);
     else if (m.go && PATH.indexOf(m.go) >= 0) go(PATH.indexOf(m.go));
   });

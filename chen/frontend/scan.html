@@ -1,11 +1,11 @@
 <meta charset="utf-8">
-<title>Repo Scan</title>
+<title>KEVexploit · Repo Scan</title>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@75..100,500..800&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600;700&display=swap">
 <style>
-/* Breach Radar repo scanner. Visual language from our chen/frontend/breach_radar.html (tokens in the SKIN block). Every scan step is a step of the same
+/* KEVexploit repo scanner. Visual language from our chen/frontend/breach_radar.html (tokens in the SKIN block). Every scan step is a step of the same
    pipeline that builds the Top 500 (final_build.py), pointed at one repo's dependencies instead of the scoreboard. */
 :root {
   --bg-deep: #020203; --surface: #111118; --surface-2: #181821; --surface-3: #22222e;
@@ -442,7 +442,7 @@ footer { border-top-color: var(--line); color: var(--muted); }
 
 <div id="splash" aria-hidden="true"><div class="sp-in">
   <svg class="ibm-mark" id="splash-mark" viewBox="0 0 300 120"></svg>
-  <div class="sp-sub"><svg class="logo-mark" width="34" height="34" viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="14.5" style="fill:var(--panel);stroke:var(--ink)" stroke-width="1.5"/><circle cx="16" cy="16" r="9.5" fill="none" style="stroke:var(--ink)" stroke-opacity=".35"/><circle cx="16" cy="16" r="4.5" fill="none" style="stroke:var(--ink)" stroke-opacity=".25"/><path class="lm-sweep" d="M16 16 L16 1.5 A14.5 14.5 0 0 1 28.6 8.8 Z" style="fill:var(--ibm)" fill-opacity=".45"/><circle cx="22.5" cy="10" r="2.4" style="fill:var(--alert)"/><circle cx="16" cy="16" r="1.6" style="fill:var(--ink)"/></svg><b>Breach <em>Radar</em></b></div>
+  <div class="sp-sub"><svg class="logo-mark" width="34" height="34" viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="14.5" style="fill:var(--panel);stroke:var(--ink)" stroke-width="1.5"/><circle cx="16" cy="16" r="9.5" fill="none" style="stroke:var(--ink)" stroke-opacity=".35"/><circle cx="16" cy="16" r="4.5" fill="none" style="stroke:var(--ink)" stroke-opacity=".25"/><path class="lm-sweep" d="M16 16 L16 1.5 A14.5 14.5 0 0 1 28.6 8.8 Z" style="fill:var(--ibm)" fill-opacity=".45"/><circle cx="22.5" cy="10" r="2.4" style="fill:var(--alert)"/><circle cx="16" cy="16" r="1.6" style="fill:var(--ink)"/></svg><b>KEV<em>exploit</em></b></div>
   <div class="sp-line"></div>
   <div class="sp-tag">IBM track · Before the Breach · threat scan</div>
 </div></div>
@@ -452,7 +452,7 @@ footer { border-top-color: var(--line); color: var(--muted); }
 <div class="grid-bg" aria-hidden="true"></div>
 
 <header class="bar"><div class="wrap bar-in">
-  <div class="brand"><svg class="logo-mark" width="28" height="28" viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="14.5" style="fill:var(--panel);stroke:var(--ink)" stroke-width="1.5"/><circle cx="16" cy="16" r="9.5" fill="none" style="stroke:var(--ink)" stroke-opacity=".35"/><circle cx="16" cy="16" r="4.5" fill="none" style="stroke:var(--ink)" stroke-opacity=".25"/><path class="lm-sweep" d="M16 16 L16 1.5 A14.5 14.5 0 0 1 28.6 8.8 Z" style="fill:var(--ibm)" fill-opacity=".45"/><circle cx="22.5" cy="10" r="2.4" style="fill:var(--alert)"/><circle cx="16" cy="16" r="1.6" style="fill:var(--ink)"/></svg><b>Breach <em>Radar</em></b><span class="x-sep">×</span><svg class="ibm-mark" id="hdr-mark" width="52" height="21" viewBox="0 0 300 120" role="img" aria-label="IBM"></svg></div>
+  <div class="brand"><svg class="logo-mark" width="28" height="28" viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="14.5" style="fill:var(--panel);stroke:var(--ink)" stroke-width="1.5"/><circle cx="16" cy="16" r="9.5" fill="none" style="stroke:var(--ink)" stroke-opacity=".35"/><circle cx="16" cy="16" r="4.5" fill="none" style="stroke:var(--ink)" stroke-opacity=".25"/><path class="lm-sweep" d="M16 16 L16 1.5 A14.5 14.5 0 0 1 28.6 8.8 Z" style="fill:var(--ibm)" fill-opacity=".45"/><circle cx="22.5" cy="10" r="2.4" style="fill:var(--alert)"/><circle cx="16" cy="16" r="1.6" style="fill:var(--ink)"/></svg><b>KEV<em>exploit</em></b><span class="x-sep">×</span><svg class="ibm-mark" id="hdr-mark" width="52" height="21" viewBox="0 0 300 120" role="img" aria-label="IBM"></svg></div>
   <nav class="nav"><a href="#" data-tour>The model</a><a href="#scan">Scan a repo</a><button type="button" id="theme-btn" aria-label="Toggle light or dark theme">◐</button></nav>
 </div></header>
 
@@ -581,7 +581,9 @@ footer { border-top-color: var(--line); color: var(--muted); }
     document.getElementById("theme-btn").addEventListener("click", function () {
       var cur = root.getAttribute("data-theme") || (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"), next = cur === "dark" ? "light" : "dark";
       root.setAttribute("data-theme", next); try { localStorage.setItem(key, next); } catch (e) {}
+      if (window.parent !== window) window.parent.postMessage({ kevcast: 1, theme: next }, "*");   /* the deck around us follows */
     });
+    window.addEventListener("message", function (e) { var m = e.data || {}; if (m.kevcast && m.setTheme) root.setAttribute("data-theme", m.setTheme); });
   })();
   ibmMark(document.getElementById("splash-mark"), "s");
   ibmMark(document.getElementById("hdr-mark"), "h");
@@ -777,8 +779,9 @@ footer { border-top-color: var(--line); color: var(--muted); }
 
   /* overlay walkthrough: each step stays up at least MIN_MS so it can be read; the last step holds until the API answers */
   var MIN_MS = 2200, ovTimer = null, ovIdx = 0, ovSteps = [];
+  var MODEL_MS = 1800, ovShownAt = 0;   /* the "score with the model" step always stays up this long, even when the scan is quick */
   function showStep(i) {
-    ovIdx = i; var s = ovSteps[i];
+    ovIdx = i; ovShownAt = Date.now(); var s = ovSteps[i];
     $("#ov-stage").innerHTML = '<div class="fade-in"><div class="ov-icon" style="' + tint(s.c) + '">' + svg(s.icon, 56) + '</div>' +
       '<div class="ov-count">STEP ' + (i + 1) + " OF " + ovSteps.length + '</div><h2 class="ov-title">' + esc(s.big) + '</h2><p class="ov-text">' + esc(s.text) + "</p>" +
       '<div class="ov-file"><i></i>' + esc(s.file) + " · pipeline stage: " + esc(s.layer) + "</div></div>";
@@ -801,7 +804,8 @@ footer { border-top-color: var(--line); color: var(--muted); }
       setTimeout(function () { var ov = $("#overlay"); ov.classList.remove("on"); setTimeout(function () { ov.style.display = "none"; done(); }, 600); }, 450);
     };
     /* walk the remaining steps quickly so nothing is skipped silently */
-    (function next() { if (ovIdx < ovSteps.length - 1) { showStep(ovIdx + 1); setTimeout(next, 500); } else finish(); })();
+    function hold() { return ovSteps[ovIdx].icon === "brain" ? Math.max(0, MODEL_MS - (Date.now() - ovShownAt)) : 0; }
+    (function next() { if (ovIdx < ovSteps.length - 1) { showStep(ovIdx + 1); setTimeout(next, Math.max(500, hold())); } else setTimeout(finish, hold()); })();
   }
 
   /* ===== In-browser scan engine (replaces the Python server). Scores come from scan_data/: the final Top-500 model
