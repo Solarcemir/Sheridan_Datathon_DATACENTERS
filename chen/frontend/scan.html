@@ -63,6 +63,7 @@ header.bar { padding: 14px 0; border-bottom: 1px solid var(--line); backdrop-fil
 
 /* how-it-works strip */
 .section-title { display: flex; align-items: baseline; gap: 12px; margin: 46px 0 14px; flex-wrap: wrap; }
+.section-title { scroll-margin-top: 92px; }   /* header links (#replay, #scan) stop below the sticky header */
 .section-title h2 { font-size: 1.35rem; font-weight: 400; }
 .section-title p { color: var(--text-3); font-size: .82rem; }
 .steps { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; position: relative; }
@@ -635,7 +636,9 @@ footer { border-top-color: var(--line); color: var(--muted); }
       root.setAttribute("data-theme", next); try { localStorage.setItem(key, next); } catch (e) {}
       if (window.parent !== window) window.parent.postMessage({ kevcast: 1, theme: next }, "*");   /* the deck around us follows */
     });
-    window.addEventListener("message", function (e) { var m = e.data || {}; if (m.kevcast && m.setTheme) root.setAttribute("data-theme", m.setTheme); });
+    window.addEventListener("message", function (e) { var m = e.data || {}; if (m.kevcast && m.setTheme) root.setAttribute("data-theme", m.setTheme);
+      if (m.kevcast && m.scrollTo) { var el = document.getElementById(m.scrollTo), hb = document.querySelector("header.bar");   // the deck's pitch mode lands here
+        if (el) window.scrollTo(0, el.getBoundingClientRect().top + scrollY - (hb ? hb.offsetHeight : 0) - 16); } });
   })();
   ibmMark(document.getElementById("splash-mark"), "s");
   ibmMark(document.getElementById("hdr-mark"), "h");
